@@ -1,0 +1,28 @@
+{
+  "bundle": "nvidia/domino_drivaerml/domino_drivaerml_surface_checkpoint",
+  "source_url": "https://huggingface.co/nvidia/domino_drivaerml/tree/main/domino_drivaerml_surface_checkpoint",
+  "workflow_url": "https://github.com/NVIDIA/physicsnemo-cfd/tree/main/workflows/domino_design_sensitivities",
+  "required": [
+    {
+      "path": "DoMINO.0.501.mdlus",
+      "purpose": "Self-describing model architecture and weights",
+      "sha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b"
+    },
+    {
+      "path": "scaling_factors.pkl",
+      "purpose": "Training-time field scaling used to recover physical units",
+      "sha256": "895b876ab7a2f32b4c714e4eafc7b2e7d94029e037bfc2950cf8c6cb2a818c2d"
+    },
+    {
+      "path": "config.yaml",
+      "purpose": "Training-domain bounding boxes required by inference",
+      "sha256": "43a3e7360e319b239d3d946aa04e3ac310dde1b20f7eb71be38943dd3bb27202"
+    }
+  ],
+  "optional": [
+    {
+      "path": "global_stats.json",
+      "purpose": "Reference training statistics; not read by inference"
+    }
+  ]
+}

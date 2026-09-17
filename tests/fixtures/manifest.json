@@ -1,0 +1,7 @@
+{
+  "required": [
+    {"path": "model.mdlus", "purpose": "weights", "sha256": null},
+    {"path": "scaling.pkl", "purpose": "scaler", "sha256": null}
+  ]
+}
+

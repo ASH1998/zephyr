@@ -1,0 +1,6 @@
+{
+  "required": [
+    {"path": "model.mdlus", "purpose": "weights", "sha256": null}
+  ]
+}
+

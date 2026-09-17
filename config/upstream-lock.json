@@ -1,0 +1,9 @@
+{
+  "physicsnemo_cfd": {
+    "repository": "https://github.com/NVIDIA/physicsnemo-cfd.git",
+    "commit": "0612ec4ed54484a47bfa134eda7b3b012a607624",
+    "workflow_path": "workflows/domino_design_sensitivities",
+    "resolved_at": "2026-09-17"
+  }
+}
+
