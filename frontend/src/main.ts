@@ -4,17 +4,27 @@ import type { ViewMode } from './data';
 import { FlowScene } from './scene';
 import { VehicleDemoAdapter } from './vehicle';
 import { vehicleCatalog } from './vehicle-catalog';
+import { storyStages, sourceLabel, resultSummary, assertStoryEvent } from './run-story';
+import type { RunStoryEvent } from './run-story';
 
 const lock = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="6" y="10" width="12" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>';
 const app = document.querySelector<HTMLDivElement>('#app')!;
 app.innerHTML = `
 <header class="topbar"><a class="brand" href="./" aria-label="Zephyr home"><svg viewBox="0 0 48 38" fill="none" aria-hidden="true"><path d="M5 10C16 4 25 4 41 8C31 15 19 22 7 29C20 25 31 29 43 27" stroke="currentColor" stroke-width="2.3"/><path d="M7 15C19 10 28 10 36 11M14 29C25 34 34 32 41 32" stroke="currentColor" opacity=".4"/></svg><span>ZEPHYR<small>Shape the flow.</small></span></a><div class="project-name"><span class="dot"></span> AERODYNAMIC DESIGN WORKSPACE <span class="slash">/</span> Z–01</div><button class="quiet" id="evidence">Evidence & provenance ↗</button></header>
-<div class="truth-banner" id="truth"><span class="truth-dot"></span><strong>Illustrative preview — not CFD</strong><span>All fields and values are demo data. No model has been executed.</span></div>
 <main class="workspace">
   <section class="viewport" aria-label="Vehicle design viewer">
     <div class="intro"><p class="eyebrow">SMALL CHANGES. LESS RESISTANCE.</p><h1>You can’t see the air<br>holding this car back.<br><em>Zephyr can.</em></h1><p class="subcopy">Explore a shape. Protect what matters.<br>Earn every improvement.</p></div>
-    <div class="view-tools" role="group" aria-label="Surface view"><button data-mode="airflow" class="active" aria-pressed="true">Airflow</button><button data-mode="pressure" aria-pressed="false">Pressure</button><button data-mode="sensitivity" aria-pressed="false">Sensitivity</button><button data-mode="mesh" aria-pressed="false">Mesh</button></div>
+    <div class="view-tools" role="group" aria-label="Surface view"><button data-mode="airflow" class="active" aria-pressed="true">Airflow</button><button data-mode="pressure" aria-pressed="false">Pressure</button><button data-mode="sensitivity" aria-pressed="false">Sensitivity</button><button data-mode="displacement" aria-pressed="false">Change</button><button data-mode="mesh" aria-pressed="false">Mesh</button></div>
+    <section class="run-story" id="run-story" hidden aria-label="Run presentation">
+      <div class="story-meta"><span id="story-source"></span><span id="story-count"></span></div>
+      <div id="story-narration" role="status" aria-live="polite"><h2 id="story-title"></h2><p id="story-detail"></p></div>
+      <div id="story-result" hidden><span id="result-label"></span><div class="result-numbers"><span id="result-before"></span><span class="result-arrow">→</span><strong id="result-after"></strong><b id="result-delta"></b></div></div>
+      <ol class="story-progress" aria-label="Run stages">${storyStages.map(stage => `<li data-story-stage="${stage.id}"><span></span>${({intent:'Lock',sensitivity:'Find',candidate:'Change',validate:'Check',evaluate:'Compare'})[stage.id]}</li>`).join('')}</ol>
+      <div class="result-controls" hidden><button id="show-baseline" aria-pressed="false">01 Baseline</button><button id="show-candidate" aria-pressed="true">02 Candidate + change map</button><span id="result-scale">Shape ×24 · field in actual mm</span></div>
+    </section>
     <div id="scene"></div>
+    <div class="rear-callout" hidden><strong>REAR TAPER CHANGED</strong><span id="rear-displacement"></span><small>Cabin 0.00 mm · unchanged</small><small>Cyan outline = original rear</small></div>
+    <div class="wake-key" hidden><span><i></i>Baseline wake</span><span><i></i>Candidate wake</span><small>Illustrative flow comparison</small></div>
     <div class="cabin-label">${lock}<span>CABIN PROTECTED<small>0.00 mm displacement</small></span></div>
     <div class="flow-label"><span>→</span><div>32 m/s <small>ILLUSTRATIVE FLOW</small></div></div>
     <div class="legend" id="legend"><span class="legend-line"></span><span>Analytic streamlines · illustrative wake</span></div>
@@ -23,13 +33,13 @@ app.innerHTML = `
   </section>
   <aside class="control-panel" aria-label="Design controls">
     <label class="vehicle-picker" for="vehicle">GEOMETRY<select id="vehicle">${vehicleCatalog.map(vehicle => `<option value="${vehicle.id}" ${vehicle.available ? '' : 'disabled'}>${vehicle.label}${vehicle.available ? '' : ' · unavailable'}</option>`).join('')}</select></label>
-    <div class="panel-heading"><span class="eyebrow">DESIGN INTENT</span><span class="session">SESSION 001</span></div>
+    <div class="panel-heading"><span class="eyebrow">DESIGN INTENT</span><span class="session" id="run-source">DEMO</span></div>
     <label class="brief-label" for="brief">What should change?</label><textarea id="brief" rows="3" spellcheck="false">Reduce drag. Keep the cabin unchanged.</textarea>
     <div class="constraint"><span>${lock} Protected cabin</span><strong>LOCKED</strong></div>
     <div class="budget-heading"><label for="budget">Displacement budget</label><output id="budget-value">3.6 <small>mm</small></output></div><input id="budget" type="range" min="1" max="4" step="0.2" value="3.6"/><div class="range-labels"><span>1 mm</span><span>Hard limit · 4 mm</span></div>
     <button id="iterate" class="primary">Run bounded iteration <span>↗</span></button>
     <div class="sequence-heading"><span class="eyebrow">THE TRUST LOOP</span><span class="demo-tag">DEMO</span></div>
-    <ol class="steps"><li data-step="0"><span>01</span><div>Intent & constraints<small>Protect cabin · allow rear taper</small></div><b>—</b></li><li data-step="1"><span>02</span><div>Surface sensitivity<small>Project onto permitted regions</small></div><b>—</b></li><li data-step="2"><span>03</span><div>Geometry validation<small>Fixed topology · bounded step</small></div><b>—</b></li><li data-step="3"><span>04</span><div>Fresh evaluation<small>Compare predicted & new result</small></div><b>—</b></li><li data-step="4"><span>05</span><div>Accept, shrink or refuse<small>Enforce the trust boundary</small></div><b>—</b></li></ol>
+    <ol class="steps"><li data-step="0"><span>01</span><div>Intent & constraints<small>Protect cabin · allow rear taper</small></div><b>—</b></li><li data-step="1"><span>02</span><div>Surface sensitivity<small>Project onto permitted regions</small></div><b>—</b></li><li data-step="2"><span>03</span><div>Create candidate<small>Move only allowed surfaces</small></div><b>—</b></li><li data-step="3"><span>04</span><div>Check constraints<small>Same connections · fixed cabin</small></div><b>—</b></li><li data-step="4"><span>05</span><div>Evaluate & decide<small>Compare drag · enforce trust</small></div><b>—</b></li></ol>
     <div class="decision" id="decision" role="status" aria-live="polite"><span class="decision-icon">◎</span><div><strong id="decision-title">Ready for a bounded step</strong><p id="decision-copy">The cabin stays fixed. Only permitted surfaces can change.</p></div></div>
     <button id="refuse" class="boundary">Test trust boundary <span>12 mm ↗</span></button>
     <p class="signature">It stops when it stops being trustworthy.</p>
@@ -46,8 +56,7 @@ dialog.addEventListener('click', e => { if (e.target === dialog) { const r = dia
 async function start() {
   const endpoint = new URLSearchParams(location.search).get('run');
   app.classList.add('is-loading');
-  const initialTruth = $('#truth').innerHTML;
-  $('#truth').textContent = endpoint ? 'Loading supplied run — no result displayed' : 'Loading licensed vehicle · illustrative preview, not CFD';
+  $('#run-source').textContent = 'LOADING';
   const pendingControls = [...document.querySelectorAll<HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement>('.workspace button, .workspace input, .workspace textarea, .workspace select')];
   pendingControls.forEach(control => control.disabled = true);
   // Real runs are opt-in; a failed fetch/schema never substitutes demo data.
@@ -55,14 +64,13 @@ async function start() {
   let run = await (endpoint ? new HttpRunAdapter(endpoint) : demoAdapter).load();
   const seedRun = structuredClone(run);
   pendingControls.forEach(control => control.disabled = false);
-  $('#truth').innerHTML = initialTruth;
+  $('#run-source').textContent = run.source === 'illustrative' ? 'DEMO' : `${run.source.toUpperCase()} SURROGATE`;
   const real = run.source !== 'illustrative';
   if (real) {
     $('#vehicle').replaceChildren(new Option('Supplied run geometry', 'recorded'));
     $('#vehicle').setAttribute('disabled', '');
-    $('#truth').textContent = `${run.source === 'recorded' ? 'Recorded' : 'Live'} surrogate run — not independent CFD · ${run.runId}`;
     $('#iterate').setAttribute('disabled', ''); $('#refuse').setAttribute('disabled', ''); $('#budget').setAttribute('disabled', ''); $('#brief').setAttribute('disabled', '');
-    $('.demo-tag').textContent = 'REPLAY'; $('.metric-main .eyebrow b').textContent = 'SURROGATE';
+    $('.demo-tag').textContent = run.source.toUpperCase(); $('.metric-main .eyebrow b').textContent = 'SURROGATE';
     $('.metric-main p').textContent = 'Recorded baseline vs candidate · surrogate output';
     $('.flow-label').style.display = 'none'; $('[data-mode="airflow"]').setAttribute('disabled', '');
     $('#magnify').removeAttribute('checked');
@@ -70,19 +78,25 @@ async function start() {
   let scene: FlowScene;
   try { scene = new FlowScene($('#scene'), run, demoAdapter.asset); } catch (error) { throw new Error(`3D viewer unavailable. WebGL2 is required. ${error instanceof Error ? error.message : ''}`); }
   app.classList.remove('is-loading');
+  let storyComplete = false;
   const mode = (value: ViewMode) => {
     scene.setMode(value);
     $('.flow-label').hidden = value !== 'airflow' || real;
     document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(b => { const active = b.dataset.mode === value; b.classList.toggle('active', active); b.setAttribute('aria-pressed', String(active)); });
     const [pLo, pHi] = fieldRange(run.baseline.pressurePa), [cLo, cHi] = fieldRange(run.candidate.pressurePa), [sLo, sHi] = fieldRange(run.baseline.normalSensitivity);
-    const labels = { airflow: '<span class="legend-line"></span>Analytic streamlines · illustrative wake', pressure: `<span class="color-scale pressure"></span>Pressure · ${Math.min(pLo, cLo).toFixed(0)} to ${Math.max(pHi, cHi).toFixed(0)} Pa`, sensitivity: `<span class="color-scale sensitivity"></span>Normal sensitivity · ${sLo.toFixed(0)} to ${sHi.toFixed(0)} N/m · signed normal arrows`, mesh: `<span class="legend-line"></span>Fixed topology · ${(run.baseline.positions.length / 3).toLocaleString()} vertices · ${(run.baseline.triangles.length / 3).toLocaleString()} triangles` };
+    const labels = { airflow: '<span class="legend-line"></span>Analytic streamlines · illustrative wake', pressure: `<span class="color-scale pressure"></span>Pressure · ${Math.min(pLo, cLo).toFixed(0)} to ${Math.max(pHi, cHi).toFixed(0)} Pa`, sensitivity: `<span class="color-scale sensitivity"></span>Normal sensitivity · ${sLo.toFixed(0)} to ${sHi.toFixed(0)} N/m · signed normal arrows`, displacement: `<span class="color-scale displacement"></span>Actual movement · 0 to ${(fieldRange(run.candidate.displacementM)[1] * 1000).toFixed(1)} mm · gray cabin locked`, mesh: `<span class="legend-line"></span>Fixed topology · ${(run.baseline.positions.length / 3).toLocaleString()} vertices · ${(run.baseline.triangles.length / 3).toLocaleString()} triangles` };
     $('#legend').innerHTML = labels[value] + (value !== 'airflow' ? (real ? ' · recorded field' : ' · demo field') : '');
   };
-  document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(b => b.onclick = () => mode(b.dataset.mode as ViewMode));
+  document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(b => b.onclick = () => {
+    const value = b.dataset.mode as ViewMode; mode(value);
+    if (storyComplete) { const comparing = value === 'displacement' || value === 'airflow'; scene.setStory(comparing ? 'result' : undefined); $('.rear-callout').hidden = $('.wake-key').hidden = !comparing; }
+  });
   const compare = $<HTMLInputElement>('#compare');
   const setBlend = (v: number) => { compare.value = String(v); scene.setBlend(v / 100); $('#compare-status').textContent = v === 0 ? 'Baseline geometry' : v === 100 ? 'Candidate geometry' : `Comparison · ${v}% candidate`; };
-  compare.oninput = () => setBlend(+compare.value);
-  $<HTMLInputElement>('#magnify').onchange = e => { const on = (e.target as HTMLInputElement).checked; scene.setMagnified(on); $('#scale-caption').textContent = `${on ? 'Actual maximum' : 'True-scale geometry'}: ${(Math.max(...run.candidate.displacementM) * 1000).toFixed(1)} mm`; };
+  compare.oninput = () => { setBlend(+compare.value); if (storyComplete) $('.rear-callout').hidden = +compare.value === 0; $('#show-baseline').setAttribute('aria-pressed', String(+compare.value === 0)); $('#show-candidate').setAttribute('aria-pressed', String(+compare.value === 100)); };
+  $('#show-baseline').onclick = () => { setBlend(0); $('.rear-callout').hidden = true; $('#show-baseline').setAttribute('aria-pressed', 'true'); $('#show-candidate').setAttribute('aria-pressed', 'false'); };
+  $('#show-candidate').onclick = () => { mode('displacement'); scene.setStory('result'); setBlend(100); $('.rear-callout').hidden = $('.wake-key').hidden = false; $('#show-baseline').setAttribute('aria-pressed', 'false'); $('#show-candidate').setAttribute('aria-pressed', 'true'); };
+  $<HTMLInputElement>('#magnify').onchange = e => { const on = (e.target as HTMLInputElement).checked; scene.setMagnified(on); $('#result-scale').textContent = on ? 'Shape ×24 · field in actual mm' : 'True-scale shape · field in actual mm'; $('#scale-caption').textContent = `${on ? 'Actual maximum' : 'True-scale geometry'}: ${(Math.max(...run.candidate.displacementM) * 1000).toFixed(1)} mm`; };
   $('#camera').onclick = () => scene.resetCamera();
   let paused = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const motion = $('#motion');
@@ -112,55 +126,79 @@ async function start() {
     run.provenance.evidenceUrls.forEach((url, i) => row(`Evidence ${i + 1}`, url));
   }
   $('#export').onclick = () => { const url = URL.createObjectURL(new Blob([JSON.stringify(run)], { type: 'application/json' })); const a = document.createElement('a'); a.href = url; a.download = `${run.runId.replace(/[^a-z0-9_-]/gi, '_')}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
+  // This renderer accepts explicit stage events. The timer below is ONLY the offline
+  // walkthrough driver; a backend integration must replace it with actual events.
+  function present(event: RunStoryEvent) {
+    assertStoryEvent(run, event);
+    const stageIndex = storyStages.findIndex(stage => stage.id === event.stage), stage = storyStages[stageIndex];
+    $('.viewport').classList.add('story-active'); $('#run-story').hidden = false;
+    $('#story-source').textContent = sourceLabel(event.source);
+    $('#story-count').textContent = stage ? `${stageIndex + 1} / 5` : event.stage === 'refused' ? 'STOPPED' : 'COMPLETE';
+    $('#story-title').textContent = stage?.title || (event.stage === 'refused' ? 'Stopped. Your boundary holds.' : 'Rear changed. Cabin unchanged.');
+    $('#story-detail').textContent = event.detail || stage?.detail || '';
+    $('#story-result').hidden = event.stage !== 'result'; $('.result-controls').hidden = event.stage !== 'result';
+    $('.rear-callout').hidden = !['candidate', 'result'].includes(event.stage);
+    $('.wake-key').hidden = !['evaluate', 'result'].includes(event.stage);
+    $('.flow-label').hidden = true;
+    document.querySelectorAll<HTMLElement>('[data-story-stage]').forEach((item, index) => { item.classList.toggle('current', index === stageIndex); item.classList.toggle('done', event.stage === 'result' || index < stageIndex); });
+    scene.setStory(event.stage);
+  }
+  const emit = (stage: RunStoryEvent['stage'], detail?: string) => present({ runId: run.runId, source: run.source, stage, detail });
   const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   let busy = false;
   async function iterate(forced = false) {
-    if (busy) return; busy = true;
-    const button = $<HTMLButtonElement>('#iterate'), refusal = $<HTMLButtonElement>('#refuse');
-    button.disabled = refusal.disabled = true; budget.disabled = true; $<HTMLTextAreaElement>('#brief').disabled = true;
-    button.innerHTML = 'Evaluating demo step <span class="spinner">↻</span>';
+    if (busy || real) return; busy = true; storyComplete = false;
+    const controls = [...document.querySelectorAll<HTMLButtonElement | HTMLInputElement | HTMLTextAreaElement>('[data-mode], #iterate, #refuse, #budget, #brief, #compare, #show-baseline, #show-candidate')];
+    controls.forEach(control => control.disabled = true);
+    const button = $<HTMLButtonElement>('#iterate'); button.innerHTML = 'Playing illustrative run <span class="spinner">↻</span>';
     const decision = decideRequest($<HTMLTextAreaElement>('#brief').value, forced ? 12 : +budget.value);
+    if (decision.decision !== 'refuse') setBlend(0);
     const steps = [...document.querySelectorAll<HTMLElement>('[data-step]')];
     steps.forEach(el => { el.className = ''; el.querySelector('b')!.textContent = '—'; });
-    $('#decision').className = 'decision'; $('#decision-title').textContent = 'Bounded iteration in progress'; $('#decision-copy').textContent = 'Illustrative sequence. No model or solver is running.';
-    const stages = decision.decision === 'refuse' ? 1 : 5;
-    for (let i = 0; i < stages; i++) {
-      steps[i].className = 'running'; steps[i].querySelector('b')!.textContent = '○';
-      if (i === 1) mode('sensitivity');
+    $('#decision').className = 'decision'; $('#decision-title').textContent = 'Illustrative run in progress'; $('#decision-copy').textContent = 'Watch the vehicle: lock → find → change → check → compare. No model is running.';
+    mode('airflow'); emit('intent');
+    $('.viewport').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
+    for (let i = 0; i < (decision.decision === 'refuse' ? 1 : storyStages.length); i++) {
+      const stage = storyStages[i]; steps[i].className = 'running'; steps[i].querySelector('b')!.textContent = '○';
       if (i === 2) {
         run = demoAtBudget(Math.min(3.6, +budget.value), seedRun); scene.setRun(run);
-        const mm = Math.max(...run.candidate.displacementM) * 1000;
-        $('#displacement').innerHTML = `${mm.toFixed(1)}<small>mm</small>`;
-        $('#scale-caption').textContent = `Actual maximum: ${mm.toFixed(1)} mm`;
-        mode('mesh'); setBlend(100);
+        const mm = resultSummary(run).maximumMm;
+        $('#displacement').innerHTML = `${mm.toFixed(1)}<small>mm</small>`; $('#scale-caption').textContent = `Actual maximum: ${mm.toFixed(1)} mm`;
+        $('#rear-displacement').textContent = `${mm.toFixed(1)} mm actual movement`;
+        setBlend(0); await wait(120); setBlend(100);
       }
-      if (i === 3) mode('pressure');
-      await wait(matchMedia('(prefers-reduced-motion: reduce)').matches ? 250 : 950);
+      mode(stage.mode); emit(stage.id);
+      await wait(stage.duration);
       steps[i].className = 'done'; steps[i].querySelector('b')!.textContent = '✓';
     }
     if (decision.decision === 'shrink') {
-      $('#decision-title').textContent = 'Shrink → validate → evaluate again';
-      $('#decision-copy').textContent = 'The illustrative 4 mm proposal exceeds the demo trust threshold. Retrying at 3.6 mm.';
-      for (const i of [2, 3]) { steps[i].className = 'running'; steps[i].querySelector('b')!.textContent = '↻'; await wait(700); steps[i].className = 'done'; steps[i].querySelector('b')!.textContent = '✓'; }
+      for (const i of [3, 4]) { mode(storyStages[i].mode); emit(storyStages[i].id, '4 mm was too large for this demo trust threshold. Retry at 3.6 mm, check and compare again.'); await wait(1600); }
     }
-    if (decision.decision === 'refuse') { steps[4].className = 'refused'; steps[4].querySelector('b')!.textContent = '×'; }
-    else {
-      setBlend(100); mode('airflow');
-      $('#candidate-force').innerHTML = `${run.forces.candidateN[0].toFixed(0)}<small>N</small>`;
-      $('#delta').textContent = `${((run.forces.candidateN[0] - run.forces.baselineN[0]) / run.forces.baselineN[0] * 100).toFixed(1)}%`;
+    if (decision.decision === 'refuse') {
+      steps[4].className = 'refused'; steps[4].querySelector('b')!.textContent = '×'; emit('refused', decision.message);
+    } else {
+      setBlend(100); mode('displacement'); storyComplete = true;
+      $('#show-baseline').setAttribute('aria-pressed', 'false'); $('#show-candidate').setAttribute('aria-pressed', 'true');
+      const result = resultSummary(run);
+      $('#candidate-force').innerHTML = `${result.candidate.toFixed(0)}<small>N</small>`; $('#delta').textContent = `${result.deltaPercent?.toFixed(1) ?? '—'}%`;
+      $('#result-label').textContent = result.label;
+      $('#result-before').innerHTML = `${result.baseline.toFixed(0)}<small>N · baseline</small>`;
+      $('#result-after').innerHTML = `${result.candidate.toFixed(0)}<small>N · candidate</small>`;
+      $('#result-delta').textContent = result.deltaPercent === null ? '—' : `${result.deltaPercent.toFixed(1)}%`;
+      emit('result', `Rear surfaces changed → illustrative wake narrowed → demo drag decreased. ${decision.decision === 'shrink' ? 'Step reduced to 3.6 mm.' : ''}`);
     }
     $('#decision').className = `decision ${decision.decision}`;
     $('#decision-title').textContent = decision.decision === 'refuse' ? 'Refused. The boundary holds.' : decision.decision === 'shrink' ? 'Step shrunk & re-evaluated · demo' : 'Candidate accepted · demo only';
     $('#decision-copy').textContent = decision.message;
     $('#trust-state').textContent = decision.decision === 'refuse' ? 'Refused' : decision.decision === 'shrink' ? 'Step shrunk' : 'Demo accepted';
     $('#trust-detail').textContent = decision.decision === 'refuse' ? 'Hard constraint violated · no new evaluation' : decision.decision === 'shrink' ? 'Demo trust threshold exceeded · 4 → 3.6 mm' : 'Demo error 3.6% / 10% · uncalibrated';
-    button.innerHTML = 'Run bounded iteration <span>↗</span>'; button.disabled = refusal.disabled = false; budget.disabled = false; $<HTMLTextAreaElement>('#brief').disabled = false; busy = false;
+    button.innerHTML = 'Replay illustrative run <span>↗</span>'; controls.forEach(control => control.disabled = false); busy = false;
   }
   $('#iterate').onclick = () => void iterate(); $('#refuse').onclick = () => void iterate(true);
   window.addEventListener('pagehide', () => scene.dispose(), { once: true });
 }
 start().catch(error => {
-  $('#truth').textContent = 'Run unavailable — no fallback data is displayed';
+  $('#run-source').textContent = 'UNAVAILABLE';
   $('#run-id').textContent = 'NO RUN LOADED';
   $<HTMLButtonElement>('#evidence').disabled = true;
   const failure = document.createElement('div'); failure.className = 'load-error'; failure.setAttribute('role', 'alert');

@@ -73,4 +73,13 @@ NVIDIA PhysicsNeMo-CFD is locked in `config/upstream-lock.json`; builds must use
 
 ## Status
 
-Local scaffold only. No GPU endpoint has been launched, no cloud spend has been authorized, and no aerodynamic result is claimed yet.
+The native-Windows DoMINO capability gate now passes on the development RTX
+4070 Ti SUPER. The pinned checkpoint completed surface inference, drag
+integration, autograd sensitivity, smoothing, and VTK export on NVIDIA's
+official DrivAer sample. See [docs/WINDOWS_DOMINO_GATE.md](docs/WINDOWS_DOMINO_GATE.md)
+and reproduce it with `scripts/setup-domino-windows.ps1` followed by
+`scripts/run-domino-windows.ps1`.
+
+No cloud GPU endpoint has been launched and no cloud spend has been authorized.
+The successful sample is runtime evidence, not independent aerodynamic
+validation.

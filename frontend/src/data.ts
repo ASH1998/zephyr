@@ -1,7 +1,7 @@
 /** Versioned renderer boundary. No model or solver runs in the browser. */
 export type Vec3 = [number, number, number];
 export type Decision = 'accept' | 'shrink' | 'refuse';
-export type ViewMode = 'airflow' | 'pressure' | 'sensitivity' | 'mesh';
+export type ViewMode = 'airflow' | 'pressure' | 'sensitivity' | 'displacement' | 'mesh';
 export interface Surface {
   positions: number[]; // XYZ triples, metres
   triangles: number[];

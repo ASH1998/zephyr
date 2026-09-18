@@ -4,6 +4,8 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import type { SimulationRun, ViewMode } from './data';
 import type { VehicleAsset } from './vehicle';
 import { fieldRange } from './data';
+import type { StoryState } from './run-story';
+import { previewWake } from './flow-preview';
 
 export class FlowScene {
   private scene = new THREE.Scene();
@@ -32,6 +34,15 @@ export class FlowScene {
   private frame = 0;
   private disposed = false;
   private cabinTop = 1.4;
+  private story?: StoryState;
+  private changeOverlay?: THREE.Mesh;
+  private lockOverlay?: THREE.Mesh;
+  private baselineGhost?: THREE.LineSegments;
+  private cameraDestination?: THREE.Vector3;
+  private flowGhost = new THREE.Group();
+  private rearMarker = new THREE.Group();
+  private flowBlend = 0;
+  private flowTarget = 0;
   constructor(private host: HTMLElement, private run: SimulationRun, private vehicle?: VehicleAsset) {
     this.cabinTop = run.baseline.protectedMask.reduce((top, locked, i) => locked ? Math.max(top, run.baseline.positions[i * 3 + 1]) : top, .9);
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -83,9 +94,10 @@ export class FlowScene {
     const gradient = ctx.createRadialGradient(64, 64, 10, 64, 64, 64); gradient.addColorStop(0, '#000e'); gradient.addColorStop(.55, '#0009'); gradient.addColorStop(1, '#0000'); ctx.fillStyle = gradient; ctx.fillRect(0, 0, 128, 128);
     const shadow = new THREE.Mesh(new THREE.PlaneGeometry(6.7, 3.8), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(shadowCanvas), transparent: true, depthWrite: false })); shadow.rotation.x = -Math.PI / 2; shadow.position.y = .05; this.scene.add(shadow);
     this.addFlow();
-    this.scene.add(this.flow);
+    this.scene.add(this.flow, this.flowGhost, this.rearMarker); this.flowGhost.visible = false;
     this.addSensitivity(); this.scene.add(this.arrows); this.arrows.visible = false;
     this.updateSurface();
+    this.addStoryOverlays();
     this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(host);
     this.resize(); this.animate();
   }
@@ -144,15 +156,22 @@ export class FlowScene {
         depthWrite: false,
         depthTest: true,
         blending: THREE.AdditiveBlending,
-        uniforms: { time: { value: 0 }, phase: { value: phase }, tint: { value: new THREE.Color(kind === 'top' ? 0x82efff : 0x39c9f2) } },
-        vertexShader: `varying float progress; varying float clearance; void main(){progress=uv.x;
+        uniforms: { time: { value: 0 }, phase: { value: phase }, morph: { value: 0 }, comparison: { value: 0 }, tint: { value: new THREE.Color(kind === 'top' ? 0x82efff : 0x39c9f2) } },
+        vertexShader: `uniform float morph; uniform float comparison; uniform float phase; varying float progress; varying float clearance; varying float wakeVisibility; void main(){progress=uv.x;
           float nearBody=(1.-smoothstep(2.1,2.9,abs(position.x)))*(1.-smoothstep(1.8,2.3,position.y));
-          clearance=1.-.42*nearBody;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
-        fragmentShader: `uniform float time; uniform float phase; uniform vec3 tint; varying float progress; varying float clearance;
+          clearance=1.-.42*nearBody;vec3 pos=position;
+          wakeVisibility=mix(1.,smoothstep(2.05,2.8,pos.x),comparison);float wake=smoothstep(2.15,4.65,pos.x)*comparison;
+          pos.y+=sin(pos.x*4.2+phase*6.28)*.22*wake*(1.-morph);
+          pos.z=pos.z*(1.-.17*wake*morph)+sin(pos.x*3.8+phase*6.28)*.38*wake*(1.-morph);
+          gl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0);}`,
+        fragmentShader: `uniform float time; uniform float phase; uniform vec3 tint; varying float progress; varying float clearance; varying float wakeVisibility;
           void main(){float p=fract(progress*4.0-time*.48+phase);float head=smoothstep(.48,.74,p)*(1.-smoothstep(.74,.96,p));
           float fade=smoothstep(0.,.09,progress)*(1.-smoothstep(.92,1.,progress));
-          vec3 glow=mix(tint,vec3(.92,1.,1.),head*.88);gl_FragColor=vec4(glow,(.065+head*.86)*fade*clearance);}`,
+          vec3 glow=mix(tint,vec3(.92,1.,1.),head*.88);gl_FragColor=vec4(glow,(.065+head*.86)*fade*clearance*wakeVisibility);}`,
       });
+      const ghostPoints = curve.getPoints(120).filter(p => p.x >= 2.15).map(p => new THREE.Vector3(...previewWake(p.x, p.y, p.z, phase, 0)));
+      const ghost = new THREE.Line(new THREE.BufferGeometry().setFromPoints(ghostPoints), new THREE.LineDashedMaterial({ color: 0x77cddd, transparent: true, opacity: .28, dashSize: .06, gapSize: .045, depthWrite: false }));
+      ghost.computeLineDistances(); this.flowGhost.add(ghost);
       this.flowCurves.push(curve);
       this.flowMaterials.push(material);
       this.flow.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 180, .011, 6, false), material));
@@ -204,6 +223,52 @@ export class FlowScene {
       const arrow = new THREE.ArrowHelper(direction, origin, .10 + Math.abs(s.normalSensitivity[i]) / max * .28, 0xf5bc76, .055, .027); this.arrows.add(arrow);
     }
   }
+  private addStoryOverlays() {
+    const b = this.run.baseline, c = this.run.candidate;
+    const changed: number[] = [], locked: number[] = [];
+    const max = Math.max(...c.displacementM, 1e-9);
+    for (let i = 0; i < b.triangles.length; i += 3) {
+      const triangle = b.triangles.slice(i, i + 3);
+      if (triangle.every(v => !b.protectedMask[v]) && triangle.some(v => c.displacementM[v] > max * .12)) changed.push(...triangle);
+      if (triangle.every(v => b.protectedMask[v])) locked.push(...triangle);
+    }
+    const makeOverlay = (indices: number[], color: number, opacity: number) => {
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', this.geometry.getAttribute('position')); geometry.setIndex(indices);
+      const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color, toneMapped: false, transparent: true, opacity, side: THREE.DoubleSide, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+      mesh.visible = false; mesh.renderOrder = 2; this.scene.add(mesh); return mesh;
+    };
+    this.changeOverlay = makeOverlay(changed, 0xffffff, .82);
+    const colors: number[] = [], low = new THREE.Color(0xffdb85), high = new THREE.Color(0xf27936);
+    c.displacementM.forEach(d => { const color = low.clone().lerp(high, d / max); colors.push(color.r, color.g, color.b); });
+    this.changeOverlay.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    (this.changeOverlay.material as THREE.MeshBasicMaterial).vertexColors = true;
+    this.lockOverlay = makeOverlay(locked, 0x71e4d4, .34);
+    const baseline = new THREE.BufferGeometry(); baseline.setAttribute('position', new THREE.Float32BufferAttribute(b.positions, 3)); baseline.setIndex(changed);
+    this.baselineGhost = new THREE.LineSegments(new THREE.EdgesGeometry(baseline, 32), new THREE.LineBasicMaterial({ color: 0x83eff4, transparent: true, opacity: .8, depthTest: false, depthWrite: false }));
+    this.rearMarker.add(this.line([new THREE.Vector3(1.75, .9, 1.05), new THREE.Vector3(2.15, 1.75, 1.05)], 0xf6ba66, .65));
+    this.rearMarker.visible = false;
+    baseline.dispose(); this.baselineGhost.renderOrder = 3; this.baselineGhost.visible = false; this.scene.add(this.baselineGhost);
+  }
+  setStory(stage?: StoryState) {
+    this.story = stage;
+    if (this.lockOverlay) this.lockOverlay.visible = stage === 'intent' || stage === 'validate';
+    const compare = stage === 'candidate' || stage === 'result';
+    this.rearMarker.visible = compare;
+    const demoFlow = this.run.source === 'illustrative' && (stage === 'evaluate' || stage === 'result');
+    this.flowGhost.visible = demoFlow;
+    this.flowTarget = this.flowGhost.visible ? 1 : 0;
+    if (stage === 'evaluate') this.flowBlend = 0;
+    this.flowMaterials.forEach(m => { m.uniforms.comparison.value = this.flowGhost.visible ? 1 : 0; m.uniforms.tint.value.setHex(this.flowGhost.visible ? 0xf1c478 : 0x65dff7); });
+    if (this.changeOverlay) this.changeOverlay.visible = compare;
+    if (this.baselineGhost) this.baselineGhost.visible = compare;
+    if (stage) {
+      this.flow.visible = demoFlow;
+      const destination = stage === 'intent' ? new THREE.Vector3(-3.4, 3.1, 6.7) : new THREE.Vector3(3.6, 2.5, 5.7);
+      this.controls.target.set(.15, .8, 0);
+      if (this.reduced) this.camera.position.copy(destination); else this.cameraDestination = destination;
+    }
+  }
   private updateSurface() {
     const b = this.run.baseline, c = this.run.candidate;
     const p = this.geometry.getAttribute('position') as THREE.BufferAttribute;
@@ -211,11 +276,18 @@ export class FlowScene {
     const color = new THREE.Color();
     const [pLo, pHi] = fieldRange(b.pressurePa), [cLo, cHi] = fieldRange(c.pressurePa), [sLo, sHi] = fieldRange(b.normalSensitivity);
     const low = Math.min(pLo, cLo), high = Math.max(pHi, cHi);
+    const maximumDisplacement = Math.max(...c.displacementM, 1e-9);
     for (let i = 0; i < b.positions.length / 3; i++) {
       for (let k = 0; k < 3; k++) p.array[i * 3 + k] = b.positions[i * 3 + k] + (c.positions[i * 3 + k] - b.positions[i * 3 + k]) * this.blend * this.magnification;
       const x = b.positions[i * 3], y = b.positions[i * 3 + 1], z = b.positions[i * 3 + 2];
       if (this.mode === 'pressure') { const v = (b.pressurePa[i] + (c.pressurePa[i] - b.pressurePa[i]) * this.blend - low) / Math.max(high - low, 1e-9); color.setHSL(.64 - Math.max(0, Math.min(1, v)) * .62, .8, .4); }
       else if (this.mode === 'sensitivity') { const v = (b.normalSensitivity[i] - sLo) / Math.max(sHi - sLo, 1e-9); color.setHSL(.53 - v * .46, .75, .3 + v * .15); if (b.protectedMask[i]) color.setHex(0x2e5766); }
+      else if (this.mode === 'displacement') {
+        const v = c.displacementM[i] / maximumDisplacement * this.blend;
+        if (b.protectedMask[i]) color.setHex(0x30434e);
+        else if (v < .07) color.setHex(0x172d3b);
+        else color.setHex(0xffdd85).lerp(new THREE.Color(0xee642b), v);
+      }
       else { const glass = b.protectedMask[i] && y > .98 && y < 1.40 && (Math.abs(z) > .44 || x < -.5 || x > .5); color.setHex(glass ? 0x102331 : this.mode === 'mesh' ? 0x142b3b : 0x9eafbc); }
       colors.setXYZ(i, color.r, color.g, color.b);
     }
@@ -227,21 +299,27 @@ export class FlowScene {
     }
     if (this.mode === 'mesh') { this.wire.geometry.dispose(); this.wire.geometry = new THREE.WireframeGeometry(this.geometry); }
   }
-  setMode(mode: ViewMode) { this.mode = mode; this.wire.visible = mode === 'mesh'; this.arrows.visible = mode === 'sensitivity'; this.flow.visible = mode === 'airflow'; this.material.roughness = mode === 'airflow' ? .3 : .7; this.material.metalness = mode === 'airflow' ? .52 : .1; this.renderer.toneMappingExposure = mode === 'airflow' ? 1 : .85;
+  setMode(mode: ViewMode) { this.mode = mode; this.wire.visible = mode === 'mesh'; this.arrows.visible = mode === 'sensitivity'; this.flow.visible = mode === 'airflow'; this.material.roughness = mode === 'airflow' ? .3 : .7; this.material.metalness = mode === 'airflow' ? .52 : .1; this.material.clearcoat = mode === 'airflow' ? .8 : 0; this.material.envMapIntensity = mode === 'airflow' ? 1 : .2; this.renderer.toneMappingExposure = mode === 'airflow' ? 1 : .7;
     if (this.vehicle) { this.surfaceMesh.visible = mode !== 'airflow'; this.vehicle.exterior.forEach(p => p.mesh.visible = mode === 'airflow'); }
     this.updateSurface(); }
-  setBlend(value: number) { this.target = value; if (this.reduced) { this.blend = value; this.updateSurface(); } }
+  setBlend(value: number) { this.target = value; if (this.story === 'result') this.flowTarget = value; if (this.story === 'result' || this.story === 'candidate') this.rearMarker.visible = value > 0; if (this.reduced) { this.blend = value; this.updateSurface(); } }
   setMagnified(on: boolean) { this.magnification = on ? 24 : 1; this.updateSurface(); }
   setPaused(on: boolean) { this.paused = on; }
   setRun(run: SimulationRun) { this.run = run; this.updateSurface(); }
-  resetCamera() { this.camera.position.set(-5.5, 2.45, 5.5); this.controls.target.set(0, .85, 0); this.controls.update(); }
+  resetCamera() { this.cameraDestination = undefined; this.camera.position.set(-5.5, 2.45, 5.5); this.controls.target.set(0, .85, 0); this.controls.update(); }
   private resize() { const { width, height } = this.host.getBoundingClientRect(); this.camera.aspect = width / Math.max(1, height); this.camera.zoom = Math.min(1.28, this.camera.aspect * .93); this.camera.updateProjectionMatrix(); this.renderer.setSize(width, height); }
   private animate = () => {
     if (this.disposed) return;
     this.frame = requestAnimationFrame(this.animate);
     const now = performance.now(); const dt = Math.min((now - this.lastTime) / 1000, .04); this.lastTime = now;
+    if (this.cameraDestination) {
+      this.camera.position.lerp(this.cameraDestination, Math.min(1, dt * 3.5));
+      if (this.camera.position.distanceTo(this.cameraDestination) < .015) this.cameraDestination = undefined;
+    }
+    if (this.changeOverlay) (this.changeOverlay.material as THREE.MeshBasicMaterial).opacity = .72 * this.blend;
     if (!this.paused && !this.reduced) this.elapsed += dt;
-    this.flowMaterials.forEach(m => m.uniforms.time.value = this.elapsed);
+    this.flowBlend = this.reduced ? this.flowTarget : THREE.MathUtils.lerp(this.flowBlend, this.flowTarget, Math.min(1, dt * .9));
+    this.flowMaterials.forEach(m => { m.uniforms.time.value = this.elapsed; m.uniforms.morph.value = this.flowBlend; });
     if (this.flowParticles) {
       const positions = this.flowParticles.geometry.getAttribute('position') as THREE.BufferAttribute;
       const point = new THREE.Vector3();
@@ -253,6 +331,8 @@ export class FlowScene {
           const base = (tracer / tracersPerCurve + this.elapsed * .14 + curveIndex * .027) % 1;
           const accelerated = base + .035 * Math.sin((base - .43) * Math.PI * 2);
           this.flowCurves[curveIndex].getPoint(THREE.MathUtils.clamp(accelerated, 0, 1), point);
+          if (this.flowGhost.visible && point.x < 2.15) point.y = -1000;
+          if (this.flowGhost.visible) point.set(...previewWake(point.x, point.y, point.z, this.flowMaterials[curveIndex].uniforms.phase.value, this.flowBlend));
           positions.setXYZ(curveIndex * tracersPerCurve + tracer, point.x, point.y, point.z);
         }
       }
@@ -260,7 +340,13 @@ export class FlowScene {
     }
     const label = this.host.parentElement?.querySelector<HTMLElement>('.cabin-label');
     if (label) { const anchor = new THREE.Vector3(.15, this.cabinTop + .38, .15).project(this.camera); label.style.left = `${(anchor.x * .5 + .5) * this.host.clientWidth + this.host.offsetLeft}px`; label.style.top = `${(-anchor.y * .5 + .5) * this.host.clientHeight + this.host.offsetTop - 45}px`; }
-    if (Math.abs(this.blend - this.target) > .0005) { this.blend += (this.target - this.blend) * Math.min(1, dt * 7); this.updateSurface(); }
+    const rearLabel = this.host.parentElement?.querySelector<HTMLElement>('.rear-callout');
+    if (rearLabel && this.rearMarker.visible) {
+      const anchor = new THREE.Vector3(2.15, 1.75, 1.05).project(this.camera);
+      rearLabel.style.left = `${Math.max(8, Math.min(this.host.clientWidth - rearLabel.offsetWidth - 8, (anchor.x * .5 + .5) * this.host.clientWidth + this.host.offsetLeft))}px`;
+      rearLabel.style.top = `${(-anchor.y * .5 + .5) * this.host.clientHeight + this.host.offsetTop - 40}px`;
+    }
+    if (Math.abs(this.blend - this.target) > .0005) { this.blend += (this.target - this.blend) * Math.min(1, dt * (this.story === 'candidate' ? 1.4 : 7)); this.updateSurface(); }
     this.controls.update(); this.renderer.render(this.scene, this.camera);
   };
   dispose() { this.disposed = true; cancelAnimationFrame(this.frame); this.resizeObserver.disconnect(); this.controls.dispose(); this.scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.Line || o instanceof THREE.Points) { o.geometry.dispose(); const mats = Array.isArray(o.material) ? o.material : [o.material]; mats.forEach(m => m.dispose()); } }); this.renderer.dispose(); }
