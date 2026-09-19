@@ -4,8 +4,9 @@ param()
 $ErrorActionPreference = "Stop"
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$workspaceRoot = (Resolve-Path (Join-Path $repoRoot "..")).Path
 $localRoot = Join-Path $repoRoot ".local"
-$venv = Join-Path $localRoot "venv-domino"
+$venv = Join-Path $workspaceRoot ".venv"
 $python = Join-Path $venv "Scripts\python.exe"
 $upstream = Join-Path $localRoot "physicsnemo-cfd"
 $lock = Get-Content (Join-Path $repoRoot "config\upstream-lock.json") -Raw | ConvertFrom-Json
@@ -13,9 +14,17 @@ $artifactLock = Get-Content (Join-Path $repoRoot "config\domino-artifacts.json")
 $repository = $lock.physicsnemo_cfd.repository
 $commit = $lock.physicsnemo_cfd.commit
 $artifactRoot = Join-Path $localRoot "domino-assets"
+$uv = Join-Path $workspaceRoot ".tools\uv\uv.exe"
+$env:UV_CACHE_DIR = Join-Path $workspaceRoot ".cache\uv"
+$env:UV_PYTHON_INSTALL_DIR = Join-Path $workspaceRoot ".tools\python"
 
-if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
-    throw "uv is required but was not found on PATH"
+if (-not (Test-Path -LiteralPath $uv)) {
+    $uvCommand = Get-Command uv -ErrorAction SilentlyContinue
+    if (-not $uvCommand) {
+        throw "uv is required but was not found in .tools/uv or on PATH"
+    }
+    New-Item -ItemType Directory -Force -Path (Split-Path $uv -Parent) | Out-Null
+    Copy-Item -LiteralPath $uvCommand.Source -Destination $uv
 }
 
 New-Item -ItemType Directory -Force -Path $localRoot | Out-Null
@@ -60,18 +69,23 @@ foreach ($artifact in $artifactLock.required) {
 }
 
 if (-not (Test-Path -LiteralPath $python)) {
-    & uv venv $venv --python 3.12
+    & $uv python install 3.12
+    if ($LASTEXITCODE -ne 0) { throw "Could not install the workspace Python 3.12 runtime" }
+    & $uv venv $venv --python 3.12
     if ($LASTEXITCODE -ne 0) { throw "Could not create the Python 3.12 environment" }
 }
 
-& uv pip install --python $python torch --index-url https://download.pytorch.org/whl/cu128
+& $uv pip install --python $python torch --index-url https://download.pytorch.org/whl/cu128
 if ($LASTEXITCODE -ne 0) { throw "Could not install CUDA-enabled PyTorch" }
 
-& uv pip install --python $python -e $upstream tyro warp-lang requests scikit-learn
+& $uv pip install --python $python -e $upstream tyro warp-lang requests scikit-learn
 if ($LASTEXITCODE -ne 0) { throw "Could not install PhysicsNeMo-CFD dependencies" }
 
-$env:WARP_CACHE_PATH = Join-Path $localRoot "warp-cache"
-$env:LOCAL_CACHE = Join-Path $localRoot "physicsnemo-cache"
+& $uv pip install --python $python -e $repoRoot
+if ($LASTEXITCODE -ne 0) { throw "Could not install Zephyr into the workspace environment" }
+
+$env:WARP_CACHE_PATH = Join-Path $workspaceRoot ".cache\warp"
+$env:LOCAL_CACHE = Join-Path $workspaceRoot ".cache\physicsnemo"
 
 & $python -c "import torch; from physicsnemo.models.domino.model import DoMINO; assert torch.cuda.is_available(); print(torch.__version__); print(torch.cuda.get_device_name(0)); print(DoMINO.__name__)"
 if ($LASTEXITCODE -ne 0) { throw "PhysicsNeMo CUDA verification failed" }

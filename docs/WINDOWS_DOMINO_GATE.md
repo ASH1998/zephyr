@@ -12,7 +12,7 @@ It is a capability result, not an aerodynamic-accuracy validation.
 - NVIDIA GeForce RTX 4070 Ti SUPER, 15.99 GiB VRAM
 - NVIDIA driver 591.86
 - 63.8 GiB system RAM
-- Python 3.12.11 in `.local/venv-domino`
+- Python 3.12 in the workspace-level `../.venv`
 - PyTorch 2.11.0+cu128
 - PhysicsNeMo 2.2.2
 - PhysicsNeMo-CFD commit `0612ec4ed54484a47bfa134eda7b3b012a607624`
@@ -59,6 +59,9 @@ For a fresh checkout, prepare the isolated environment from the repository root:
 .\scripts\setup-domino-windows.ps1
 ```
 
+The setup keeps the Python runtime, environment and package cache on the
+workspace drive in `../.tools`, `../.venv` and `../.cache` respectively.
+
 Then run the official sample:
 
 ```powershell
@@ -85,3 +88,11 @@ rerun the gradient-validation evidence:
 3. Create a bounded candidate mesh while holding protected vertices fixed.
 4. Rerun DoMINO on that candidate and compare integrated drag.
 5. Validate the baseline/candidate pair with an independent CFD method.
+
+## Integration force-convention correction
+
+The real browser integration captures `DoMINOInference`'s returned force directly:
+its baseline Fx is approximately **+621.70 N**. The earlier -444.5109 N above was
+an outward-normal reintegration of exported fields. Upstream uses inward normals,
+so that old value must not be used as the returned surrogate drag. See
+[LOCAL_DOMINO.md](LOCAL_DOMINO.md) for the explicit convention and live evidence.

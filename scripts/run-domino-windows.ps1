@@ -9,7 +9,8 @@ param(
 $ErrorActionPreference = "Stop"
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$python = Join-Path $repoRoot ".local\venv-domino\Scripts\python.exe"
+$workspaceRoot = (Resolve-Path (Join-Path $repoRoot "..")).Path
+$python = Join-Path $workspaceRoot ".venv\Scripts\python.exe"
 $workflow = Join-Path $repoRoot ".local\physicsnemo-cfd\workflows\domino_design_sensitivities"
 $checkpoint = Join-Path $repoRoot ".local\domino-assets\DoMINO.0.501.mdlus"
 $compatibilityPath = Join-Path $repoRoot "scripts\windows_compat"
@@ -20,8 +21,8 @@ foreach ($requiredPath in @($python, $workflow, $checkpoint)) {
     }
 }
 
-$env:WARP_CACHE_PATH = Join-Path $repoRoot ".local\warp-cache"
-$env:LOCAL_CACHE = Join-Path $repoRoot ".local\physicsnemo-cache"
+$env:WARP_CACHE_PATH = Join-Path $workspaceRoot ".cache\warp"
+$env:LOCAL_CACHE = Join-Path $workspaceRoot ".cache\physicsnemo"
 $env:PYTHONPATH = if ($env:PYTHONPATH) {
     "$compatibilityPath;$env:PYTHONPATH"
 } else {
