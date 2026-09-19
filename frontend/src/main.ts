@@ -1,4 +1,5 @@
 import './style.css';
+import { startLive } from './live';
 import { HttpRunAdapter, decideRequest, demoAtBudget, fieldRange } from './data';
 import type { ViewMode } from './data';
 import { FlowScene } from './scene';
@@ -197,7 +198,7 @@ async function start() {
   $('#iterate').onclick = () => void iterate(); $('#refuse').onclick = () => void iterate(true);
   window.addEventListener('pagehide', () => scene.dispose(), { once: true });
 }
-start().catch(error => {
+(new URLSearchParams(location.search).has('demo') || new URLSearchParams(location.search).has('run') ? start() : startLive()).catch(error => {
   $('#run-source').textContent = 'UNAVAILABLE';
   $('#run-id').textContent = 'NO RUN LOADED';
   $<HTMLButtonElement>('#evidence').disabled = true;

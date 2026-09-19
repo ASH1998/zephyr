@@ -1,3 +1,17 @@
+# Live local mode (default)
+
+The default page now runs the actual local DoMINO GPU integration. Start the
+backend and frontend using [the local integration guide](../docs/LOCAL_DOMINO.md).
+It supports baseline-only results, actual surface fields, bounded candidate
+shrink/evaluation, cancellation and evidence. Trust is uncalibrated; no candidate
+is accepted as an engineering improvement. With backend `--enable-llm`, the
+main page also compiles your brief through the configured model and displays
+LLM-ranked evidence after completion. See [copilot behavior](../docs/LLM_INTERFACE.md).
+
+The older instructions below describe **only `?demo=1`** (illustrative walkthrough)
+and the legacy v1 read-only artifact adapter. New live artifacts use
+`zephyr.surface.v2` in `src/live-data.ts`, with a nullable candidate.
+
 # Zephyr — Shape the flow.
 
 A runnable aerodynamic-design interaction prototype: licensed concept vehicle, layered animated flow ribbons and wake, surface pressure, signed normal-sensitivity glyphs, mesh inspection, protected cabin, bounded geometry comparison, and an accept/shrink/refuse walkthrough.
@@ -9,7 +23,7 @@ A runnable aerodynamic-design interaction prototype: licensed concept vehicle, l
 Requires Node 22.14+ (Vite requires Node 20.19+ or 22.12+; the test command uses Node's experimental TypeScript stripping).
 
 ```powershell
-cd C:\Users\Ashutosh\Documents\ChatGPT\nebius\zephyr\frontend
+cd F:\github\nebius\zephyr\frontend
 npm ci
 npm run dev
 # http://127.0.0.1:5173

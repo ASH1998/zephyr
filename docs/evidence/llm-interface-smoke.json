@@ -1,0 +1,205 @@
+{
+  "recordedAt": "2026-09-19T04:03:42.657012+00:00",
+  "runId": "local-5dc4b61d4d8848bca486eb963108f2c1",
+  "verification": "Browser interpretation -> real local GPU iteration -> automatic LLM-ranked evidence",
+  "intent": {
+    "schemaVersion": "zephyr.intent.v1",
+    "intentId": "intent-0900ab7088f44a91a4193ecbc6ef7ad1",
+    "request": {
+      "geometryId": "drivaer-1",
+      "budgetMm": 3.6,
+      "brief": "Reduce drag with a subtle rear taper. Keep the cabin unchanged. Maximum displacement 2 mm.",
+      "mode": "iteration"
+    },
+    "graph": {
+      "status": "ready",
+      "objective": "reduce_drag",
+      "protectedRegions": [
+        "cabin"
+      ],
+      "handle": "rear-width-quintic-v1",
+      "requestedMaxMm": 2,
+      "evidenceQuotes": [
+        "Reduce drag with a subtle rear taper",
+        "Keep the cabin unchanged",
+        "Maximum displacement 2 mm"
+      ],
+      "message": "Applying the rear-width-quintic-v1 handle for a subtle rear taper capped at the requested 2 mm maximum, with the cabin fixed.",
+      "effectiveBudgetMm": 2.0,
+      "hardLimitMm": 4,
+      "topology": "fixed",
+      "cabinDisplacementMm": 0,
+      "trustAuthority": "deterministic-controller"
+    },
+    "provenance": {
+      "model": "zai-org/GLM-5.3-Flash",
+      "requestedModel": "zai-org/GLM-5.3-Flash",
+      "seconds": 8.166,
+      "usage": {
+        "completion_tokens": 784,
+        "prompt_tokens": 368,
+        "total_tokens": 1152,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 662,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 368,
+        "reasoning_tokens": 662
+      },
+      "schema": "zephyr_intent_v1",
+      "provider": "Nebius Token Factory",
+      "createdAt": "2026-09-19T03:58:34.629341+00:00",
+      "promptSha256": "c3e173a45e3ef164abc6f1635af081adcb2a1827ec227238d1143321e36d9e29",
+      "requestSha256": "1b60bd9fe88cad3dded54da21139579d20a2486390452769557e364c4181c3f7"
+    }
+  },
+  "forces": {
+    "baselineN": [
+      621.695556640625,
+      877.1947021484375,
+      -71.85599517822266
+    ],
+    "candidateN": [
+      621.8261108398438,
+      877.0906982421875,
+      -71.99417877197266
+    ],
+    "baselineDragN": 621.695556640625,
+    "candidateDragN": 621.8261108398438,
+    "predictedDragN": 621.6564031910499
+  },
+  "constraints": {
+    "maxDisplacementM": 0.002,
+    "protectedRegion": "Front 82% including cabin; underbody below z=0.05 m upstream"
+  },
+  "trust": {
+    "decision": "refuse",
+    "calibrated": false,
+    "predictionErrorPercent": 433.4423930339158,
+    "reason": "Geometry checks shrank 2.000 to 0.500 mm. Fresh surrogate drag worsened; step refused."
+  },
+  "checks": {
+    "topology": {
+      "status": "passed"
+    },
+    "finite": {
+      "status": "passed"
+    },
+    "protected": {
+      "status": "passed",
+      "vertices": 340330
+    },
+    "bounds": {
+      "status": "passed",
+      "maximumM": 0.0004999999999999449
+    },
+    "normals": {
+      "status": "passed",
+      "minimumCosine": 0.9918947304213135
+    },
+    "triangleArea": {
+      "status": "passed",
+      "minimumRatio": 0.9646511776985165,
+      "maximumRatio": 1.0446716885135463
+    },
+    "watertight": {
+      "status": "passed",
+      "baselineOpenEdges": 0,
+      "candidateOpenEdges": 0
+    },
+    "symmetricHandle": {
+      "status": "passed",
+      "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+    },
+    "transition": {
+      "status": "passed",
+      "detail": "Quintic C2 transition; exactly zero on protected boundary."
+    },
+    "selfIntersection": {
+      "status": "not-run",
+      "detail": "Full triangle intersection audit unavailable; candidate cannot be accepted."
+    }
+  },
+  "timings": {
+    "baselineSeconds": 91.6667999,
+    "evaluateSeconds": 82.89486760000011,
+    "totalSeconds": 243.9041989000001
+  },
+  "explanation": {
+    "runId": "local-5dc4b61d4d8848bca486eb963108f2c1",
+    "source": "llm-ranked-evidence",
+    "provenance": {
+      "model": "zai-org/GLM-5.3-Flash",
+      "requestedModel": "zai-org/GLM-5.3-Flash",
+      "seconds": 5.669,
+      "usage": {
+        "completion_tokens": 484,
+        "prompt_tokens": 534,
+        "total_tokens": 1018,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 456,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 534,
+        "reasoning_tokens": 456
+      },
+      "schema": "zephyr_explanation_v1"
+    },
+    "facts": [
+      {
+        "id": "decision",
+        "text": "Controller decision: refuse. Geometry checks shrank 2.000 to 0.500 mm. Fresh surrogate drag worsened; step refused.",
+        "evidenceId": "local-5dc4b61d4d8848bca486eb963108f2c1:decision"
+      },
+      {
+        "id": "force",
+        "text": "Fresh surrogate drag increased: 621.696 to 621.826 N (change +0.131 N).",
+        "evidenceId": "local-5dc4b61d4d8848bca486eb963108f2c1:force"
+      },
+      {
+        "id": "displacement",
+        "text": "Actual maximum movement: 0.500 mm; requested ceiling: 2.000 mm.",
+        "evidenceId": "local-5dc4b61d4d8848bca486eb963108f2c1:displacement"
+      },
+      {
+        "id": "cfd",
+        "text": "Independent CFD status: not-run. Surrogate output is not physical ground truth.",
+        "evidenceId": "local-5dc4b61d4d8848bca486eb963108f2c1:cfd"
+      },
+      {
+        "id": "trust",
+        "text": "The trust radius is uncalibrated. Surrogate agreement has not been established for this handle.",
+        "evidenceId": "local-5dc4b61d4d8848bca486eb963108f2c1:trust"
+      },
+      {
+        "id": "intersection",
+        "text": "A full triangle self-intersection check has not passed.",
+        "evidenceId": "local-5dc4b61d4d8848bca486eb963108f2c1:intersection"
+      },
+      {
+        "id": "protected",
+        "text": "All protected coordinates, including the cabin, stayed exactly fixed.",
+        "evidenceId": "local-5dc4b61d4d8848bca486eb963108f2c1:protected"
+      }
+    ],
+    "evidenceUrl": "/api/runs/local-5dc4b61d4d8848bca486eb963108f2c1/evidence",
+    "decision": "refuse"
+  },
+  "artifactSha256": {
+    "request.json": "6d8f2ade6ae602a710c220690eba79675e47f65df65467d1190c9be830c9d67e",
+    "evidence.json": "92a4084770811d4453997835f659e3f0429084de87121ec40a5a205f72bfbefa"
+  },
+  "tests": {
+    "python": 24,
+    "frontend": 18,
+    "build": "passed"
+  }
+}

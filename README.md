@@ -6,7 +6,18 @@ Zephyr helps engineers reshape vehicles for lower drag—with AI-guided changes 
 
 This repository begins with the project's highest-risk survival gate: prove the exact Nebius and NVIDIA runtime artifacts before building presentation layers. The complete research-backed specification is in [PROJECT_PLAN.md](PROJECT_PLAN.md).
 
-## Current milestone: Day-0 capability probe
+## Live local GPU application
+
+The default frontend now starts real DoMINO jobs on the local NVIDIA GPU and
+renders the returned surface fields. It can generate, shrink and freshly evaluate
+one bounded rear-width candidate; acceptance remains refused pending trust and
+intersection validation. See [local launch and limits](docs/LOCAL_DOMINO.md) and
+[browser smoke evidence](docs/LOCAL_DOMINO_SMOKE.md). The illustrative walkthrough
+remains available at `?demo=1`. The [main-interface copilot](docs/LLM_INTERFACE.md)
+uses the configured model to compile briefs and rank measured evidence; start
+the API with `--enable-llm` to opt in to these model calls.
+
+## Day-0 capability probe
 
 The initial scaffold checks, without starting GPU infrastructure:
 
@@ -46,7 +57,7 @@ After selecting a real Nemotron model ID from that report, test structured const
 zephyr-day0 --live-models --structured-model $env:ZEPHYR_NEMOTRON_MODEL --output build/evidence/day0.json
 ```
 
-Run the dependency-free test suite:
+Run the test suite in the prepared local model environment:
 
 ```powershell
 python -m unittest discover -s tests -v
@@ -80,6 +91,7 @@ official DrivAer sample. See [docs/WINDOWS_DOMINO_GATE.md](docs/WINDOWS_DOMINO_G
 and reproduce it with `scripts/setup-domino-windows.ps1` followed by
 `scripts/run-domino-windows.ps1`.
 
-No cloud GPU endpoint has been launched and no cloud spend has been authorized.
+No cloud GPU endpoint has been launched. Configured Token Factory model calls
+are available through the explicitly enabled local copilot.
 The successful sample is runtime evidence, not independent aerodynamic
 validation.

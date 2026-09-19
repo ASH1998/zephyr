@@ -1,11 +1,13 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import type { SimulationRun, ViewMode } from './data';
+import type { SimulationRun, Surface, ViewMode } from './data';
 import type { VehicleAsset } from './vehicle';
 import { fieldRange } from './data';
 import type { StoryState } from './run-story';
 import { previewWake } from './flow-preview';
+
+type SurfaceRun = Pick<SimulationRun, 'baseline' | 'source'> & { candidate: Surface | null };
 
 export class FlowScene {
   private scene = new THREE.Scene();
@@ -43,7 +45,7 @@ export class FlowScene {
   private rearMarker = new THREE.Group();
   private flowBlend = 0;
   private flowTarget = 0;
-  constructor(private host: HTMLElement, private run: SimulationRun, private vehicle?: VehicleAsset) {
+  constructor(private host: HTMLElement, private run: SurfaceRun, private vehicle?: VehicleAsset) {
     this.cabinTop = run.baseline.protectedMask.reduce((top, locked, i) => locked ? Math.max(top, run.baseline.positions[i * 3 + 1]) : top, .9);
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.7));
@@ -51,7 +53,7 @@ export class FlowScene {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping; this.renderer.toneMappingExposure = 1.0;
     const pmrem = new THREE.PMREMGenerator(this.renderer);
     const room = new RoomEnvironment(); this.scene.environment = pmrem.fromScene(room, .05).texture; room.dispose(); pmrem.dispose();
-    this.renderer.domElement.setAttribute('aria-label', 'Rotatable passenger car with illustrative airflow and protected cabin. Use arrow keys to orbit; plus and minus to zoom.');
+    this.renderer.domElement.setAttribute('aria-label', run.source === 'illustrative' ? 'Rotatable passenger car with illustrative airflow and protected cabin. Use arrow keys to orbit; plus and minus to zoom.' : 'Actual DoMINO surface pressure and sensitivity on DrivAerML. Use arrow keys to orbit; plus and minus to zoom.');
     this.renderer.domElement.tabIndex = 0;
     host.appendChild(this.renderer.domElement);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -72,9 +74,9 @@ export class FlowScene {
         this.camera.position.copy(new THREE.Vector3().setFromSpherical(spherical).add(this.controls.target)); this.controls.update();
       }
     });
-    this.scene.add(new THREE.HemisphereLight(0xc4e7ff, 0x101823, .55));
-    const key = new THREE.DirectionalLight(0xfff2df, 3); key.position.set(-3, 6, 5); this.scene.add(key);
-    const rim = new THREE.DirectionalLight(0x8cd9f2, 2.3); rim.position.set(2, 4, -4); this.scene.add(rim);
+    this.scene.add(new THREE.HemisphereLight(0xc4e7ff, 0x101823, run.source === 'illustrative' ? .55 : .3));
+    const key = new THREE.DirectionalLight(0xfff2df, run.source === 'illustrative' ? 3 : 1.5); key.position.set(-3, 6, 5); this.scene.add(key);
+    const rim = new THREE.DirectionalLight(0x8cd9f2, run.source === 'illustrative' ? 2.3 : 1); rim.position.set(2, 4, -4); this.scene.add(rim);
     this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(run.baseline.positions, 3));
     this.geometry.setIndex(run.baseline.triangles); this.geometry.computeVertexNormals();
     this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(run.baseline.positions.length), 3));
@@ -85,7 +87,7 @@ export class FlowScene {
     if (run.source === 'illustrative') { if (!vehicle) { this.addWheels(); this.addDetails(); } this.addCabin(); }
     else {
       const points: THREE.Vector3[] = [];
-      run.baseline.protectedMask.forEach((locked, i) => { if (locked) points.push(new THREE.Vector3().fromArray(run.baseline.positions, i * 3)); });
+      run.baseline.protectedMask.forEach((locked, i) => { if (locked && run.baseline.positions[i * 3 + 1] > .95 && Math.abs(run.baseline.positions[i * 3]) < 1.05) points.push(new THREE.Vector3().fromArray(run.baseline.positions, i * 3)); });
       if (points.length) this.scene.add(new THREE.Box3Helper(new THREE.Box3().setFromPoints(points), 0x8be7df));
     }
     const grid = new THREE.GridHelper(18, 36, 0x203c50, 0x112a3d); grid.position.y = .01; (grid.material as THREE.Material).transparent = true; (grid.material as THREE.Material).opacity = .18; this.scene.add(grid);
@@ -93,7 +95,7 @@ export class FlowScene {
     const ctx = shadowCanvas.getContext('2d')!;
     const gradient = ctx.createRadialGradient(64, 64, 10, 64, 64, 64); gradient.addColorStop(0, '#000e'); gradient.addColorStop(.55, '#0009'); gradient.addColorStop(1, '#0000'); ctx.fillStyle = gradient; ctx.fillRect(0, 0, 128, 128);
     const shadow = new THREE.Mesh(new THREE.PlaneGeometry(6.7, 3.8), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(shadowCanvas), transparent: true, depthWrite: false })); shadow.rotation.x = -Math.PI / 2; shadow.position.y = .05; this.scene.add(shadow);
-    this.addFlow();
+    if (run.source === 'illustrative') this.addFlow();
     this.scene.add(this.flow, this.flowGhost, this.rearMarker); this.flowGhost.visible = false;
     this.addSensitivity(); this.scene.add(this.arrows); this.arrows.visible = false;
     this.updateSurface();
@@ -224,9 +226,9 @@ export class FlowScene {
     }
   }
   private addStoryOverlays() {
-    const b = this.run.baseline, c = this.run.candidate;
+    const b = this.run.baseline, c = this.run.candidate ?? this.run.baseline;
     const changed: number[] = [], locked: number[] = [];
-    const max = Math.max(...c.displacementM, 1e-9);
+    const max = Math.max(fieldRange(c.displacementM)[1], 1e-9);
     for (let i = 0; i < b.triangles.length; i += 3) {
       const triangle = b.triangles.slice(i, i + 3);
       if (triangle.every(v => !b.protectedMask[v]) && triangle.some(v => c.displacementM[v] > max * .12)) changed.push(...triangle);
@@ -270,18 +272,21 @@ export class FlowScene {
     }
   }
   private updateSurface() {
-    const b = this.run.baseline, c = this.run.candidate;
+    const b = this.run.baseline, c = this.run.candidate ?? this.run.baseline;
     const p = this.geometry.getAttribute('position') as THREE.BufferAttribute;
     const colors = this.geometry.getAttribute('color') as THREE.BufferAttribute;
     const color = new THREE.Color();
     const [pLo, pHi] = fieldRange(b.pressurePa), [cLo, cHi] = fieldRange(c.pressurePa), [sLo, sHi] = fieldRange(b.normalSensitivity);
     const low = Math.min(pLo, cLo), high = Math.max(pHi, cHi);
-    const maximumDisplacement = Math.max(...c.displacementM, 1e-9);
+    const maximumDisplacement = Math.max(fieldRange(c.displacementM)[1], 1e-9);
     for (let i = 0; i < b.positions.length / 3; i++) {
       for (let k = 0; k < 3; k++) p.array[i * 3 + k] = b.positions[i * 3 + k] + (c.positions[i * 3 + k] - b.positions[i * 3 + k]) * this.blend * this.magnification;
       const x = b.positions[i * 3], y = b.positions[i * 3 + 1], z = b.positions[i * 3 + 2];
       if (this.mode === 'pressure') { const v = (b.pressurePa[i] + (c.pressurePa[i] - b.pressurePa[i]) * this.blend - low) / Math.max(high - low, 1e-9); color.setHSL(.64 - Math.max(0, Math.min(1, v)) * .62, .8, .4); }
-      else if (this.mode === 'sensitivity') { const v = (b.normalSensitivity[i] - sLo) / Math.max(sHi - sLo, 1e-9); color.setHSL(.53 - v * .46, .75, .3 + v * .15); if (b.protectedMask[i]) color.setHex(0x2e5766); }
+      else if (this.mode === 'sensitivity') {
+        if (this.run.source === 'illustrative') { const v = (b.normalSensitivity[i] - sLo) / Math.max(sHi - sLo, 1e-9); color.setHSL(.53 - v * .46, .75, .3 + v * .15); if (b.protectedMask[i]) color.setHex(0x2e5766); }
+        else { const v = b.normalSensitivity[i], max = Math.max(Math.abs(sLo), Math.abs(sHi), 1e-9); const t = Math.asinh(Math.abs(v) / (max * .02)) / Math.asinh(50); color.setHex(0x526273).lerp(new THREE.Color(v < 0 ? 0x246bdd : 0xf26d25), t); }
+      }
       else if (this.mode === 'displacement') {
         const v = c.displacementM[i] / maximumDisplacement * this.blend;
         if (b.protectedMask[i]) color.setHex(0x30434e);
@@ -299,13 +304,13 @@ export class FlowScene {
     }
     if (this.mode === 'mesh') { this.wire.geometry.dispose(); this.wire.geometry = new THREE.WireframeGeometry(this.geometry); }
   }
-  setMode(mode: ViewMode) { this.mode = mode; this.wire.visible = mode === 'mesh'; this.arrows.visible = mode === 'sensitivity'; this.flow.visible = mode === 'airflow'; this.material.roughness = mode === 'airflow' ? .3 : .7; this.material.metalness = mode === 'airflow' ? .52 : .1; this.material.clearcoat = mode === 'airflow' ? .8 : 0; this.material.envMapIntensity = mode === 'airflow' ? 1 : .2; this.renderer.toneMappingExposure = mode === 'airflow' ? 1 : .7;
+  setMode(mode: ViewMode) { this.mode = mode; this.wire.visible = mode === 'mesh'; this.arrows.visible = mode === 'sensitivity'; this.flow.visible = mode === 'airflow' && this.run.source === 'illustrative'; this.material.roughness = mode === 'airflow' ? .3 : .7; this.material.metalness = mode === 'airflow' ? .52 : .1; this.material.clearcoat = mode === 'airflow' ? .8 : 0; this.material.envMapIntensity = mode === 'airflow' ? 1 : .2; this.renderer.toneMappingExposure = mode === 'airflow' ? 1 : .7;
     if (this.vehicle) { this.surfaceMesh.visible = mode !== 'airflow'; this.vehicle.exterior.forEach(p => p.mesh.visible = mode === 'airflow'); }
     this.updateSurface(); }
   setBlend(value: number) { this.target = value; if (this.story === 'result') this.flowTarget = value; if (this.story === 'result' || this.story === 'candidate') this.rearMarker.visible = value > 0; if (this.reduced) { this.blend = value; this.updateSurface(); } }
   setMagnified(on: boolean) { this.magnification = on ? 24 : 1; this.updateSurface(); }
   setPaused(on: boolean) { this.paused = on; }
-  setRun(run: SimulationRun) { this.run = run; this.updateSurface(); }
+  setRun(run: SurfaceRun) { this.run = run; this.updateSurface(); }
   resetCamera() { this.cameraDestination = undefined; this.camera.position.set(-5.5, 2.45, 5.5); this.controls.target.set(0, .85, 0); this.controls.update(); }
   private resize() { const { width, height } = this.host.getBoundingClientRect(); this.camera.aspect = width / Math.max(1, height); this.camera.zoom = Math.min(1.28, this.camera.aspect * .93); this.camera.updateProjectionMatrix(); this.renderer.setSize(width, height); }
   private animate = () => {
@@ -349,7 +354,7 @@ export class FlowScene {
     if (Math.abs(this.blend - this.target) > .0005) { this.blend += (this.target - this.blend) * Math.min(1, dt * (this.story === 'candidate' ? 1.4 : 7)); this.updateSurface(); }
     this.controls.update(); this.renderer.render(this.scene, this.camera);
   };
-  dispose() { this.disposed = true; cancelAnimationFrame(this.frame); this.resizeObserver.disconnect(); this.controls.dispose(); this.scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.Line || o instanceof THREE.Points) { o.geometry.dispose(); const mats = Array.isArray(o.material) ? o.material : [o.material]; mats.forEach(m => m.dispose()); } }); this.renderer.dispose(); }
+  dispose() { this.disposed = true; cancelAnimationFrame(this.frame); this.resizeObserver.disconnect(); this.controls.dispose(); this.scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.Line || o instanceof THREE.Points) { o.geometry.dispose(); const mats = Array.isArray(o.material) ? o.material : [o.material]; mats.forEach(m => m.dispose()); } }); this.scene.environment?.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); }
 }
 
 

@@ -43,3 +43,15 @@
 @media(max-width:440px){.run-story h2{font-size:23px}.story-active:has(#story-result:not([hidden])) .run-story h2{font-size:22px}.run-story p{font-size:10px}.result-numbers strong{font-size:34px}.result-numbers b{font-size:26px}.wake-key{gap:8px;flex-wrap:wrap}.wake-key small{width:100%;text-align:center}.view-tools button{font-size:10px;padding:10px}.rear-callout small{font-size:7px}}
 
 @media(min-width:1101px){.result-numbers strong{font-size:64px}.result-numbers b{font-size:50px}.result-numbers>span:first-child{font-size:42px}}
+.live-progress { width: 100%; height: 3px; margin-top: 12px; accent-color: #71e4d4; }
+.delta.worse { color: #eea074; }
+#provenance dd { overflow-wrap: anywhere; }
+.control-panel > a.quiet { display: block; margin-top: 10px; font-size: 11px; text-decoration: none; }
+
+[hidden] { display: none !important; }
+
+#result-delta.worse { color: #eea074; }
+.live-workspace .color-scale.sensitivity { background: linear-gradient(90deg, #246bdd, #526273, #f26d25); }
+
+/* The copilot shares the brief column; output stays traceable to the run. */
+.copilot-panel{margin:14px 0 20px;padding:13px;border:1px solid #304c59;border-radius:4px;background:#0c1e29;font-size:11px;line-height:1.55}.copilot-heading{display:flex;justify-content:space-between;gap:10px;font-size:9px;letter-spacing:1.2px;color:#a5dcd3}.copilot-state{letter-spacing:0;color:#d9e8eb}.copilot-model{overflow-wrap:anywhere;color:#8ca7ba;font-size:10px;margin:8px 0}.copilot-panel .boundary{margin:3px 0 8px;text-align:left}.copilot-message{color:#bed0dc;margin:0}.copilot-panel details{margin-top:10px;border-top:1px solid #29434d;padding-top:9px}.copilot-panel summary{cursor:pointer;color:#96cec8}.copilot-panel details p{margin:8px 0}.copilot-quotes,.copilot-meta{color:#8fa9b9}.copilot-explanation{border-top:1px solid #304c59;margin-top:16px;padding-top:15px;font-size:11px;line-height:1.6;color:#adc3d1}.copilot-explanation>p{font-size:10px;color:#85a2b5;overflow-wrap:anywhere}.copilot-explanation ul{padding-left:16px;margin:8px 0}.copilot-explanation li{margin:9px 0}.copilot-explanation a{color:#a5e4db;font-size:10px}.live-workspace .control-panel{max-height:calc(100vh - 142px);overflow-y:auto;padding-right:6px;scrollbar-width:thin;scrollbar-color:#36515e transparent}@media(max-width:900px){.live-workspace .control-panel{max-height:none}}

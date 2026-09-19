@@ -1,0 +1,22 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { validateLiveRun, nextEvents } from '../src/live-data.ts';
+import type { LiveRun, Job } from '../src/live-data.ts';
+function fixture(): LiveRun {
+  const surface={positions:[0,0,0,1,0,0,0,1,0],triangles:[0,1,2],pressurePa:[10,20,30],wallShearPa:Array(9).fill(0),sensitivity:Array(9).fill(0),normalSensitivity:[-1,0,1],protectedMask:[1,0,1],displacementM:[0,0,0]};
+  return {schemaVersion:'zephyr.surface.v2',runId:'test-real-contract',source:'live',createdAt:'2026-09-18T00:00:00Z',status:'analysis',coordinates:{units:'m',up:'+Y',streamwise:'+X',handedness:'right',fieldAssociation:'vertex',rotation:[[1,0,0],[0,0,1],[0,-1,0]],upstreamOriginM:[0,0,0],transform:'test'},provenance:{modelVersion:'test fixture, not inference',checkpointSha256:'a'.repeat(64),meshHash:'b'.repeat(64),upstreamCommit:'c'.repeat(40),evidenceUrls:['/api/test'],forceConvention:'D=Fx',fieldTransfer:'area weighted',sensitivityConvention:'d(-Fx)/dX',reduction:{}},conditions:{streamVelocityMps:[38.889,0,0],densityKgM3:1.205},baseline:surface,candidate:null,forces:{baselineN:[600,0,0],baselineDragN:600,candidateN:null,candidateDragN:null,predictedDragN:null},constraints:{maxDisplacementM:.004,protectedRegion:'cabin'},trust:{decision:'refuse',calibrated:false,predictionErrorPercent:null,reason:'Analysis only'},validation:{geometry:'not-run',freshEvaluation:'not-run',independentCfd:'not-run',evidenceIds:['test:baseline'],checks:{}},timings:{}};
+}
+function comparison(){const r=fixture();r.candidate=structuredClone(r.baseline);r.candidate.positions[3]+=.002;r.candidate.displacementM[1]=.002;r.status='comparison';r.forces.candidateN=[601,0,0];r.forces.candidateDragN=601;r.forces.predictedDragN=599;r.validation.freshEvaluation='passed';return r;}
+test('analysis is valid with no invented candidate or candidate force',()=>{assert.equal(validateLiveRun(fixture()).candidate,null);const r=fixture();r.forces.candidateDragN=599;assert.throws(()=>validateLiveRun(r),/invent/);});
+test('fresh worsening comparison remains visible with refusal',()=>{const r=comparison();assert.equal(validateLiveRun(r).forces.candidateDragN,601);r.trust.decision='accept';assert.throws(()=>validateLiveRun(r),/unearned/);});
+test('real contract rejects wrong run, provenance, nonfinite fields and wrong coordinates',()=>{
+  assert.throws(()=>validateLiveRun(fixture(),'other'),/identity/);
+  for(const mutate of [(r:LiveRun)=>{r.provenance.checkpointSha256='missing';},(r:LiveRun)=>{r.baseline.pressurePa[0]=NaN;},(r:LiveRun)=>{r.coordinates.rotation[2][1]=1;},(r:LiveRun)=>{r.forces.baselineDragN=-600;}]){const r=fixture();mutate(r);assert.throws(()=>validateLiveRun(r));}
+});
+test('candidate must preserve protected vertices topology and displacement evidence',()=>{
+  for(const mutate of [(r:LiveRun)=>{r.candidate!.positions[0]+=.001;},(r:LiveRun)=>{r.candidate!.triangles[0]=1;},(r:LiveRun)=>{r.candidate!.displacementM[1]=.004;},(r:LiveRun)=>{r.validation.freshEvaluation='not-run';}]){const r=comparison();mutate(r);assert.throws(()=>validateLiveRun(r));}
+});
+test('polling event identities and ordering are guarded and duplicates ignored',()=>{
+  const j={runId:'a',source:'live',state:'running',stage:'baseline',detail:'',sequence:2,baselineReady:false,resultReady:false,events:[{runId:'a',source:'live',sequence:1,stage:'baseline',detail:'',completed:1,total:92},{runId:'a',source:'live',sequence:2,stage:'baseline',detail:'',completed:2,total:92}]} as Job;
+  assert.equal(nextEvents(j,'a',1).length,1);assert.equal(nextEvents(j,'a',2).length,0);assert.throws(()=>nextEvents(j,'b',0));j.events[1].runId='b';assert.throws(()=>nextEvents(j,'a',0));j.events[1].runId='a';j.events[1].sequence=1;assert.throws(()=>nextEvents(j,'a',0));
+});
