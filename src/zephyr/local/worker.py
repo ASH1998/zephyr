@@ -46,6 +46,9 @@ def execute(job_dir):
     from omegaconf import OmegaConf
     import main as upstream
     from zephyr.local.geometry import rear_basis, propose
+    from zephyr.local.sensitivity import evaluate_surface, ADAPTER_VERSION
+    from zephyr.local.trust import calibrate_handle, decide_step
+    from zephyr.local.intersections import audit_intersections
     from zephyr.local.conversion import mesh_hash, display_mapping, surface, ROTATION
     if not torch.cuda.is_available():
         raise RuntimeError('CUDA is required; no CPU or illustrative fallback')
@@ -77,7 +80,7 @@ def execute(job_dir):
         phase = name
         t = time.perf_counter()
         emit(name, 'Building geometry stencils and CUDA signed-distance inputs')
-        results = domino(mesh=target, stream_velocity=38.889, air_density=1.205, stencil_size=7, verbose=False)
+        results = evaluate_surface(domino, target, stream_velocity=38.889, air_density=1.205, stencil_size=7, verbose=False)
         torch.cuda.synchronize()
         for key, value in results.items():
             if not np.isfinite(value).all():
@@ -86,11 +89,12 @@ def execute(job_dir):
                 target.cell_data[key] = value
             elif len(value) == target.n_points:
                 target.point_data[key] = value
-        emit('smoothing', name + ': smoothing normal sensitivity (20 iterations)')
-        for key, value in domino.postprocess_point_sensitivities(results=results, mesh=target).items():
-            target[key] = value
-        target.field_data['aerodynamic_force'] = results['aerodynamic_force']
-        target.save(job_dir / (name + '.vtk'))
+        if name in ('baseline', 'evaluate'):
+            emit('smoothing', name + ': smoothing normal sensitivity (20 iterations)')
+            for key, value in domino.postprocess_point_sensitivities(results=results, mesh=target).items():
+                target[key] = value
+            target.field_data['aerodynamic_force'] = results['aerodynamic_force']
+            target.save(job_dir / (name + '.vtk'))
         timings[name + 'Seconds'] = time.perf_counter() - t
         return results['aerodynamic_force'].astype(float)
     force = evaluate(mesh, 'baseline')
@@ -108,12 +112,14 @@ def execute(job_dir):
         'coordinates': {'units': 'm', 'up': '+Y', 'streamwise': '+X', 'handedness': 'right', 'fieldAssociation': 'vertex',
             'rotation': ROTATION.tolist(), 'upstreamOriginM': origin.tolist(), 'transform': '(upstream - origin) @ rotation.T'},
         'provenance': {'artifactVersion': 'domino-local-v1', 'modelVersion': 'DoMINO.0.501.mdlus',
+            'sensitivityAdapter': ADAPTER_VERSION,
+            'localNumericsSha256': {name: _file_sha256(Path(__file__).with_name(name)) for name in ('worker.py', 'sensitivity.py', 'trust.py', 'geometry.py', 'intersections.py')},
             'checkpointSha256': checks[0].actual_sha256, 'bundle': [c.to_dict() for c in checks], 'upstreamCommit': pin,
             'workflowFilesSha256': {str(p.relative_to(WORKFLOW)): _file_sha256(p) for p in sorted(WORKFLOW.rglob('*.py'))},
             'meshHash': mesh_hash(mesh), 'inputGeometrySha256': _file_sha256(input_path),'inputGeometryFormat':input_path.suffix,
             'evidenceUrls': [evidence_url], 'solver': None, 'reduction': reduction,
             'fieldTransfer': 'Pressure/shear: area-weighted adjacent cells -> original points -> retained vertices. Sensitivity: upstream 20-step smoothed point field.',
-            'sensitivityConvention': 'Upstream d(-Fx)/dX at geometry cell centroids; displayed smoothed normal projection, N/m. Drag D=Fx; the sensitivity ascends -drag.',
+            'sensitivityConvention': 'Batch-corrected partial d(-Fx)/dX at geometry cell centroids; other model inputs held fixed. Not the total mesh derivative. Displayed smoothed normal projection, N/m. Candidate prediction uses separate full-pipeline finite differences.',
             'forceConvention': 'Upstream sum A*(p*n_inward - wallShear), n_inward=-VTK cell normal. Raw signed Fx > 0 on this sample; displayed drag D=Fx. Full source mesh, not reduced display mesh.',
             'fullResolutionRanges': ranges, 'gpu': torch.cuda.get_device_name(0)},
         'conditions': {'streamVelocityMps': [38.889, 0, 0], 'densityKgM3': 1.205},
@@ -128,10 +134,18 @@ def execute(job_dir):
     write_json(job_dir / 'baseline.json', payload)
     emit('baseline-ready', 'Real baseline fields ready', artifact='baseline')
     if request['mode'] == 'iteration':
-        emit('candidate', 'Projecting smoothed sensitivity onto bounded rear-width handle')
+        emit('calibration', 'Checking repeatability and two scales of positive/negative rear-width probes')
+        calibration = calibrate_handle(mesh, float(force[0]), request['budgetMm'] / 1000, evaluate)
+        calibration.update(runId=run_id, meshHash=mesh_hash(mesh), checkpointSha256=checks[0].actual_sha256,
+                           upstreamCommit=pin, sensitivityAdapter=ADAPTER_VERSION,
+                           conditions=payload['conditions'], handle='rear-width-quintic-v1')
+        payload['calibration'] = calibration
+        write_json(job_dir / 'calibration.json', calibration)
+        emit('candidate', 'Using the measured full-pipeline slope for a separate bounded rear-width trial')
         attempts = []
         for factor in (1, .5, .25, .125, .0625):
-            candidate, protected, handle = propose(mesh, request['budgetMm'] / 1000 * factor)
+            candidate, protected, handle = propose(mesh, request['budgetMm'] / 1000 * factor,
+                                                   slope_n_per_m=calibration.get('slopeNPerM'))
             attempts.append(handle)
             invalid = any(v['status'] == 'failed' for v in handle['checks'].values())
             if not invalid:
@@ -145,7 +159,13 @@ def execute(job_dir):
             payload['validation']['geometry'] = 'failed'
             emit('validate', payload['trust']['reason'])
         else:
-            emit('validate', 'Topology, protected points, bounds, normals and watertightness passed; intersection audit pending')
+            emit('validate', 'Auditing all baseline and candidate triangles for self-intersections')
+            baseline_audit = audit_intersections(mesh)
+            candidate_audit = audit_intersections(candidate)
+            handle['checks']['selfIntersection'] = {
+                'status': 'passed' if baseline_audit['status'] == candidate_audit['status'] == 'passed' else
+                          'failed' if 'failed' in (baseline_audit['status'], candidate_audit['status']) else 'not-run',
+                'baseline': baseline_audit, 'candidate': candidate_audit}
             candidate_force = evaluate(candidate, 'evaluate')
             candidate_surface, candidate_ranges = surface(candidate, ids, triangles, protected, origin, mesh)
             payload['candidate'] = candidate_surface
@@ -154,16 +174,13 @@ def execute(job_dir):
             payload['provenance']['candidateFullResolutionRanges'] = candidate_ranges
             drag = float(candidate_force[0])
             predicted = float(force[0]) + handle['predictedDragDeltaN']
-            actual_delta = drag - float(force[0])
-            error = abs(actual_delta - handle['predictedDragDeltaN']) / max(abs(handle['predictedDragDeltaN']), 1e-6) * 100
             payload['forces'].update(candidateN=(candidate_force @ ROTATION.T).tolist(), candidateDragN=drag, predictedDragN=predicted)
-            reason = 'Fresh surrogate drag worsened; step refused.' if actual_delta >= 0 else 'Fresh surrogate drag decreased, but trust radius and triangle intersection audit are not validated; acceptance refused.'
-            if candidate_force[0] <= 0:
-                reason = 'Candidate signed force left expected convention; refused.'
+            payload['trust'] = decide_step(float(force[0]), drag, handle['predictedDragDeltaN'],
+                                          calibration, handle['checks'], experimental=selected['experimental'])
             if len(attempts) > 1:
-                reason = f"Geometry checks shrank {request['budgetMm']:.3f} to {abs(handle['amplitudeM'])*1000:.3f} mm. " + reason
-            payload['trust'].update(reason=reason, predictionErrorPercent=error)
-            payload['validation'].update(geometry='incomplete', freshEvaluation='passed')
+                payload['trust']['reason'] = f"Geometry checks shrank {request['budgetMm']:.3f} to {abs(handle['amplitudeM'])*1000:.3f} mm. " + payload['trust']['reason']
+            geometry_status = 'passed' if all(c['status'] == 'passed' for c in handle['checks'].values()) else 'failed' if any(c['status'] == 'failed' for c in handle['checks'].values()) else 'incomplete'
+            payload['validation'].update(geometry=geometry_status, freshEvaluation='passed')
             payload['validation']['evidenceIds'].append(run_id + ':candidate')
     # Release surface/autograd memory before loading the separate velocity model.
     del domino

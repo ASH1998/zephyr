@@ -12,7 +12,8 @@ export interface LiveRun {
   baseline: Surface; candidate: Surface | null;
   forces: { baselineN: Vec3; candidateN: Vec3 | null; baselineDragN: number; candidateDragN: number | null; predictedDragN: number | null };
   constraints: { maxDisplacementM: number; protectedRegion: string };
-  trust: { decision: 'refuse' | 'shrink' | 'accept'; calibrated: boolean; predictionErrorPercent: number | null; reason: string };
+  trust: { decision: 'refuse' | 'shrink' | 'accept'; calibrated: boolean; predictionErrorPercent: number | null; reason: string; predictionErrorN?:number; predictionErrorBaselinePercent?:number|null; reductionRatio?:number|null; calibrationScope?:string; engineeringValidated?:boolean; policyVersion?:string };
+  calibration?: {status:string; policyVersion?:string; slopeDisagreementPercent?:number; numericalFloorN?:number; samples?:unknown[]};
   validation: { geometry: string; freshEvaluation: string; independentCfd: string; evidenceIds: string[]; checks: Record<string, { status: string; detail?: string }> };
   timings: Record<string, number>;
 }
@@ -49,9 +50,22 @@ export function validateLiveRun(input: unknown, runId?: string): LiveRun {
     }
   } else if (r.status !== 'analysis' || r.forces.candidateN !== null || r.forces.candidateDragN !== null || r.forces.predictedDragN !== null || r.validation.freshEvaluation !== 'not-run') fail('analysis must not invent a candidate');
   if (!r.trust || !['refuse', 'shrink', 'accept'].includes(r.trust.decision) || typeof r.trust.calibrated !== 'boolean' || !r.trust.reason || (r.trust.predictionErrorPercent !== null && (!Number.isFinite(r.trust.predictionErrorPercent) || r.trust.predictionErrorPercent < 0))) fail('trust');
-  if (r.trust.decision === 'accept' && (!r.candidate || !r.trust.calibrated || r.validation.geometry !== 'passed')) fail('unearned acceptance');
+  if (r.trust.decision === 'accept' && (!r.candidate || !r.trust.calibrated || r.validation.geometry !== 'passed' ||
+      r.calibration?.status !== 'passed' || r.trust.calibrationScope !== 'local-surrogate-handle-only' || r.trust.engineeringValidated !== false ||
+      r.forces.candidateDragN! >= r.forces.baselineDragN || r.car?.experimental || r.geometryId !== 'drivaer-1' ||
+      ['topology','finite','protected','bounds','normals','triangleArea','watertight','symmetricHandle','transition','selfIntersection'].some(key=>r.validation.checks[key]?.status!=='passed') || Object.values(r.validation.checks).some(c=>c.status!=='passed'))) fail('unearned acceptance');
   if(r.airflow){const id=r.geometryId??r.intent?.request.geometryId??'drivaer-1';validateAirflow(r.airflow.baseline,id,r.provenance.meshHash);if(r.airflow.candidate)validateAirflow(r.airflow.candidate,id,String(r.provenance.candidateMeshHash));}
   return r;
+}
+export function trustPresentation(run:LiveRun) {
+  const t=run.trust;
+  const state=!run.candidate?'Analysis only':t.decision==='accept'?'Local check passed':t.decision==='shrink'?'Smaller step needed':'Not accepted';
+  const detail=t.predictionErrorN!==undefined?`Prediction difference ${t.predictionErrorN.toFixed(3)} N${t.predictionErrorPercent===null?' · relative change unresolved':` · ${t.predictionErrorPercent.toFixed(1)}% of predicted change`}. Local surrogate check only.`:
+    t.predictionErrorPercent===null?'No validated local prediction':`Legacy change-relative error ${t.predictionErrorPercent.toFixed(1)}% · uncalibrated`;
+  const headline=!run.candidate?'Original shape tested.':t.decision==='accept'?'Local check passed. Ready for further evaluation.':
+    run.forces.candidateDragN!>=run.forces.baselineDragN?'This change did not help.':'Lower predicted resistance. Step not accepted.';
+  const candidateLabel=t.decision==='accept'?'Evaluated candidate · local check passed':'Evaluated candidate · not accepted';
+  return {state,detail,headline,candidateLabel};
 }
 export function nextEvents(job: Job, runId: string, sequence: number): JobEvent[] {
   if (job.runId !== runId || job.source !== 'live' || !Array.isArray(job.events)) fail('job identity');

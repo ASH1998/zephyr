@@ -1,0 +1,67 @@
+{
+  "date": "2026-09-19",
+  "tool": "CUA in-app browser, temporary hidden tabs",
+  "viewports": [
+    {
+      "width": 979,
+      "height": 882,
+      "layout": "stacked"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "layout": "side by side"
+    }
+  ],
+  "geometriesReady": [
+    "drivaer-1",
+    "hatchback",
+    "suv",
+    "wagon",
+    "coupe",
+    "sports",
+    "van",
+    "x57",
+    "global-hawk"
+  ],
+  "comparison": [
+    "mouse orbit on Changed synchronized both",
+    "keyboard orbit on Original synchronized both",
+    "keyboard zoom on Changed synchronized both",
+    "reset both",
+    "actual size and labeled 120x Change",
+    "shared pressure and sensitivity scales",
+    "own NVIDIA volume fields",
+    "unchanged original-shape illustration",
+    "pause byte-identical screenshots",
+    "resume changes frames"
+  ],
+  "fixtures": {
+    "missing-volume": "Changed has no paths and explicitly unavailable label",
+    "failed": "No pair; candidate force absent",
+    "cancelled": "No pair; candidate force absent",
+    "running": "No pair; candidate force absent",
+    "publishing": "Preparing comparison; no premature result",
+    "reduced-motion": "Starts paused; repeated screenshots identical"
+  },
+  "recordedAircraftBaseline": "No pair or candidate",
+  "cleanup": {
+    "canvasesWithPair": 3,
+    "canvasesAfterClose": 1,
+    "canvasesAfterGeometrySwitch": 1,
+    "staleSummaryCleared": true
+  },
+  "freshRunId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+  "questions": [
+    "Why was it rejected?",
+    "Does that mean the cabin moved?"
+  ],
+  "questionResults": "Incomplete validation explained; follow-up confirms cabin unchanged and 3.000 mm rear movement",
+  "consoleWarningsOrErrorsObserved": [],
+  "finale": "Global Hawk illustrated opposite-turning wingtip vortices",
+  "limitations": [
+    "No formal FPS or GPU memory benchmark",
+    "Failure and cancellation paths use labeled fixtures; no second GPU job was interrupted",
+    "Reduced motion tested with fixture rather than changing OS preference"
+  ]
+}

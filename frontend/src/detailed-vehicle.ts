@@ -3,6 +3,10 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { Surface } from './data';
 import type { VehicleAsset } from './vehicle';
 export interface VisualSpec {url:string;offset:[number,number,number]}
+/** Release an asynchronously loaded asset if its selection was superseded. */
+export function disposeVehicle(asset:VehicleAsset) {
+  asset.group.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material]){for(const value of Object.values(m))if(value instanceof THREE.Texture)value.dispose();m.dispose();}}});
+}
 /** Detailed visual mesh, aligned to the simplified surface used for inference. */
 export async function loadDetailedVehicle(spec:VisualSpec,surface:Surface):Promise<VehicleAsset>{
   if(!/^\/models\/vehicles\/[a-z0-9-]+\.glb$/.test(spec.url)||spec.offset.length!==3||!spec.offset.every(Number.isFinite))throw new Error('Invalid visual asset');
@@ -22,5 +26,7 @@ export async function loadDetailedVehicle(spec:VisualSpec,surface:Surface):Promi
     const materials=(Array.isArray(o.material)?o.material:[o.material]).map(original=>{const m=original.clone();if(m instanceof THREE.MeshStandardMaterial){m.envMapIntensity=.7;if(/glass|windows/i.test(m.name)){m.color.setHex(0x142a38);m.map=null;m.roughness=.22;m.metalness=.08;}}return m;});
     const mesh=new THREE.Mesh(geometry,Array.isArray(o.material)?materials:materials[0]);mesh.name=o.name;group.add(mesh);exterior.push({mesh,offset:0,count:position.count,basePositions,surfaceIndices});
   });
+  // Geometry/material clones own the rendered resources; release loader originals.
+  gltf.scene.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material])m.dispose();}});
   return {group,exterior,aircraft:/x57|global-hawk/.test(spec.url)};
 }

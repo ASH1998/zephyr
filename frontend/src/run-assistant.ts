@@ -48,7 +48,9 @@ export function createRunAssistant() {
         if(epoch!==generation||currentRun!==runId)return;
         if(data?.runId!==runId||typeof data.headline!=='string'||!validFacts(data.facts)||data.evidenceUrl!==`/api/runs/${runId}/evidence`)throw new Error('Summary does not match this run');
         heading.textContent=data.headline.replace('Original car tested','Original shape tested');summary.replaceChildren();root.querySelector('.detail-facts')!.replaceChildren();
-        for(const fact of data.facts){const p=document.createElement('p');p.className=`summary-${fact.id}`;p.textContent=fact.text;(fact.id==='movement'||fact.id==='cabin'?summary:root.querySelector('.detail-facts')!).append(p);}
+        for(const fact of data.facts){const p=document.createElement('p');p.className=`summary-${fact.id}`;p.textContent=fact.text;(fact.id==='decision'||fact.id==='movement'||fact.id==='cabin'?summary:root.querySelector('.detail-facts')!).append(p);}
+        const decisionQuestion=data.decision==='accept'?'Why did the local check pass?':'Why was it rejected?';
+        const decisionButton=suggestions.querySelector<HTMLButtonElement>('button')!;decisionButton.textContent=decisionQuestion;decisionButton.onclick=()=>void ask(decisionQuestion);
         root.querySelector<HTMLAnchorElement>('.result-sources a')!.href=data.evidenceUrl;loaded=true;
         status.textContent=enabled?'Answers use this run’s evidence and the app’s current capabilities.':'Questions need the API’s --enable-llm option.';
       }catch(error){if(epoch===generation){heading.textContent='The result summary is unavailable';status.textContent=error instanceof Error?error.message:String(error);}}

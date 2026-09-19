@@ -1,13 +1,16 @@
-import {loadDetailedVehicle} from './detailed-vehicle';
+import { createComparison } from './comparison';
+import { canCompare } from './comparison-data';
+import type { VisualSpec } from './detailed-vehicle';
+import {loadDetailedVehicle,disposeVehicle} from './detailed-vehicle';
 import {validateAirflow} from './airflow';
 import type {Airflow} from './airflow';
-import { createRunProgress, stageProgress } from './run-progress';
+import { createRunProgress, stageProgress, progressStage } from './run-progress';
 import { previewSurface } from './geometry-preview';
 import { createCopilot } from './copilot';
 import { FlowScene } from './scene';
 import { fieldRange } from './data';
 import type { ViewMode } from './data';
-import { api, nextEvents, validateLiveRun } from './live-data';
+import { api, nextEvents, validateLiveRun, trustPresentation } from './live-data';
 import type { Job, JobEvent, LiveRun } from './live-data';
 
 export async function startLive() {
@@ -18,6 +21,9 @@ export async function startLive() {
   let cars:Car[]=[],selectedId='drivaer-1',previewEpoch=0,cachedFlow:Airflow|undefined;
   const vehicleSelect=$<HTMLSelectElement>('#vehicle');const carIntro=$('.intro').innerHTML;
   const carInfo=document.createElement('p');carInfo.className='car-description';vehicleSelect.parentElement!.after(carInfo);const aircraftNote=document.createElement('p');aircraftNote.className='aircraft-note';aircraftNote.textContent='Orange spirals start at the wing tips and turn in opposite directions. Rotate the aircraft to follow them behind the wings. Use Flow illustration to see air bend around the shape, or NVIDIA prediction to inspect the calculated paths. This is an experimental visual preview, not a flight-performance test.';carInfo.after(aircraftNote);
+  const pair = createComparison();
+  let visualSpec: VisualSpec | undefined;
+  let recordedReplay = false;
   let view: ViewMode='airflow';
   let flowStyle:'illustration'|'prediction'='illustration';
   const flowChoice=document.createElement('div');flowChoice.className='flow-choice';flowChoice.setAttribute('role','group');flowChoice.setAttribute('aria-label','Airflow display');flowChoice.innerHTML='<button data-flow-style="illustration" aria-pressed="true">Flow illustration</button><button data-flow-style="prediction" aria-pressed="false">NVIDIA prediction</button>';$('.flow-label').before(flowChoice);
@@ -59,12 +65,12 @@ export async function startLive() {
   function lockControls(busy:boolean){const plane=cars.find(c=>c.id===selectedId)?.category==='aircraft';analyze.disabled=vehicleSelect.disabled=busy;button.disabled=budget.disabled=brief.disabled=busy||plane;copilot.setBusy(busy||plane);}
   const copilot=createCopilot(()=>getRequest(),busy=>{active=busy;lockControls(busy);});
   function mode(value:ViewMode) {
-    view=value;magnify.disabled=value==='airflow';scene?.setMode(value);scene?.setStory(value==='displacement' && run?.candidate ? 'result' : undefined);$('.rear-callout').hidden=!(value==='displacement' && run?.candidate);if(value==='sensitivity' && run)blend(0);
+    view=value;magnify.disabled=value!=='displacement';scene?.setMode(value);scene?.setStory(value==='displacement' && run?.candidate ? 'result' : undefined);$('.rear-callout').hidden=!(value==='displacement' && run?.candidate);if(value==='sensitivity' && run)blend(0);
     document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(b=>{const on=b.dataset.mode===value;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
     text('#show-candidate',value==='airflow'?'02 Candidate geometry':'02 Candidate + change map');
     flowChoice.hidden=value!=='airflow';$('.flow-label').hidden=value!=='airflow';$('#motion').hidden=value!=='airflow';
     if(value==='airflow'){flowLegend();return;}
-    text('#result-scale',magnify.checked?'Movement enlarged ×120 · actual mm shown':'True-scale shape · field in actual mm');
+    text('#result-scale',view==='displacement'&&magnify.checked?'Movement enlarged ×120 · actual mm shown':'True-scale shape · field in actual units');
     if(!run){text('#legend','DrivAerML geometry preview · run inference for measured surface fields');return;}
     const range=fieldRange(value==='sensitivity'?run.baseline.normalSensitivity:run.baseline.pressurePa), candidateRange=run.candidate?fieldRange(run.candidate.pressurePa):range;const lo=value==='pressure'?Math.min(range[0],candidateRange[0]):range[0],hi=value==='pressure'?Math.max(range[1],candidateRange[1]):range[1];
     const mm=run.candidate?fieldRange(run.candidate.displacementM)[1]*1000:0;
@@ -72,7 +78,7 @@ export async function startLive() {
     $('#legend').replaceChildren();const scale=document.createElement('span');scale.className=`color-scale ${value}`;$('#legend').append(scale,label+' · live surrogate');
   }
   document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(b=>b.onclick=()=>{stopReplay();mode(b.dataset.mode as ViewMode);});
-  function blend(v:number){$('.rear-callout').hidden=!(view==='displacement' && run?.candidate && v>0);compare.value=String(v);scene?.setBlend(v/100);text('#compare-status',v===0?'Baseline geometry':v===100?'Evaluated candidate · not accepted':`${v}% geometry blend`);$('#show-baseline').setAttribute('aria-pressed',String(v===0));$('#show-candidate').setAttribute('aria-pressed',String(v===100));if(view==='airflow')flowLegend();}
+  function blend(v:number){$('.rear-callout').hidden=!(view==='displacement' && run?.candidate && v>0);compare.value=String(v);scene?.setBlend(v/100);text('#compare-status',v===0?'Baseline geometry':v===100&&run?trustPresentation(run).candidateLabel:`${v}% geometry blend`);$('#show-baseline').setAttribute('aria-pressed',String(v===0));$('#show-candidate').setAttribute('aria-pressed',String(v===100));if(view==='airflow')flowLegend();}
   let replayFrame=0;
   const replay=document.createElement('button');replay.id='replay-change';replay.textContent='▶ Show me the change';$('.result-controls').append(replay);
   const stopReplay=()=>{cancelAnimationFrame(replayFrame);replayFrame=0;replay.disabled=false;};
@@ -101,13 +107,13 @@ export async function startLive() {
   function describeCar(){const car=cars.find(c=>c.id===selectedId);const plane=car?.category==='aircraft';$('#app').classList.toggle('aircraft-workspace',plane);$('.intro').innerHTML=plane?'<p class="eyebrow">AIRCRAFT EXPLORER</p><h1>Follow the air.<br>Across the wings.<br><em>Around the tail.</em></h1><p class="subcopy">NASA aircraft models · experimental airflow.<br>Drag to rotate. Scroll to get closer.</p>':carIntro;analyze.textContent=plane?'Run experimental baseline analysis':'Run baseline analysis only';button.textContent=plane?'Shape editing is available for cars':'Run bounded iteration ↗';lockControls(active);carInfo.textContent=car?car.description+(car.experimental?' · detailed model · experimental airflow':''):'';text('footer > span:first-child',car?.label.toUpperCase()??selectedId.toUpperCase());}
   async function loadCar(id:string){
     const car=cars.find(c=>c.id===id);if(!car||active)return;
-    stopReplay();const epoch=++previewEpoch;selectedId=id;sessionStorage.setItem('zephyr-car',id);sessionStorage.removeItem('zephyr-active-run');jobId=undefined;run=undefined;cachedFlow=undefined;baselineLoaded=resultLoaded=explanationRequested=restoredIntent=false;copilot.reset();scene?.dispose();scene=undefined;
-    $('.viewport').classList.remove('story-active');for(const name of ['#run-story','.comparison','.result-controls','#story-result','.rear-callout'])$(name).hidden=true;
+    stopReplay();pair.clear();recordedReplay=false;history.replaceState(null,'',location.pathname);const epoch=++previewEpoch;selectedId=id;sessionStorage.setItem('zephyr-car',id);sessionStorage.removeItem('zephyr-active-run');jobId=undefined;run=undefined;cachedFlow=undefined;baselineLoaded=resultLoaded=explanationRequested=restoredIntent=false;copilot.reset();scene?.dispose();scene=undefined;
+    $('.run-progress-card').hidden=true;$('.viewport').classList.remove('story-active');for(const name of ['#run-story','.comparison','.result-controls','#story-result','.rear-callout'])$(name).hidden=true;
     for(const name of ['.baseline-value','#candidate-force','#delta','#displacement'])text(name,'—');text('#trust-state','Not evaluated');text('.proof-value','Not run');text('.metrics .metric:last-child p','No surface or shape test for this selection yet');text('#trust-detail','Run a test to compare shapes');text('.metric-main p','Airflow preview loaded separately · no drag test yet');text('#run-id','NO RUN YET');$<HTMLButtonElement>('#export').disabled=true;
     for(const key of ['pressure','sensitivity','displacement'])$(`[data-mode="${key}"]`).setAttribute('disabled','');describeCar();mode('airflow');status('Loading '+car.label,'Preparing this car and its NVIDIA airflow.');
     try{
       const response=await fetch(car.preview);if(!response.ok)throw new Error('Car geometry unavailable');const value=await response.json();if(epoch!==previewEpoch||run||jobId)return;
-      const baseline=previewSurface(value,id);const asset=value.visual?await loadDetailedVehicle(value.visual,baseline):undefined;if(epoch!==previewEpoch||run||jobId)return;scene=new FlowScene($('#scene'),{baseline,candidate:null,source:'geometry-preview'},asset);scene.setMagnified(false);updateMotion();$('.cabin-label').hidden=false;
+      const baseline=previewSurface(value,id);const asset=value.visual?await loadDetailedVehicle(value.visual,baseline):undefined;if(epoch!==previewEpoch||run||jobId){if(asset)disposeVehicle(asset);return;}scene=new FlowScene($('#scene'),{baseline,candidate:null,source:'geometry-preview'},asset);scene.setMagnified(false);updateMotion();$('.cabin-label').hidden=false;
       const flowResponse=await fetch(car.airflow);if(!flowResponse.ok)throw new Error('Saved model airflow unavailable');const flow=validateAirflow(await flowResponse.json(),id,value.meshHash??value.sourceMeshSha256);if(epoch!==previewEpoch||run||jobId)return;
       cachedFlow=flow;scene.setAirflow(flow);mode('airflow');status(car.label+' · airflow ready',car.category==='aircraft'?'Experimental flow around a scaled aircraft. This car-trained model does not establish aircraft performance.':'NVIDIA airflow calculated on a simplified version of this detailed car. Run a test to evaluate a new shape.');
     }catch(error){if(epoch===previewEpoch){status('Preview unavailable',error instanceof Error?error.message:String(error));mode('airflow');}}
@@ -115,7 +121,7 @@ export async function startLive() {
   async function install(payload:LiveRun) {
     ++previewEpoch;cachedFlow=undefined;selectedId=payload.geometryId??payload.intent?.request.geometryId??'drivaer-1';vehicleSelect.value=selectedId;describeCar();
     if(payload.intent && !restoredIntent){copilot.restore(payload.intent);restoredIntent=true;}
-    run=payload;const epoch=previewEpoch;const car=cars.find(c=>c.id===selectedId);const preview=car?await fetch(car.preview).then(r=>r.json()):undefined;const asset=preview?.visual && preview.meshHash===payload.provenance.meshHash?await loadDetailedVehicle(preview.visual,payload.baseline):undefined;if(epoch!==previewEpoch)return;scene?.dispose();scene=new FlowScene($('#scene'),run,asset);updateMotion();for(const key of ['pressure','sensitivity','displacement'])$(`[data-mode="${key}"]`).removeAttribute('disabled');scene.setMagnified(magnify.checked,120);mode(view);blend(0);
+    run=payload;const epoch=previewEpoch;const car=cars.find(c=>c.id===selectedId);const preview=car?await fetch(car.preview).then(r=>r.json()):undefined;const asset=preview?.visual && preview.meshHash===payload.provenance.meshHash?await loadDetailedVehicle(preview.visual,payload.baseline):undefined;if(epoch!==previewEpoch){if(asset)disposeVehicle(asset);return;}visualSpec=asset?preview.visual:undefined;scene?.dispose();scene=new FlowScene($('#scene'),run,asset);updateMotion();for(const key of ['pressure','sensitivity','displacement'])$(`[data-mode="${key}"]`).removeAttribute('disabled');scene.setMagnified(magnify.checked,120);mode(view);blend(0);
     $('.cabin-label').hidden=false;$('.viewport').classList.add('story-active');$('#run-story').hidden=false;
     text('.baseline-value',`${run.forces.baselineDragN.toFixed(2)} N`);text('#candidate-force',run.forces.candidateDragN===null?'—':`${run.forces.candidateDragN.toFixed(2)} N`);
     const delta=run.forces.candidateDragN===null?null:(run.forces.candidateDragN-run.forces.baselineDragN)/run.forces.baselineDragN*100;
@@ -123,38 +129,38 @@ export async function startLive() {
     text('.metric-main p',run.candidate?'Fresh baseline vs candidate · surrogate, not CFD':'Actual baseline · candidate has not been evaluated');
     const mm=run.candidate?fieldRange(run.candidate.displacementM)[1]*1000:0;
     text('#displacement',run.candidate?`${mm.toFixed(2)} mm`:'No candidate');text('#scale-caption',run.candidate?`Actual maximum: ${mm.toFixed(2)} mm · cabin 0.00 mm`:'Analysis only');text('#run-id',run.runId);
-    text('#trust-state',run.candidate?'Refused':'Analysis only');text('#trust-detail',run.trust.predictionErrorPercent===null?'Trust radius uncalibrated':`Prediction error ${run.trust.predictionErrorPercent.toFixed(1)}% · uncalibrated`);
+    const trust=trustPresentation(run);text('#trust-state',trust.state);text('#trust-detail',trust.detail);
     text('.proof-value','CFD pending');text('.metrics .metric:last-child p',`Geometry: ${run.validation.geometry} · fresh evaluation: ${run.validation.freshEvaluation}`);
     for(const s of ['.comparison','.result-controls','#story-result'])$(s).hidden=!run.candidate;
-    if(run.candidate){text('#result-label','FRESH SURROGATE COMPARISON · NOT ACCEPTED');text('#result-before',`${run.forces.baselineDragN.toFixed(2)} N`);text('#result-after',`${run.forces.candidateDragN!.toFixed(2)} N`);text('#result-delta',`${delta!>0?'+':''}${delta!.toFixed(3)}%`);$('#result-delta').classList.toggle('worse',delta!>=0);text('#result-scale',magnify.checked?'Movement enlarged ×120 · actual mm shown':'True-scale shape · field in actual mm');text('#rear-displacement',`${mm.toFixed(2)} mm actual movement`);if(view!=='airflow')mode('displacement');blend(100);}
+    if(run.candidate){text('#result-label',run.trust.decision==='accept'?'LOCAL SURROGATE CHECK PASSED · CFD PENDING':'FRESH SURROGATE COMPARISON · NOT ACCEPTED');text('#result-before',`${run.forces.baselineDragN.toFixed(2)} N`);text('#result-after',`${run.forces.candidateDragN!.toFixed(2)} N`);text('#result-delta',`${delta!>0?'+':''}${delta!.toFixed(3)}%`);$('#result-delta').classList.toggle('worse',delta!>=0);text('#result-scale',magnify.checked?'Movement enlarged ×120 · actual mm shown':'True-scale shape · field in actual mm');text('#rear-displacement',`${mm.toFixed(2)} mm actual movement`);if(view!=='airflow')mode('displacement');blend(100);}
     $('#provenance').replaceChildren();
     const rows:Record<string,string>={Run:run.runId,Source:run.source,Model:run.provenance.modelVersion,'Checkpoint SHA-256':run.provenance.checkpointSha256,'Mesh SHA-256':run.provenance.meshHash,'Upstream commit':run.provenance.upstreamCommit,Coordinates:'Metres · upstream (X,Y,Z) → (X,Z,−Y), translated to centre/ground',Forces:run.provenance.forceConvention,Fields:run.provenance.fieldTransfer,Sensitivity:run.provenance.sensitivityConvention,Reduction:JSON.stringify(run.provenance.reduction),Timings:JSON.stringify(run.timings),Decision:run.trust.reason,Checks:JSON.stringify(run.validation.checks)};
     if(run.intent){rows['Brief model']=run.intent.provenance.model;rows['Compiled brief']=run.intent.request.brief;rows['Intent ID']=run.intent.intentId;rows['Compiled ceiling']=`${run.intent.graph.effectiveBudgetMm} mm`;}
     for(const [key,value] of Object.entries(rows)){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=key;dd.textContent=value;$('#provenance').append(dt,dd);}
     for(const url of run.provenance.evidenceUrls){const a=document.createElement('a');a.href=url;a.textContent='Machine-readable evidence ↗';a.target='_blank';a.rel='noopener';$('#provenance').append(a);}
     $<HTMLButtonElement>('#export').disabled=false;
-    if(!run.airflow){const expected=run.runId;const car=cars.find(c=>c.id===selectedId);if(car)void fetch(car.airflow).then(r=>{if(!r.ok)throw new Error('No saved airflow');return r.json();}).then(v=>{const flow=validateAirflow(v,selectedId,payload.provenance.meshHash);if(run?.runId!==expected||run.airflow)return;run.airflow={baseline:flow};scene?.setAirflow(flow);if(view==='airflow')flowLegend();}).catch(()=>{});}
   }
   function event(e:JobEvent){
-    $('.viewport').classList.add('story-active');$('#run-story').hidden=false;text('#story-source','LIVE LOCAL SURROGATE · NVIDIA DoMINO');
-    const presentation=stageProgress(e.stage,e.completed,e.total);
+    $('.viewport').classList.add('story-active');$('#run-story').hidden=false;text('#story-source',recordedReplay?'RECORDED REPLAY · NVIDIA DoMINO':'LIVE LOCAL SURROGATE · NVIDIA DoMINO');
+    const presentation=stageProgress(e.stage,e.completed,e.total,e.detail);
     text('#story-title',presentation.title);text('#story-detail',presentation.detail);
     text('#story-count',presentation.percent===null?(presentation.step?`STEP ${presentation.step} OF 5`:e.stage.toUpperCase()):`${presentation.percent}% OF THIS CALCULATION`);
     const index=e.stage==='complete'?5:Math.max(0,presentation.step-1);
     document.querySelectorAll<HTMLElement>('[data-step], [data-story-stage]').forEach((el,i)=>{const n=i%5,done=index>n&&(n<2||!!run?.candidate)&&(n!==3||run?.validation.geometry==='passed');el.classList.toggle('running',n===index);el.classList.toggle('current',n===index);el.classList.toggle('done',done);const mark=el.querySelector('b');if(mark)mark.textContent=n===3&&run?.validation.geometry==='incomplete'?'!':done?'✓':n===index?'○':'—';});
     if(view!=='airflow'&&run&&e.stage==='candidate')mode('sensitivity');if(view!=='airflow'&&run&&e.stage==='validate')mode('mesh');if(view!=='airflow'&&run&&e.stage==='evaluate')mode('pressure');
 
-    if(e.stage==='complete' && run){if(!run.candidate){text('#story-count','BASELINE COMPLETE');$('.story-progress').hidden=true;}else $('.story-progress').hidden=false;text('#story-title',run.candidate?(run.forces.candidateDragN!>=run.forces.baselineDragN?'This change did not help.':'Lower predicted resistance. Checks still pending.'):'Original shape tested.');text('#story-detail',run.candidate?'The original and changed shapes were both calculated. Compare them below, or ask about the result.':'The original shape was calculated. No changed shape was tested.');mode(view==='airflow'?'airflow':run.candidate?'displacement':'pressure');if(run.candidate)blend(100);}
+    if(e.stage==='complete' && run){if(!run.candidate){text('#story-count','BASELINE COMPLETE');$('.story-progress').hidden=true;}else $('.story-progress').hidden=false;text('#story-title',trustPresentation(run).headline);text('#story-detail',run.candidate?'The original and changed shapes were both calculated. Compare them below, or ask about the result.':'The original shape was calculated. No changed shape was tested.');mode(view==='airflow'?'airflow':run.candidate?'displacement':'pressure');if(run.candidate)blend(100);}
   }
   async function poll(){
     if(!jobId)return;
     try{
       const expected=jobId,job=await api<Job>(`/api/runs/${expected}`);if(expected!==jobId)return;const events=nextEvents(job,expected,sequence);
-      if(job.baselineReady&&!baselineLoaded){const payload=validateLiveRun(await api(`/api/runs/${expected}/baseline`),expected);if(expected!==jobId)return;await install(payload);baselineLoaded=true;}
-      if(job.resultReady&&!resultLoaded){const payload=validateLiveRun(await api(`/api/runs/${expected}/result`),expected);if(expected!==jobId)return;await install(payload);resultLoaded=true;}
-      for(const e of events){event(e);sequence=e.sequence;}
+      if(job.baselineReady&&!baselineLoaded){const payload=validateLiveRun(await api(`/api/runs/${expected}/baseline`),expected);if(expected!==jobId)return;await install(payload);if(expected!==jobId)return;baselineLoaded=true;}
+      if(job.state==='complete'&&job.resultReady&&!resultLoaded){const payload=validateLiveRun(await api(`/api/runs/${expected}/result`),expected);if(expected!==jobId)return;if(recordedReplay)payload.source='recorded';await install(payload);if(expected!==jobId)return;resultLoaded=true;}
+      for(const e of events){if(e.stage==='complete'&&job.state!=='complete'){event({...e,stage:'publishing'});break;}event(e);sequence=e.sequence;}
+      if(canCompare(run,job.state))pair.set(run!,visualSpec);else pair.clear();
       runProgress.update(job,run?.timings.totalSeconds,!!run&&!run.candidate);
-      status(job.state==='complete'?'Test complete · result at the top of this panel':job.state==='failed'?'GPU run failed':job.state==='cancelled'?'Run cancelled':'GPU calculation in progress',job.state==='complete'?'The result summary explains what changed, whether it helped, and what still needs checking.':stageProgress(job.stage).detail);
+      status(job.state==='complete'?'Test complete · result at the top of this panel':job.state==='failed'?'GPU run failed':job.state==='cancelled'?'Run cancelled':'GPU calculation in progress',job.state==='complete'?'The result summary explains what changed, whether it helped, and what still needs checking.':stageProgress(progressStage(job),undefined,undefined,job.detail).detail);
       if(job.state==='complete'&&run?.airflowStatus==='failed')status('Surface results ready · airflow calculation failed',run.airflowError??'The separate volume model did not complete.');
       if(['complete','failed','cancelled'].includes(job.state)){active=false;lockControls(false);cancel.hidden=true;text('#iterate','Run bounded iteration ↗');}
       else window.setTimeout(()=>void poll(),750);
@@ -169,7 +175,7 @@ export async function startLive() {
       const job=await api<Job>('/api/runs',{...request,...(plan?{intentId:plan.intentId}:{})});nextEvents(job,job.runId,0);
       copilot.reset();explanationRequested=false;restoredIntent=false;
       active=true;jobId=job.runId;sequence=0;baselineLoaded=resultLoaded=false;budget.disabled=true;cancel.hidden=false;sessionStorage.setItem('zephyr-active-run',jobId);
-      run=undefined;scene?.setBlend(0);for(const key of ['pressure','sensitivity','displacement'])$(`[data-mode="${key}"]`).setAttribute('disabled','');mode('airflow');for(const s of ['.baseline-value','#candidate-force','#delta','#displacement'])text(s,'—');text('#trust-state','Running');text('.proof-value','Running');text('.metric-main p','Waiting for fresh baseline fields');text('#trust-detail','Trust radius uncalibrated');
+      pair.clear();recordedReplay=false;history.replaceState(null,'',location.pathname);run=undefined;scene?.dispose();scene=undefined;for(const key of ['pressure','sensitivity','displacement'])$(`[data-mode="${key}"]`).setAttribute('disabled','');mode('airflow');for(const s of ['.baseline-value','#candidate-force','#delta','#displacement'])text(s,'—');text('#trust-state','Running');text('.proof-value','Running');text('.metric-main p','Waiting for fresh baseline fields');text('#trust-detail','Trust radius uncalibrated');
       for(const s of ['.comparison','.result-controls','#story-result','.cabin-label'])$(s).hidden=true;$<HTMLButtonElement>('#export').disabled=true;$('#provenance').replaceChildren();text('#iterate','Running on local GPU…');text('#run-id',jobId);status('DoMINO is starting','The browser requested a real local GPU run.');void poll();
     }catch(error){active=false;lockControls(false);status('Request refused / unavailable',error instanceof Error?error.message:String(error));}
   }
@@ -180,6 +186,11 @@ export async function startLive() {
   window.addEventListener('pagehide',()=>scene?.dispose(),{once:true});
   try{cars=(await api<{cars:Car[]}>('/api/geometries')).cars;vehicleSelect.replaceChildren();for(const [category,label] of [['car','Cars'],['aircraft','Aircraft']]){const group=document.createElement('optgroup');group.label=label;group.append(...cars.filter(car=>car.category===category).map(car=>new Option(car.label,car.id)));vehicleSelect.append(group);}vehicleSelect.disabled=false;}catch{status('Car catalog unavailable','Check that the updated local API is running.');return;}
   vehicleSelect.onchange=()=>void loadCar(vehicleSelect.value);
+  const requestedReplay=new URLSearchParams(location.search).get('replay');
+  if(requestedReplay && /^local-[a-f0-9]{32}$/.test(requestedReplay)){
+    try { const job=await api<Job>(`/api/runs/${requestedReplay}`);nextEvents(job,requestedReplay,0);if(job.state!=='complete'||!job.resultReady)throw new Error('Replay requires a completed result');jobId=requestedReplay;recordedReplay=true;void poll();return; }
+    catch(error){status('Recorded replay unavailable',String(error));return;}
+  }
   const saved=sessionStorage.getItem('zephyr-active-run');
   if(saved&&/^local-[a-f0-9]{32}$/.test(saved)){try{const job=await api<Job>(`/api/runs/${saved}`);nextEvents(job,saved,0);jobId=saved;active=!['complete','failed','cancelled'].includes(job.state);lockControls(active);cancel.hidden=!active;void poll();}catch{sessionStorage.removeItem('zephyr-active-run');}}
   if(!jobId){const chosen=sessionStorage.getItem('zephyr-car');vehicleSelect.value=cars.some(c=>c.id===chosen)?chosen!:'drivaer-1';await loadCar(vehicleSelect.value);}

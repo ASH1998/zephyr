@@ -1,0 +1,458 @@
+{
+  "date": "2026-09-19",
+  "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+  "geometryId": "hatchback",
+  "brief": "Reduce drag with a small rear taper. Keep the cabin unchanged. Limit movement to 3 mm.",
+  "model": {
+    "model": "zai-org/GLM-5.3-Flash",
+    "requestedModel": "zai-org/GLM-5.3-Flash",
+    "seconds": 42.009,
+    "usage": {
+      "completion_tokens": 650,
+      "prompt_tokens": 421,
+      "total_tokens": 1071,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 534,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": null,
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 421,
+      "reasoning_tokens": 534
+    },
+    "schema": "zephyr_intent_v1",
+    "provider": "Nebius Token Factory",
+    "createdAt": "2026-09-19T08:54:10.978481+00:00",
+    "promptSha256": "b2ecf68bd8f000820cd3f4aa904ab3e9d5278dccef1d2325efbae4e677649d94",
+    "requestSha256": "af535d894410668944a5b4502387f76ab579c23a2edfdc6602f6c740dcf20fca"
+  },
+  "effectiveBudgetMm": 3.0,
+  "forces": {
+    "baselineN": [
+      474.92291259765625,
+      478.8136901855469,
+      -76.211181640625
+    ],
+    "candidateN": [
+      473.47247314453125,
+      478.5135498046875,
+      -76.5572509765625
+    ],
+    "baselineDragN": 474.92291259765625,
+    "candidateDragN": 473.47247314453125,
+    "predictedDragN": 474.9782731958255
+  },
+  "timings": {
+    "baselineSeconds": 2.98306969999976,
+    "evaluateSeconds": 1.7158692000011797,
+    "totalSeconds": 22.581383699998696
+  },
+  "maximumMovementMm": 3.0000000000000027,
+  "protectedVerticesUnchanged": 14967,
+  "topologyUnchanged": true,
+  "surfaceFieldsDiffer": true,
+  "airflow": {
+    "baseline": {
+      "meshHash": "7c3558aa9e514dd2a5414f6e2f216c28ddff47b4ac6776c5cd115ebb421dd0bd",
+      "source": "nvidia-volume",
+      "model": "DoMINO volume 0.501",
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882",
+      "createdAt": "2026-09-19T08:54:28.763978+00:00",
+      "seconds": 4.787,
+      "paths": 95
+    },
+    "candidate": {
+      "meshHash": "49f5eb76a1685294a4e7ef0d1cc57415c690f278710be66008bb27a743091e84",
+      "source": "nvidia-volume",
+      "model": "DoMINO volume 0.501",
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882",
+      "createdAt": "2026-09-19T08:54:33.610103+00:00",
+      "seconds": 4.821,
+      "paths": 95
+    }
+  },
+  "provenance": {
+    "artifactVersion": "domino-local-v1",
+    "modelVersion": "DoMINO.0.501.mdlus",
+    "checkpointSha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+    "bundle": [
+      {
+        "path": "DoMINO.0.501.mdlus",
+        "purpose": "Self-describing model architecture and weights",
+        "exists": true,
+        "nonempty": true,
+        "expected_sha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+        "actual_sha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+        "checksum_matches": true
+      },
+      {
+        "path": "scaling_factors.pkl",
+        "purpose": "Training-time field scaling used to recover physical units",
+        "exists": true,
+        "nonempty": true,
+        "expected_sha256": "895b876ab7a2f32b4c714e4eafc7b2e7d94029e037bfc2950cf8c6cb2a818c2d",
+        "actual_sha256": "895b876ab7a2f32b4c714e4eafc7b2e7d94029e037bfc2950cf8c6cb2a818c2d",
+        "checksum_matches": true
+      },
+      {
+        "path": "config.yaml",
+        "purpose": "Training-domain bounding boxes required by inference",
+        "exists": true,
+        "nonempty": true,
+        "expected_sha256": "43a3e7360e319b239d3d946aa04e3ac310dde1b20f7eb71be38943dd3bb27202",
+        "actual_sha256": "43a3e7360e319b239d3d946aa04e3ac310dde1b20f7eb71be38943dd3bb27202",
+        "checksum_matches": true
+      }
+    ],
+    "upstreamCommit": "0612ec4ed54484a47bfa134eda7b3b012a607624",
+    "workflowFilesSha256": {
+      "design_datapipe.py": "d70263e45ee0b7538b88453c0279f6231fe70e7178f81543f8ebea3ad7e89e65",
+      "main.py": "923a6380da888323255e544496a4b812f58903bca4b82dd7970f4f5f10fb5cd3",
+      "utilities\\download.py": "abd842fc22bcaf9389768c6244092b65d2386a97844071376421f7c05697bcb9",
+      "utilities\\mesh_postprocessing.py": "b828be45964f273ac4236653b9a0131fcc5d6fc1945c0ce38c2593cb0bc62369"
+    },
+    "meshHash": "7c3558aa9e514dd2a5414f6e2f216c28ddff47b4ac6776c5cd115ebb421dd0bd",
+    "inputGeometrySha256": "88f3352f7678def57e4999371d06d67f967ccc1ec6646a490b8dd5112b327103",
+    "inputGeometryFormat": ".vtp",
+    "evidenceUrls": [
+      "/api/runs/local-f76a1757dc7d4143abbbd8f69e53d5f3/evidence"
+    ],
+    "solver": null,
+    "reduction": {
+      "method": "identity"
+    },
+    "fieldTransfer": "Pressure/shear: area-weighted adjacent cells -> original points -> retained vertices. Sensitivity: upstream 20-step smoothed point field.",
+    "sensitivityConvention": "Upstream d(-Fx)/dX at geometry cell centroids; displayed smoothed normal projection, N/m. Drag D=Fx; the sensitivity ascends -drag.",
+    "forceConvention": "Upstream sum A*(p*n_inward - wallShear), n_inward=-VTK cell normal. Raw signed Fx > 0 on this sample; displayed drag D=Fx. Full source mesh, not reduced display mesh.",
+    "fullResolutionRanges": {
+      "pressurePa": [
+        -1679.33531984465,
+        1155.2341730277512
+      ],
+      "normalSensitivity": [
+        -0.3629055533583609,
+        0.5195641285586168
+      ]
+    },
+    "gpu": "NVIDIA GeForce RTX 4070 Ti SUPER",
+    "candidateMeshHash": "49f5eb76a1685294a4e7ef0d1cc57415c690f278710be66008bb27a743091e84",
+    "candidateFullResolutionRanges": {
+      "pressurePa": [
+        -1679.642150015513,
+        1155.1655513577032
+      ],
+      "normalSensitivity": [
+        -0.36305891474596924,
+        0.5200134015022595
+      ]
+    },
+    "peakCudaAllocatedBytes": 3335824896
+  },
+  "trust": {
+    "decision": "refuse",
+    "calibrated": false,
+    "predictionErrorPercent": 2719.985153862831,
+    "reason": "Fresh surrogate drag decreased, but trust radius and triangle intersection audit are not validated; acceptance refused."
+  },
+  "validation": {
+    "geometry": "incomplete",
+    "freshEvaluation": "passed",
+    "independentCfd": "not-run",
+    "evidenceIds": [
+      "local-f76a1757dc7d4143abbbd8f69e53d5f3:baseline",
+      "local-f76a1757dc7d4143abbbd8f69e53d5f3:candidate"
+    ],
+    "checks": {
+      "topology": {
+        "status": "passed"
+      },
+      "finite": {
+        "status": "passed"
+      },
+      "protected": {
+        "status": "passed",
+        "vertices": 14967
+      },
+      "bounds": {
+        "status": "passed",
+        "maximumM": 0.0030000000000000027
+      },
+      "normals": {
+        "status": "passed",
+        "minimumCosine": 0.9998046820332595
+      },
+      "triangleArea": {
+        "status": "passed",
+        "minimumRatio": 0.983588319148046,
+        "maximumRatio": 1.1577481307729345
+      },
+      "watertight": {
+        "status": "passed",
+        "baselineOpenEdges": 0,
+        "candidateOpenEdges": 0
+      },
+      "symmetricHandle": {
+        "status": "passed",
+        "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+      },
+      "transition": {
+        "status": "passed",
+        "detail": "Quintic C2 transition; exactly zero on protected boundary."
+      },
+      "selfIntersection": {
+        "status": "not-run",
+        "detail": "Full triangle intersection audit unavailable; candidate cannot be accepted."
+      }
+    }
+  },
+  "events": [
+    {
+      "stage": "loading",
+      "detail": "Verifying pinned workflow and checkpoint bundle",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 1
+    },
+    {
+      "stage": "loading",
+      "detail": "Loading DoMINO.0.501.mdlus on NVIDIA GeForce RTX 4070 Ti SUPER",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 2
+    },
+    {
+      "stage": "baseline",
+      "detail": "Building geometry stencils and CUDA signed-distance inputs",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 3
+    },
+    {
+      "stage": "baseline",
+      "detail": "GPU forward + autograd batches",
+      "completed": 0,
+      "total": 5,
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 4
+    },
+    {
+      "stage": "baseline",
+      "detail": "GPU forward + autograd batches",
+      "completed": 1,
+      "total": 5,
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 5
+    },
+    {
+      "stage": "baseline",
+      "detail": "GPU forward + autograd batches",
+      "completed": 2,
+      "total": 5,
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 6
+    },
+    {
+      "stage": "baseline",
+      "detail": "GPU forward + autograd batches",
+      "completed": 3,
+      "total": 5,
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 7
+    },
+    {
+      "stage": "baseline",
+      "detail": "GPU forward + autograd batches",
+      "completed": 4,
+      "total": 5,
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 8
+    },
+    {
+      "stage": "baseline",
+      "detail": "GPU forward + autograd batches",
+      "completed": 5,
+      "total": 5,
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 9
+    },
+    {
+      "stage": "smoothing",
+      "detail": "baseline: smoothing normal sensitivity (20 iterations)",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 10
+    },
+    {
+      "stage": "converting",
+      "detail": "Reducing display geometry; preserving full-resolution force evidence",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 11
+    },
+    {
+      "stage": "baseline-ready",
+      "detail": "Real baseline fields ready",
+      "artifact": "baseline",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 12
+    },
+    {
+      "stage": "candidate",
+      "detail": "Projecting smoothed sensitivity onto bounded rear-width handle",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 13
+    },
+    {
+      "stage": "validate",
+      "detail": "Topology, protected points, bounds, normals and watertightness passed; intersection audit pending",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 14
+    },
+    {
+      "stage": "evaluate",
+      "detail": "Building geometry stencils and CUDA signed-distance inputs",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 15
+    },
+    {
+      "stage": "evaluate",
+      "detail": "GPU forward + autograd batches",
+      "completed": 0,
+      "total": 5,
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 16
+    },
+    {
+      "stage": "evaluate",
+      "detail": "GPU forward + autograd batches",
+      "completed": 1,
+      "total": 5,
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 17
+    },
+    {
+      "stage": "evaluate",
+      "detail": "GPU forward + autograd batches",
+      "completed": 2,
+      "total": 5,
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 18
+    },
+    {
+      "stage": "evaluate",
+      "detail": "GPU forward + autograd batches",
+      "completed": 3,
+      "total": 5,
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 19
+    },
+    {
+      "stage": "evaluate",
+      "detail": "GPU forward + autograd batches",
+      "completed": 4,
+      "total": 5,
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 20
+    },
+    {
+      "stage": "evaluate",
+      "detail": "GPU forward + autograd batches",
+      "completed": 5,
+      "total": 5,
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 21
+    },
+    {
+      "stage": "smoothing",
+      "detail": "evaluate: smoothing normal sensitivity (20 iterations)",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 22
+    },
+    {
+      "stage": "volume",
+      "detail": "Loading the NVIDIA air-movement model",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 23
+    },
+    {
+      "stage": "volume",
+      "detail": "Preparing 138,240 air samples around this car",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 24
+    },
+    {
+      "stage": "volume",
+      "detail": "Predicting air direction and speed on the GPU",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 25
+    },
+    {
+      "stage": "streamlines",
+      "detail": "Tracing visible paths through the predicted air movement",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 26
+    },
+    {
+      "stage": "volume",
+      "detail": "Preparing 138,240 air samples around this car",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 27
+    },
+    {
+      "stage": "volume",
+      "detail": "Predicting air direction and speed on the GPU",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 28
+    },
+    {
+      "stage": "streamlines",
+      "detail": "Tracing visible paths through the predicted air movement",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 29
+    },
+    {
+      "stage": "complete",
+      "detail": "Fresh surrogate drag decreased, but trust radius and triangle intersection audit are not validated; acceptance refused.",
+      "artifact": "result",
+      "elapsedSeconds": 22.581383699998696,
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 30
+    },
+    {
+      "stage": "complete",
+      "detail": "Fresh surrogate drag decreased, but trust radius and triangle intersection audit are not validated; acceptance refused.",
+      "runId": "local-f76a1757dc7d4143abbbd8f69e53d5f3",
+      "source": "live",
+      "sequence": 31
+    }
+  ],
+  "healthIdleAfter": true,
+  "gpuRunsStartedByThisTask": 1
+}

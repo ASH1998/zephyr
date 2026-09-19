@@ -25,21 +25,37 @@ def rear_basis(points):
         'heightTransitionMetres': .25, 'lateralNormalizationMetres': float(scale)}
 
 
-def propose(mesh, budget_m):
+def deform(mesh, amplitude_m, budget_m):
+    """Apply a signed handle in metres, independent of a sensitivity field."""
     if not np.isfinite(budget_m) or not 0 < budget_m <= .004:
         raise ValueError('Displacement must be within (0, 4] mm')
+    if not np.isfinite(amplitude_m) or abs(amplitude_m) > budget_m:
+        raise ValueError('Signed handle amplitude exceeds displacement budget')
     basis, protected, definition = rear_basis(mesh.points)
+    candidate = mesh.copy(deep=True)
+    candidate.points = np.asarray(mesh.points, dtype=np.float64) + amplitude_m * basis
+    candidate.points[protected] = mesh.points[protected]
+    # Imported explicit normals, when present, no longer describe the new mesh.
+    for data in (candidate.cell_data, candidate.point_data):
+        if 'Normals' in data:
+            del data['Normals']
+    return candidate, protected, definition
+
+
+def propose(mesh, budget_m, *, slope_n_per_m=None):
+    basis, _, _ = rear_basis(mesh.points)
     faces = mesh.faces.reshape(-1, 4)[:, 1:]
     cell_basis = basis[faces].mean(axis=1)
     # Upstream g = d(-Fx)/d(cell-centroid). For this sample D = Fx,
     # so ASCEND g. Smoothing chooses the handle direction; raw g predicts.
     projection = float(np.sum(mesh.cell_data['smooth_sensitivity_cell'] * cell_basis))
-    amplitude = np.sign(projection) * budget_m
-    candidate = mesh.copy(deep=True)
-    candidate.points = np.asarray(mesh.points, dtype=np.float64) + amplitude * basis
-    candidate.points[protected] = mesh.points[protected]
+    if slope_n_per_m is not None and not np.isfinite(slope_n_per_m):
+        raise ValueError('Handle slope must be finite')
+    amplitude = (np.sign(projection) if slope_n_per_m is None else -np.sign(slope_n_per_m)) * budget_m
+    candidate, protected, definition = deform(mesh, amplitude, budget_m)
     displacement = candidate.points - mesh.points
-    predicted_delta = -float(np.sum(mesh.cell_data['geometry_sensitivity'] * displacement[faces].mean(axis=1)))
+    partial_delta = -float(np.sum(mesh.cell_data['geometry_sensitivity'] * displacement[faces].mean(axis=1)))
+    predicted_delta = partial_delta if slope_n_per_m is None else float(slope_n_per_m * amplitude)
     checks = validate_geometry(mesh, candidate, protected, budget_m)
     # The continuum y -> y*(1-a*w(x,z)) is smooth, symmetric and injective.
     # Its discrete triangular approximation still needs an intersection audit.
@@ -48,7 +64,9 @@ def propose(mesh, budget_m):
     checks['selfIntersection'] = {'status': 'not-run', 'detail': 'Full triangle intersection audit unavailable; candidate cannot be accepted.'}
     return candidate, protected, {'handle': 'rear-width-quintic-v1', 'definition': definition,
         'amplitudeM': float(amplitude), 'smoothedProjectionNPerM': projection,
-        'predictedDragDeltaN': predicted_delta, 'checks': checks}
+        'predictedDragDeltaN': predicted_delta, 'partialGradientDragDeltaN': partial_delta,
+        'predictionMethod': 'partial-geometry-gradient' if slope_n_per_m is None else 'central-finite-difference',
+        'checks': checks}
 
 
 def validate_geometry(baseline, candidate, protected, budget_m):

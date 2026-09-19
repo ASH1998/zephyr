@@ -109,6 +109,7 @@ def evidence_facts(evidence):
     if 'maximumM' in bounds:add('displacement',f"Actual maximum movement: {bounds['maximumM']*1000:.3f} mm; requested ceiling: {evidence['constraints']['maxDisplacementM']*1000:.3f} mm.")
     if v.get('checks',{}).get('protected',{}).get('status')=='passed':add('protected','All protected coordinates, including the cabin, stayed exactly fixed.')
     if not t['calibrated']:add('trust','The trust radius is uncalibrated. Surrogate agreement has not been established for this handle.')
+    elif t.get('calibrationScope')=='local-surrogate-handle-only':add('trust','A separate candidate agreed with small-probe predictions in this run. This is a local numerical check, not physical validation or a reusable calibrated trust radius.')
     if v.get('checks',{}).get('selfIntersection',{}).get('status')!='passed':add('intersection','A full triangle self-intersection check has not passed.')
     add('cfd','Independent CFD status: '+v['independentCfd']+'. Surrogate output is not physical ground truth.')
     return facts

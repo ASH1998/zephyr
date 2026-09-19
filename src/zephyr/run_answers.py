@@ -18,13 +18,13 @@ def run_facts(e):
         change = f' ({abs(percent):.3f}% {direction})' if percent is not None and delta else ''
         add('comparison', f'The original car was estimated at {baseline:.2f} newtons of air resistance; the changed car at {candidate:.2f} newtons{change}. Lower resistance is the goal.', ['/forces'])
         if t['decision']=='accept':
-            decision='The controller accepted this tested step under its recorded checks. That does not by itself establish real-world performance.'
+            decision='This tested step was accepted for further evaluation only: local surrogate agreement and geometry checks passed. Engineering performance still requires independent validation.'
         elif delta>0:
             decision='This change did not help: the model predicted slightly more air resistance, so it was not accepted. The GPU completed its work; this is a rejected design, not a failed calculation.'
         elif delta==0:
             decision='The model found no reduction in air resistance. This step was not accepted.'
         else:
-            decision='The model predicted less air resistance, but the design was not accepted because the required validation checks are incomplete.'
+            decision='The model predicted less air resistance, but the design was not accepted. ' + t.get('reason', 'The required validation checks are incomplete.')
         add('decision', decision, ['/trust','/forces','/validation'])
     checks=v.get('checks', {})
     maximum=checks.get('bounds', {}).get('maximumM')
@@ -51,8 +51,13 @@ def run_facts(e):
         add('time', text, ['/timings'])
     if not t.get('calibrated'):
         add('confidence', 'We have not yet established how reliably the model predicts the effect of these small shape changes. A tiny numerical improvement is not enough to claim a better real car.', ['/trust'])
+    elif t.get('calibrationScope')=='local-surrogate-handle-only':
+        add('confidence', 'The small-probe prediction agreed with a separate fresh candidate evaluation for this run. This checks local numerical behavior; it does not measure physical model accuracy or establish a reusable trust radius.', ['/trust','/calibration'])
+    if t.get('predictionErrorN') is not None:
+        add('prediction', f"The predicted change and freshly calculated change differed by {t['predictionErrorN']:.3f} N. This is an error in the predicted change, not a percentage accuracy score for the aerodynamic model.", ['/trust','/forces'])
     if checks.get('selfIntersection',{}).get('status')!='passed':
-        add('geometry_check', 'A complete check that the surface does not fold through itself is still missing. Passing the other shape checks is not enough to approve a design.', ['/validation/checks'])
+        text = 'The triangle audit found surface intersections. The geometry check failed.' if checks.get('selfIntersection',{}).get('status')=='failed' else 'A complete check that the surface does not fold through itself is still missing. Passing the other shape checks is not enough to approve a design.'
+        add('geometry_check', text, ['/validation/checks'])
     cfd=v['independentCfd']
     if cfd=='not-run':
         add('physics', 'This run used a trained prediction model. It has not been checked by an independent physics-based flow simulation or a wind tunnel.', ['/validation/independentCfd'])
@@ -68,7 +73,7 @@ def run_facts(e):
     add('pressure', 'Pressure means how strongly air presses on the surface. In Pressure view, warmer colors mean higher predicted pressure and cooler colors mean lower pressure. They are not temperature or a good/bad score.', source='application')
     add('sensitivity', 'Sensitivity highlights where the model thinks a small shape change could affect air resistance. It is a suggestion to test, not proof that a change will help.', source='application')
     add('magnify', 'Choose Show me the change to replay the rear-body movement, enlarged 120 times for visibility. This exaggerates the shape only on screen; the GPU tested the real movement. Turn off Enlarge movement to see the actual size. The comparison slider shows original on the left and changed on the right.', source='application')
-    add('search', 'The current app tries one restricted rear-body change per run. It does not yet explore many designs until it finds a better one. Repeating the same brief and budget can repeat the same result. Better search needs more validated ways to change the shape and fresh testing of each attempt.', source='application')
+    add('search', 'The current app checks small positive and negative rear-body probes, then evaluates one separate bounded candidate. It does not search many different body designs. Repeating the same brief and budget can repeat the same result.', source='application')
     add('cars', 'Choose from the DrivAer sedan and six generic demo bodies: hatchback, SUV, wagon, coupe, sports car, and van. Each has its own saved NVIDIA airflow result and can run a fresh calculation. The six demo styles are outside the sedan training examples; treat their predictions as experimental. Uploads are not connected yet.', source='application')
     add('scans', 'A scan can be the starting shape, but it is not ready to simulate just because it looks like a car. We need real dimensions, a complete surface, repaired gaps, and the underside and wheel details. Upload and scan preparation are not implemented in this build.', source='application')
     add('units', 'Drag is the air resistance opposing motion. Newtons, shown as N, measure force. Millimetres, shown as mm, measure how far the shape moved. Lower predicted drag is the aim; a large-looking colored area does not imply a large movement.', source='application')
@@ -83,7 +88,7 @@ def summarize_run(e):
     elif e['trust']['decision']=='accept':headline='Tested step accepted'
     elif candidate>f['baselineDragN']:headline='This change did not help'
     elif candidate==f['baselineDragN']:headline='No improvement found'
-    else:headline='Lower predicted resistance; checks still pending'
+    else:headline='Lower predicted resistance; step not accepted' if e['trust'].get('policyVersion') else 'Lower predicted resistance; checks still pending'
     ids=['decision','comparison','movement','cabin','physics']
     return {'runId':e['runId'],'headline':headline,'decision':e['trust']['decision'],
             'facts':[facts[i] for i in ids if i in facts], 'evidenceUrl':'/api/runs/'+e['runId']+'/evidence'}

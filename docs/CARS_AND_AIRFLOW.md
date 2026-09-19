@@ -15,7 +15,7 @@ NASA's X-57 and Global Hawk are separate aircraft choices. Both are uniformly sc
 
 ## Airflow
 
-NVIDIA's separate volume checkpoint predicts velocity at 96 × 40 × 36 = 138,240 points. Streamlines are integrated through that field. Dots move according to travel time at 0.055× playback speed; they are tracers through a steady prediction, not a time-resolved turbulence simulation. A third of the paths is drawn to keep the model readable. The speed scale is 0–60+ m/s.
+NVIDIA's separate volume checkpoint predicts velocity at 96 × 40 × 36 = 138,240 points. Streamlines are integrated through that field. Moving streaks follow recorded travel time at 0.055× playback speed; they trace a steady prediction, not a time-resolved turbulence simulation. At most 48 paths near the body are drawn to keep the model readable. The speed scale is 0–60+ m/s.
 
 The surface model still supplies drag, pressure, and sensitivity. A bounded car test evaluates original and candidate surfaces, then predicts separate volume fields. Source bundle hashes are in `config/domino-volume-artifacts.json`. Raw fields remain in `.local/airflow-cache` and `.local/runs`.
 
@@ -39,7 +39,7 @@ The backend now defaults to **127.0.0.1:8766**, and Vite's `/api` proxy points t
 
 ## Verification
 
-- 32 backend tests, 24 frontend tests, and the production build pass. The existing large bundle warning remains.
+- 32 backend tests, 29 frontend tests, and the production build pass. The existing large bundle warning remains.
 - All nine saved geometry/flow identities match. The eight added inference surfaces are closed, with unique hashes. Aircraft iteration rejection is tested at both request validators.
 - All six detailed cars and both aircraft were inspected in the live browser.
 - A complete detailed hatchback test finished in about 22 seconds, with predicted drag 474.92 → 473.50 N (−0.299%), 3.60 mm maximum movement, and protected coordinates unchanged. Both shapes received fresh NVIDIA volume predictions. Engineering acceptance remains refused because calibration/intersection checks are incomplete.

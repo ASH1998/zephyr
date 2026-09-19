@@ -20,6 +20,14 @@ class AnswersTests(unittest.TestCase):
   better['forces']['candidateDragN']=None
   self.assertEqual(summarize_run(better)['headline'],'Original car tested')
   self.assertIn('0.500 mm',run_facts(E)['movement']['text'])
+ def test_scoped_acceptance_and_failed_checks_use_recorded_reason(self):
+  e=copy.deepcopy(E);e['forces']['candidateDragN']=620;e['trust'].update(policyVersion='local-handle-check-v1',reason='Probe curvature is unresolved.')
+  self.assertIn('step not accepted',summarize_run(e)['headline'])
+  self.assertIn('Probe curvature',run_facts(e)['decision']['text'])
+  e['trust'].update(decision='accept',calibrated=True,calibrationScope='local-surrogate-handle-only',predictionErrorN=.05)
+  self.assertIn('further evaluation only',run_facts(e)['decision']['text'])
+  self.assertIn('does not measure physical',run_facts(e)['confidence']['text'])
+  self.assertIn('0.050 N',run_facts(e)['prediction']['text'])
  def test_answer_cache_followup_and_run_binding(self):
   q={'question':'What changed?'};a=self.c.ask(E,q)
   self.assertEqual(self.c.ask(E,q),a);self.assertEqual(self.client.complete_json.call_count,1)

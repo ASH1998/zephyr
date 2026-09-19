@@ -78,7 +78,7 @@ if (-not (Test-Path -LiteralPath $python)) {
 & $uv pip install --python $python torch --index-url https://download.pytorch.org/whl/cu128
 if ($LASTEXITCODE -ne 0) { throw "Could not install CUDA-enabled PyTorch" }
 
-& $uv pip install --python $python -e $upstream tyro warp-lang requests scikit-learn
+& $uv pip install --python $python -e $upstream tyro warp-lang requests scikit-learn libigl==2.6.3
 if ($LASTEXITCODE -ne 0) { throw "Could not install PhysicsNeMo-CFD dependencies" }
 
 & $uv pip install --python $python -e $repoRoot

@@ -1,0 +1,41 @@
+<!doctype html><html><head><meta charset="UTF-8"><title>Zephyr browser regression fixtures</title></head><body><div style="padding:12px;background:#523516;color:white" id="fixture-label"></div><div id="app"></div>
+<script type="module">
+// Development-only fixture page; not included in the production build.
+// It reads recorded artifacts and blocks every POST: never starts a GPU job.
+const scenario = new URLSearchParams(location.search).get('scenario') || 'missing-volume';
+const runId = scenario === 'local-acceptance' ? 'local-56e4e0e7146847c99ebcc9bc2eff7754' : 'local-336be40999c940e9acff6f83fa10bd8a';
+document.querySelector('#fixture-label').textContent = `BROWSER TEST FIXTURE: ${scenario} — altered recorded responses, not new evidence`;
+sessionStorage.setItem('zephyr-active-run', runId);
+const originalFetch = window.fetch.bind(window);
+window.fetch = async (url, options) => {
+  if (options?.method === 'POST') throw new Error('POST blocked by browser regression fixture');
+  const response = await originalFetch(url, options);
+  const path = String(url);
+  if (!path.startsWith(`/api/runs/${runId}`)) return response;
+  const value = await response.clone().json();
+  if (scenario === 'local-acceptance' && path.endsWith('/result')) {
+    // Synthetic accepted UI state only. Real source run was refused.
+    value.forces.candidateN[0]=value.forces.baselineDragN-1.01;
+    value.forces.candidateDragN=value.forces.candidateN[0];
+    value.forces.predictedDragN=value.forces.baselineDragN-1;
+    Object.assign(value.trust,{decision:'accept',calibrated:true,calibrationScope:'local-surrogate-handle-only',engineeringValidated:false,predictionErrorN:.01,predictionErrorPercent:1,reason:'Synthetic browser fixture: local checks passed; independent CFD pending.'});
+    value.calibration={status:'passed'};value.validation.geometry='passed';
+    for(const check of Object.values(value.validation.checks))check.status='passed';
+  }
+  if (scenario === 'local-acceptance' && path.endsWith('/summary')) {
+    value.headline='Synthetic fixture: accepted for further evaluation only';value.decision='accept';
+    value.facts=[{id:'decision',source:'run',pointers:['/trust'],text:'Browser fixture only. Local numerical checks passed. Engineering validation remains pending.'}];
+  }
+  if (path.endsWith('/result') && scenario === 'missing-volume') delete value.airflow.candidate;
+  if (path === `/api/runs/${runId}` && ['failed','cancelled','running','publishing'].includes(scenario)) {
+    value.state = scenario === 'publishing' ? 'running' : scenario; value.resultReady = scenario === 'publishing'; value.stage = scenario === 'publishing' ? 'complete' : scenario === 'running' ? 'baseline' : scenario;
+    value.events = [{runId,source:'live',sequence:1,stage:value.stage,detail:'Browser fixture'}]; value.sequence=1;
+  }
+  return new Response(JSON.stringify(value), {status:response.status,headers:{'Content-Type':'application/json'}});
+};
+if (scenario === 'reduced-motion') {
+  const originalMatch = window.matchMedia.bind(window);
+  window.matchMedia = query => query === '(prefers-reduced-motion: reduce)' ? {matches:true,media:query,addEventListener(){},removeEventListener(){}} : originalMatch(query);
+}
+await import('/src/main.ts');
+</script></body></html>

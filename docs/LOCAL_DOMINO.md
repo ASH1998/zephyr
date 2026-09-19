@@ -32,9 +32,7 @@ behind Run. Frontend `npm ci` is needed only on a fresh checkout.
 
 The backend binds only `127.0.0.1:8766`. Vite proxies `/api` to it. Preview builds
 need the same proxy or a reverse proxy; the documented development command is
-the supported local launch. There is no upload/path endpoint. Only the installed
-sample geometry, fixed 38.889 m/s and 1.205 kg/m³, and a finite (0,4] mm budget
-are accepted. A second request receives HTTP 409 while the GPU job is active.
+the supported local launch. There is no upload/path endpoint. Only installed allowlisted geometries, fixed 38.889 m/s and 1.205 kg/m³, and a finite (0,4] mm budget are accepted. Cars support bounded iteration; aircraft support experimental baseline analysis only. See CARS_AND_AIRFLOW.md for the nine available shapes. A second request receives HTTP 409 while the GPU job is active.
 
 ## What is live
 
@@ -59,29 +57,32 @@ are accepted. A second request receives HTTP 409 while the GPU job is active.
   all attempts are recorded. Gates are not relaxed to get a result.
 - A fresh full-resolution GPU evaluation of the surviving candidate, with raw
   forces, actual mm displacement, predicted delta and measured prediction error.
-- Comparison controls, pressure and sensitivity heatmaps, actual displacement
-  map, true scale by default and a labelled ×24 display option. The default
-  Airflow view overlays labelled illustrative ribbons and tracer particles on
-  the actual geometry. The paths stay identical across candidate comparisons;
-  neither their shape nor animation speed represents a computed velocity field.
-  This checkpoint does not provide a volume-flow solution. A geometry-only
-  preview loads before inference, with field modes disabled until real results
-  arrive. Shape interpolation and magnification are display only.
+- Comparison controls, pressure/sensitivity maps, actual displacement, and a
+  labeled 120× Change-view enlargement/replay. The default Flow illustration
+  follows the original geometry and explains the wake without claiming measured
+  velocities or improvement. NVIDIA prediction is a separate view of paths from
+  the separate volume checkpoint, with original/candidate fields when available.
+  Airflow uses actual geometry scale. Preview loads before inference; surface field
+  modes remain disabled until results arrive. See CARS_AND_AIRFLOW.md for details.
 
 ## Scientific limits and refusal
 
-All candidates are currently **refused for acceptance**. Full triangle
-self-intersection checking, finite-difference handle calibration, empirical
-trust/noise thresholds and independent CFD remain unvalidated. A geometrically
-permitted research candidate may still be freshly evaluated and compared. A
-lower surrogate force is not a validated physical improvement or an accepted
-manufacturable design. Manufacturing feasibility beyond the smooth handle is
-not certified. Worsening results remain visible and are refused.
+The controller now checks numerical repeatability, positive/negative probes at
+two geometry-safe radii, and a separate freshly evaluated candidate. A pinned
+libigl exact-predicate audit checks every baseline and candidate triangle,
+including coplanar overlaps. Accepted means **accepted for further evaluation**
+under a provisional local-surrogate policy; it does not mean engineering
+validation. Experimental geometries remain ineligible. Independent CFD,
+physical error bounds and a transferable trust radius remain unvalidated.
+Worsening or unresolved results remain visible and are refused.
 
-The scalar projection uses smoothed upstream sensitivity to select the handle
-sign. The raw cell-centroid sensitivity predicts `delta D = -sum(g · delta X)`.
-This is a local model prediction with fixed preprocessing terms; fresh inference
-rebuilds stencils and geometry inputs, so disagreement is measured, not hidden.
+A local adapter resets the shared gradient leaf between upstream batches and
+rebuilds normals from current geometry. The raw gradient is only a partial
+cell-centroid derivative: SDFs, normals, areas and query stencils are separate
+inputs. Full-pipeline finite differences now select the handle direction and
+predict its change. The partial gradient remains available as a diagnostic.
+See [acceptance policy and regression evidence](ACCEPTANCE_CHECKS.md) for the
+explicit thresholds, supported scope, tests and remaining limits.
 
 ### Force convention correction
 

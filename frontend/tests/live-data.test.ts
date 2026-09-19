@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateLiveRun, nextEvents } from '../src/live-data.ts';
+import { validateLiveRun, nextEvents, trustPresentation } from '../src/live-data.ts';
 import type { LiveRun, Job } from '../src/live-data.ts';
 function fixture(): LiveRun {
   const surface={positions:[0,0,0,1,0,0,0,1,0],triangles:[0,1,2],pressurePa:[10,20,30],wallShearPa:Array(9).fill(0),sensitivity:Array(9).fill(0),normalSensitivity:[-1,0,1],protectedMask:[1,0,1],displacementM:[0,0,0]};
@@ -9,6 +9,17 @@ function fixture(): LiveRun {
 function comparison(){const r=fixture();r.candidate=structuredClone(r.baseline);r.candidate.positions[3]+=.002;r.candidate.displacementM[1]=.002;r.status='comparison';r.forces.candidateN=[601,0,0];r.forces.candidateDragN=601;r.forces.predictedDragN=599;r.validation.freshEvaluation='passed';return r;}
 test('analysis is valid with no invented candidate or candidate force',()=>{assert.equal(validateLiveRun(fixture()).candidate,null);const r=fixture();r.forces.candidateDragN=599;assert.throws(()=>validateLiveRun(r),/invent/);});
 test('fresh worsening comparison remains visible with refusal',()=>{const r=comparison();assert.equal(validateLiveRun(r).forces.candidateDragN,601);r.trust.decision='accept';assert.throws(()=>validateLiveRun(r),/unearned/);});
+test('local acceptance needs fresh improvement, scoped calibration and completed geometry checks',()=>{
+  const r=comparison();r.geometryId='drivaer-1';r.forces.candidateN![0]=599;r.forces.candidateDragN=599;r.validation.geometry='passed';r.validation.checks=Object.fromEntries(['topology','finite','protected','bounds','normals','triangleArea','watertight','symmetricHandle','transition','selfIntersection'].map(k=>[k,{status:'passed'}]));
+  r.calibration={status:'passed'};Object.assign(r.trust,{decision:'accept',calibrated:true,calibrationScope:'local-surrogate-handle-only',engineeringValidated:false,predictionErrorN:.01,predictionErrorPercent:1});
+  assert.equal(validateLiveRun(r).trust.decision,'accept');assert.equal(trustPresentation(r).state,'Local check passed');assert.match(trustPresentation(r).detail,/0.010 N.*predicted change/);
+  assert.match(trustPresentation(r).headline,/further evaluation/);assert.doesNotMatch(trustPresentation(r).candidateLabel,/not accepted/);
+  for(const mutate of [(x:LiveRun)=>{x.calibration!.status='failed';},(x:LiveRun)=>{x.trust.engineeringValidated=true;},(x:LiveRun)=>{x.validation.checks.selfIntersection.status='not-run';},(x:LiveRun)=>{x.car={id:'hatchback',label:'test',experimental:true};}]){const c=structuredClone(r);mutate(c);assert.throws(()=>validateLiveRun(c),/unearned/);}
+});
+test('unresolved small prediction never displays an invented relative error',()=>{
+  const r=comparison();Object.assign(r.trust,{predictionErrorN:.01,predictionErrorPercent:null});
+  assert.match(trustPresentation(r).detail,/0.010 N.*unresolved/);assert.doesNotMatch(trustPresentation(r).detail,/NaN|Infinity/);
+});
 test('real contract rejects wrong run, provenance, nonfinite fields and wrong coordinates',()=>{
   assert.throws(()=>validateLiveRun(fixture(),'other'),/identity/);
   for(const mutate of [(r:LiveRun)=>{r.provenance.checkpointSha256='missing';},(r:LiveRun)=>{r.baseline.pressurePa[0]=NaN;},(r:LiveRun)=>{r.coordinates.rotation[2][1]=1;},(r:LiveRun)=>{r.forces.baselineDragN=-600;}]){const r=fixture();mutate(r);assert.throws(()=>validateLiveRun(r));}

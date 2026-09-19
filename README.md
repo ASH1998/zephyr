@@ -4,7 +4,7 @@
 
 Zephyr helps engineers reshape vehicles for lower drag—with AI-guided changes and simulation-backed proof.
 
-This repository begins with the project's highest-risk survival gate: prove the exact Nebius and NVIDIA runtime artifacts before building presentation layers. The complete research-backed specification is in [PROJECT_PLAN.md](PROJECT_PLAN.md).
+The local application runs NVIDIA DoMINO surface and volume models, displays seven cars and two aircraft, and provides a brief copilot and result Q&A. The next milestone is a clearer original/changed comparison. See the [current project plan](PROJECT_PLAN.md) and [progress tracker](progress.md) for implemented work, evidence and next steps.
 
 ## Live local GPU application
 
@@ -70,7 +70,8 @@ config/                    Expected artifact manifest
 docs/                      Gate procedures and evidence contract
 src/zephyr/                Probe and application code
 tests/                     Offline contract tests
-PROJECT_PLAN.md            Product, validation and film specification
+PROJECT_PLAN.md            Current product direction and milestones
+progress.md                Verified work, test evidence and next-task checklist
 ```
 
 ## Source contracts
