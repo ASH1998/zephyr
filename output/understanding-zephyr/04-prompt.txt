@@ -1,0 +1,12 @@
+Use case: precise-object-edit / scientific-educational annotation.
+Edit target: the MOST RECENT actual full-screen Zephyr screenshot. Change view, candidate selected, x24 checkbox OFF, result reads 621.70 N -> 621.83 N and +0.021%. Teaching image 4 of 4.
+Keep the ENTIRE screenshot intact with all four edges, including the sidebar and bottom controls. Do not crop or reconstruct the page, change any numbers, change the car or fabricate UI. You may add an outer margin to fit notes. Use large white callout boxes, dark readable plain-English text, numbered yellow arrows and amber emphasis for the rejection. Preserve consistency with an annotated-screen tutorial.
+Title: "4. DID IT WORK? THIS CHANGE WAS REJECTED."
+Exactly these 4 annotation boxes:
+1, arrow to 621.70 N -> 621.83 N at top: "Original: 621.70 N. Changed: 621.83 N. N means newtons, a unit of force. We want LESS resistance."
+2, arrow to +0.021%: "This went UP by 0.021%. The model predicts slightly MORE resistance, not an improvement."
+3, arrow to sidebar compiled 2.00 mm maximum and the 3.6 mm budget control: "The slider allowed 3.6 mm, but the brief allowed only 2 mm. The smaller limit won. Shape checks reduced the trial to 0.5 mm."
+4, arrow to sidebar 'Local run complete - acceptance refused' panel: "Refused means: do not accept this as a better design. It does NOT mean the GPU failed."
+Bottom takeaway banner: "The GPU did work. It tested a tiny change and found no improvement. The honest result is to reject it."
+Small supporting sentence under banner: "These are predictions from a trained model. Independent physics validation is still pending."
+Do not claim lower fuel use, a better wake, successful optimization or physical certainty. Make all annotation text prominent without covering the key numbers, changed region or target controls. One high-resolution full-screen annotated image.

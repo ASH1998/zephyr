@@ -1,0 +1,11 @@
+Use case: precise-object-edit / scientific-educational annotation.
+Edit target: the most recent image, an actual full-screen Zephyr screenshot BEFORE any GPU run. Keep the ENTIRE screenshot, all four edges, car, controls, text and layout. Do not crop, reconstruct or invent UI. Enlarge the canvas if necessary for margin notes, with the original full screenshot centered and intact.
+Create annotated teaching image 1 of 3 for a complete beginner, with large readable white callout boxes, dark text, thick numbered arrows, warm yellow outlines. Use spare dark space and outer margins; never cover the car, selected tabs or button targets. Preserve original numbers exactly.
+Title above screenshot: "1. BEFORE THE GPU: A PICTURE, NOT A RESULT"
+Exactly these 4 annotations:
+1, arrow to glowing curved airflow lines: "These moving lines are an illustration. They are NOT calculated airflow."
+2, arrow to the greyed Pressure and Sensitivity tabs: "No calculation yet. These views unlock after the GPU run."
+3, arrow to right-side brief copilot and Interpret brief: "The language model reads your request. It does not calculate the air forces."
+4, arrow to Run bounded iteration button: "This starts the real calculation: test the original car, try a small change, then test again."
+Bottom takeaway in a large banner: "A moving animation does not mean the car has been tested."
+Use plain English and exact spelling. Keep full screenshot recognizable; arrows must point to correct actual elements. Do not make flow look like a measured improvement. No decorative charts, invented numerical results or extra technical terms. Produce one high-resolution annotated full-screen image.

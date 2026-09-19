@@ -16,6 +16,7 @@ from urllib.parse import urlsplit
 from uuid import uuid4
 from zephyr.copilot import Copilot, CopilotBusy, canonical_request
 from zephyr.token_factory import TokenFactoryError
+from zephyr.local.cars import CARS, IDS
 
 ROOT = Path(__file__).resolve().parents[3]
 TERMINAL = {'complete', 'failed', 'cancelled'}
@@ -26,8 +27,8 @@ def validate_request(data, *, compiled=False):
         return canonical_request(data)
     if not isinstance(data, dict) or set(data) - {'geometryId', 'budgetMm', 'brief', 'mode'}:
         raise ValueError('Unknown request fields; paths/uploads are not accepted')
-    if data.get('geometryId') != 'drivaer-1':
-        raise ValueError('Only the installed official drivaer-1 geometry is enabled')
+    if not isinstance(data.get('geometryId'),str) or data['geometryId'] not in IDS:
+        raise ValueError('Select an installed car style')
     budget = data.get('budgetMm')
     if isinstance(budget, bool) or not isinstance(budget, (int, float)) or not math.isfinite(budget) or not 0 < budget <= 4:
         raise ValueError('Budget must be finite and within (0, 4] mm')
@@ -36,6 +37,8 @@ def validate_request(data, *, compiled=False):
         raise ValueError('Local preset supports exactly: Reduce drag. Keep the cabin unchanged. A language compiler is not connected.')
     if data.get('mode') not in ('analysis', 'iteration'):
         raise ValueError('Mode must be analysis or iteration')
+    if data['geometryId'] in ('x57','global-hawk') and data['mode']=='iteration':
+        raise ValueError('Aircraft support baseline analysis only')
     return dict(data)
 
 
@@ -151,7 +154,25 @@ class Jobs:
     def snapshot(self, run_id):
         with self.lock:
             if run_id not in self.jobs:
-                raise KeyError(run_id)
+                if not isinstance(run_id, str) or not re.fullmatch(r'local-[0-9a-f]{32}', run_id):
+                    raise KeyError(run_id)
+                directory = self.root / run_id
+                try:
+                    evidence = json.loads((directory / 'evidence.json').read_text(encoding='utf-8'))
+                    if not isinstance(evidence, dict) or evidence.get('runId') != run_id or evidence.get('schemaVersion') != 'zephyr.surface.v2' or not (directory / 'result.json').is_file():
+                        raise KeyError(run_id)
+                    detail = evidence['trust']['reason']
+                    job = {'runId':run_id,'source':'live','state':'complete','stage':'complete','detail':detail,
+                        'sequence':0,'events':[],'baselineReady':(directory/'baseline.json').is_file(),
+                        'resultReady':True,'createdAt':evidence['createdAt'],'restored':True}
+                    self._event(job, {'stage':'complete','detail':detail})
+                    self.jobs[run_id] = job
+                    while len(self.jobs)>16:
+                        victim=next((key for key in self.jobs if key not in (self.active,run_id)),None)
+                        if victim is None:break
+                        self.jobs.pop(victim)
+                except (OSError, ValueError, KeyError, TypeError) as exc:
+                    raise KeyError(run_id) from exc
             return json.loads(json.dumps(self.jobs[run_id]))
 
     def cancel(self, run_id):
@@ -203,7 +224,9 @@ def handler_for(jobs, copilot=None):
             path = urlsplit(self.path).path
             if path == '/api/health':
                 return self.respond(200, {'service': 'zephyr-local', 'activeRunId': jobs.active, 'geometryId': 'drivaer-1', 'copilot': copilot.status() if copilot else {'enabled': False}})
-            match = re.fullmatch(r'/api/runs/(local-[0-9a-f]{32})(?:/(baseline|result|evidence|explanation))?', path)
+            if path == '/api/geometries':
+                return self.respond(200, {'cars':CARS})
+            match = re.fullmatch(r'/api/runs/(local-[0-9a-f]{32})(?:/(baseline|result|evidence|explanation|summary))?', path)
             if not match:
                 return self.respond(404, {'error': 'Not found'})
             run_id, artifact = match.groups()
@@ -213,6 +236,10 @@ def handler_for(jobs, copilot=None):
                     return self.respond(200, job)
                 if artifact == 'baseline' and not job['baselineReady'] or artifact != 'baseline' and not job['resultReady']:
                     return self.respond(409, {'error': 'Artifact is not ready'})
+                if artifact == 'summary':
+                    from zephyr.run_answers import summarize_run
+                    evidence = json.loads((jobs.root / run_id / 'evidence.json').read_text(encoding='utf-8'))
+                    return self.respond(200, summarize_run(evidence))
                 if artifact == 'explanation':
                     explanation = copilot.explanations.get(run_id) if copilot else None
                     return self.respond(200, explanation) if explanation else self.respond(404, {'error': 'No explanation generated yet'})
@@ -237,6 +264,10 @@ def handler_for(jobs, copilot=None):
                         return self.respond(503, {'error': 'Start the API with --enable-llm to interpret briefs'})
                     return self.respond(200, copilot.compile(data))
                 if self.path == '/api/runs':
+                    # A baseline measures an allowlisted aircraft without any design intent.
+                    # The ordinary validator still enforces exact fields and analysis-only mode.
+                    if isinstance(data,dict) and data.get('geometryId') in ('x57','global-hawk') and data.get('mode')=='analysis':
+                        return self.respond(202,jobs.start(data))
                     if copilot:
                         if not isinstance(data, dict):
                             raise ValueError('Expected a run request')
@@ -245,17 +276,17 @@ def handler_for(jobs, copilot=None):
                         intent = authorized.pop('intent')
                         return self.respond(202, jobs.start(authorized, intent=intent))
                     return self.respond(202, jobs.start(data))
-                match = re.fullmatch(r'/api/runs/(local-[0-9a-f]{32})/explain', self.path)
+                match = re.fullmatch(r'/api/runs/(local-[0-9a-f]{32})/(explain|questions)', self.path)
                 if match:
                     if not copilot:
                         return self.respond(503, {'error': 'Language model is disabled'})
-                    if data != {}:
+                    if match[2] == 'explain' and data != {}:
                         raise ValueError('Explanation reads server evidence; body must be empty')
                     job = jobs.snapshot(match[1])
                     if job['state'] != 'complete' or not job['resultReady']:
                         return self.respond(409, {'error': 'Completed evidence is required'})
                     evidence = json.loads((jobs.root / match[1] / 'evidence.json').read_text(encoding='utf-8'))
-                    return self.respond(200, copilot.explain(evidence))
+                    return self.respond(200, copilot.ask(evidence, data) if match[2] == 'questions' else copilot.explain(evidence))
                 match = re.fullmatch(r'/api/runs/(local-[0-9a-f]{32})/cancel', self.path)
                 if match:
                     return self.respond(200, jobs.cancel(match[1]))
@@ -275,7 +306,7 @@ def handler_for(jobs, copilot=None):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--port', type=int, default=8765)
+    parser.add_argument('--port', type=int, default=8766)
     parser.add_argument('--enable-llm', action='store_true', help='Opt in to paid model calls for brief interpretation and evidence explanation')
     args = parser.parse_args()
     copilot = None

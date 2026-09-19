@@ -134,6 +134,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(stored['budgetMm'],2)
         self.assertEqual(stored['intent']['intentId'],plan['intentId'])
         self.assertEqual(self.request('/api/runs/'+job['runId']+'/explain',{})[0],409)
+        self.assertEqual(self.request('/api/runs/'+job['runId']+'/questions',{'question':'What changed?'})[0],409)
         self.wait(job['runId'])
         self.assertEqual(self.request('/api/runs/'+job['runId']+'/explanation')[0],404)
         self.assertEqual(self.request('/api/runs/'+job['runId']+'/explain',{'forces':{}})[0],400)
@@ -147,6 +148,12 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(self.request('/api/runs/'+job['runId']+'/explanation')[1],explanation)
         self.assertEqual(self.request('/api/runs/'+job['runId']+'/explain',{})[1],explanation)
         self.assertEqual(client.complete_json.call_count,2)
+        self.assertEqual(self.request('/api/runs/'+job['runId']+'/summary')[1]['headline'],'This change did not help')
+        self.assertEqual(client.complete_json.call_count,2)
+        self.assertEqual(self.request('/api/runs/'+job['runId']+'/questions',{'question':'Help','forces':{}})[0],400)
+        client.complete_json.return_value=({'answerable':True,'factIds':['decision']},{'model':'test'})
+        code,answer=self.request('/api/runs/'+job['runId']+'/questions',{'question':'Did it help?'})
+        self.assertEqual(code,200);self.assertEqual(answer['runId'],job['runId']);self.assertIsNone(self.jobs.active)
 
     def test_input_paths_origin_content_type(self):
         for patch in [{'geometryId':'../../secret'},{'budgetMm':True},{'budgetMm':float('nan')},{'budgetMm':12},{'inputPath':'x'},{'brief':'Move cabin'}]:

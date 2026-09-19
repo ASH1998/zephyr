@@ -1,0 +1,204 @@
+{
+  "runId": "local-80a09f9e88d24c47b1703966113ac5c8",
+  "geometryId": "suv",
+  "forces": {
+    "baselineN": [
+      1102.453857421875,
+      950.7978515625,
+      -161.95803833007812
+    ],
+    "candidateN": [
+      1098.55224609375,
+      951.2562866210938,
+      -162.50408935546875
+    ],
+    "baselineDragN": 1102.453857421875,
+    "candidateDragN": 1098.55224609375,
+    "predictedDragN": 1102.4597953462537
+  },
+  "timings": {
+    "baselineSeconds": 1.8310315999988234,
+    "evaluateSeconds": 0.7540180000014516,
+    "totalSeconds": 20.90422430000035
+  },
+  "airflowStatus": "ready",
+  "airflow": {
+    "baseline": {
+      "schemaVersion": "zephyr.airflow.v1",
+      "geometryId": "suv",
+      "meshHash": "994bde3fe067910fd0b1ddcb02167ffe16290e1d9d7f468bb0d128b630d4ce9c",
+      "createdAt": "2026-09-19T07:03:24.100966+00:00",
+      "source": "nvidia-volume",
+      "model": "DoMINO volume 0.501",
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882",
+      "units": "m/s",
+      "streamVelocityMps": 38.889,
+      "gridShape": [
+        96,
+        40,
+        36
+      ],
+      "seconds": 5.074,
+      "speedRangeMps": [
+        0.392212450504303,
+        55.679752349853516
+      ],
+      "playbackTimeScale": 0.055,
+      "note": "Steady AI-predicted velocity field; particles trace that field in slow motion. Not a time-resolved CFD simulation.",
+      "pathCount": 93
+    },
+    "candidate": {
+      "schemaVersion": "zephyr.airflow.v1",
+      "geometryId": "suv",
+      "meshHash": "3eaafee4b92bddbb08024afdc314f3108796dc7c6a7f9d4f089af0df66095870",
+      "createdAt": "2026-09-19T07:03:29.202051+00:00",
+      "source": "nvidia-volume",
+      "model": "DoMINO volume 0.501",
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882",
+      "units": "m/s",
+      "streamVelocityMps": 38.889,
+      "gridShape": [
+        96,
+        40,
+        36
+      ],
+      "seconds": 5.074,
+      "speedRangeMps": [
+        0.5024885535240173,
+        55.15576934814453
+      ],
+      "playbackTimeScale": 0.055,
+      "note": "Steady AI-predicted velocity field; particles trace that field in slow motion. Not a time-resolved CFD simulation.",
+      "pathCount": 93
+    }
+  },
+  "constraintChecks": {
+    "topology": {
+      "status": "passed"
+    },
+    "finite": {
+      "status": "passed"
+    },
+    "protected": {
+      "status": "passed",
+      "vertices": 4905
+    },
+    "bounds": {
+      "status": "passed",
+      "maximumM": 0.0036000000000000476
+    },
+    "normals": {
+      "status": "passed",
+      "minimumCosine": 0.999842589515014
+    },
+    "triangleArea": {
+      "status": "passed",
+      "minimumRatio": 0.9936031212402855,
+      "maximumRatio": 1.001362510316339
+    },
+    "watertight": {
+      "status": "passed",
+      "baselineOpenEdges": 0,
+      "candidateOpenEdges": 0
+    },
+    "symmetricHandle": {
+      "status": "passed",
+      "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+    },
+    "transition": {
+      "status": "passed",
+      "detail": "Quintic C2 transition; exactly zero on protected boundary."
+    },
+    "selfIntersection": {
+      "status": "not-run",
+      "detail": "Full triangle intersection audit unavailable; candidate cannot be accepted."
+    }
+  },
+  "decision": "refuse",
+  "precomputedCars": [
+    {
+      "geometryId": "coupe",
+      "meshHash": "87df3770674f19dc9cb9f08a17fb0664e704e938dc66b99d0dbc14e4b1ce1078",
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882",
+      "gridShape": [
+        96,
+        40,
+        36
+      ],
+      "seconds": 4.829,
+      "pathCount": 95
+    },
+    {
+      "geometryId": "drivaer-1",
+      "meshHash": "fdade0e1a06daca1a9f7ed32585bb49f8968353c71a2a773aa57ee4656344fce",
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882",
+      "gridShape": [
+        96,
+        40,
+        36
+      ],
+      "seconds": 6.483,
+      "pathCount": 94
+    },
+    {
+      "geometryId": "hatchback",
+      "meshHash": "a82f7285efb717481bef2eab8f6160089fc926c20dde2d85ecc3d5a72d82d576",
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882",
+      "gridShape": [
+        96,
+        40,
+        36
+      ],
+      "seconds": 4.682,
+      "pathCount": 95
+    },
+    {
+      "geometryId": "sports",
+      "meshHash": "f42568b84699f76bfaaa36154cd3397b553fe50186291b8dfeeac32e05f6a2da",
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882",
+      "gridShape": [
+        96,
+        40,
+        36
+      ],
+      "seconds": 4.852,
+      "pathCount": 95
+    },
+    {
+      "geometryId": "suv",
+      "meshHash": "994bde3fe067910fd0b1ddcb02167ffe16290e1d9d7f468bb0d128b630d4ce9c",
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882",
+      "gridShape": [
+        96,
+        40,
+        36
+      ],
+      "seconds": 4.723,
+      "pathCount": 93
+    },
+    {
+      "geometryId": "van",
+      "meshHash": "a987410f0c233d963cf0131bb7661a38e8efd4c85561a93a06beaf5c534f2bb0",
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882",
+      "gridShape": [
+        96,
+        40,
+        36
+      ],
+      "seconds": 4.65,
+      "pathCount": 87
+    },
+    {
+      "geometryId": "wagon",
+      "meshHash": "554ef6c47763d6511ecfa394d00e3c7c6a5bc2866e188af44e5e2685eee6ebd5",
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882",
+      "gridShape": [
+        96,
+        40,
+        36
+      ],
+      "seconds": 4.723,
+      "pathCount": 91
+    }
+  ]
+}

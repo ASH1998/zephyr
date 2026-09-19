@@ -30,7 +30,7 @@ The sample `drivaer_1.stl` must already exist in the pinned workflow's geometrie
 folder (the capability-gate script downloads it). No runtime download is hidden
 behind Run. Frontend `npm ci` is needed only on a fresh checkout.
 
-The backend binds only `127.0.0.1:8765`. Vite proxies `/api` to it. Preview builds
+The backend binds only `127.0.0.1:8766`. Vite proxies `/api` to it. Preview builds
 need the same proxy or a reverse proxy; the documented development command is
 the supported local launch. There is no upload/path endpoint. Only the installed
 sample geometry, fixed 38.889 m/s and 1.205 kg/m³, and a finite (0,4] mm budget

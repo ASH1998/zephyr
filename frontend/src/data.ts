@@ -3,6 +3,7 @@ export type Vec3 = [number, number, number];
 export type Decision = 'accept' | 'shrink' | 'refuse';
 export type ViewMode = 'airflow' | 'pressure' | 'sensitivity' | 'displacement' | 'mesh';
 export interface Surface {
+  displayColor?: number[];
   positions: number[]; // XYZ triples, metres
   triangles: number[];
   pressurePa: number[]; // vertex-associated values

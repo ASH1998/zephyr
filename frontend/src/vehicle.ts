@@ -5,7 +5,7 @@ import type { SimulationAdapter, SimulationRun, Surface } from './data';
 import { cabinLift } from './vehicle-shape';
 import { requireVehicle } from './vehicle-catalog';
 
-export interface VehicleAsset { group: THREE.Group; exterior: { mesh: THREE.Mesh; offset: number; count: number }[] }
+export interface VehicleAsset { aircraft?:boolean; group: THREE.Group; exterior: { mesh: THREE.Mesh; offset: number; count: number; basePositions?:Float32Array; surfaceIndices?:Int32Array }[] }
 
 /** Licensed visual asset -> same validated surface contract used for real runs. */
 export class VehicleDemoAdapter implements SimulationAdapter {

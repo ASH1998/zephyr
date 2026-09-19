@@ -1,0 +1,11 @@
+Use case: precise-object-edit / scientific-educational annotation.
+Edit target: the MOST RECENT actual full-screen Zephyr screenshot. It shows Change selected, the candidate selected, bright orange on the car's rear, and the "Deformation x24 for visibility" checkbox CHECKED. Teaching image 3 of 4.
+Preserve the ENTIRE original screenshot, all four edges, all UI numbers, the orange area and original car silhouette exactly. Do not crop, repaint, invent UI or enlarge the actual deformation any further. Add margins for annotation boxes if needed. Use the whole screen. Large white callout boxes, dark plain-English text, numbered warm-yellow arrows. Do not cover the rear, cabin, checkbox or slider. Place notes in spare dark space or outer margins, arrows precisely to the real targets.
+Title: "3. WHAT ACTUALLY CHANGED? HALF A MILLIMETRE."
+Use exactly these 4 callouts:
+1. Arrow to orange rear-body region: "Orange marks where the shape moved. It is NOT heat. The biggest real movement was only 0.50 mm."
+2. Arrow to cyan cabin box: "This is the passenger cabin. It was locked: 0.00 mm of movement."
+3. Arrow to the CHECKED x24 checkbox at lower left and outline it clearly: "I turned on x24 so you can SEE the change. Only the display is exaggerated; the GPU tested the tiny real change."
+4. Arrow to the Baseline-to-Candidate slider at the bottom: "Left = original shape. Right = tested new shape. Sliding compares shapes; it does not run the GPU again."
+Bottom banner: "0.50 mm is half of one millimetre. At normal scale, the car should look almost identical."
+Make annotation text large and readable. Preserve all original result numbers even though this image explains geometry rather than the result. No jargon, invented forces or claims of improvement. One high-resolution annotated full-screen image.

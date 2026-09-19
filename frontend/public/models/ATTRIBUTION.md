@@ -39,3 +39,7 @@ Source sample: the installed `drivaer_1.stl` in NVIDIA PhysicsNeMo-CFD's pinned
 contains no pressure, velocity, force or sensitivity results. Its purpose is
 an immediate view of the input shape before local GPU inference. Animated
 streamlines are authored illustrations and are identical for both comparisons.
+
+## Detailed live vehicles and aircraft
+
+The newer live catalog uses the assets and adaptations credited in [VEHICLE_CREDITS.md](VEHICLE_CREDITS.md). Those entries supersede the earlier unavailable placeholders for the live interface.

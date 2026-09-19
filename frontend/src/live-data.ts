@@ -1,6 +1,9 @@
+import { validateAirflow } from './airflow.ts';
+import type { Airflow } from './airflow.ts';
 import type { IntentPlan } from './copilot';
 import type { Surface, Vec3 } from './data.ts';
 export interface LiveRun {
+  geometryId?:string;car?:{id:string;label:string;experimental:boolean};airflow?:{baseline:Airflow;candidate?:Airflow};airflowStatus?:string;airflowError?:string;
   intent?: IntentPlan;
   schemaVersion: 'zephyr.surface.v2'; runId: string; source: 'live' | 'recorded'; createdAt: string; status: 'analysis' | 'comparison';
   coordinates: { units: 'm'; up: '+Y'; streamwise: '+X'; handedness: 'right'; fieldAssociation: 'vertex'; rotation: number[][]; upstreamOriginM: Vec3; transform: string };
@@ -14,7 +17,7 @@ export interface LiveRun {
   timings: Record<string, number>;
 }
 export interface JobEvent { runId: string; source: 'live'; sequence: number; stage: string; detail: string; completed?: number; total?: number }
-export interface Job { runId: string; source: 'live'; state: 'running' | 'cancelling' | 'cancelled' | 'failed' | 'complete'; stage: string; detail: string; sequence: number; events: JobEvent[]; baselineReady: boolean; resultReady: boolean }
+export interface Job { createdAt?:string; runId: string; source: 'live'; state: 'running' | 'cancelling' | 'cancelled' | 'failed' | 'complete'; stage: string; detail: string; sequence: number; events: JobEvent[]; baselineReady: boolean; resultReady: boolean }
 const fail = (s: string): never => { throw new Error(`Live data rejected: ${s}`); };
 const finite = (a: unknown, n?: number): a is number[] => Array.isArray(a) && (n === undefined || a.length === n) && a.every(Number.isFinite);
 export function validateLiveRun(input: unknown, runId?: string): LiveRun {
@@ -31,6 +34,7 @@ export function validateLiveRun(input: unknown, runId?: string): LiveRun {
     if (!finite(s.triangles) || !s.triangles.length || s.triangles.length % 3 || s.triangles.some(i => !Number.isInteger(i) || i < 0 || i >= n)) fail('triangles');
     for (const k of ['pressurePa', 'normalSensitivity', 'protectedMask', 'displacementM'] as const) if (!finite(s[k], n)) fail(k);
     for (const k of ['wallShearPa', 'sensitivity'] as const) if (!finite(s[k], n * 3)) fail(k);
+    if(s.displayColor&&(!finite(s.displayColor,n*3)||s.displayColor.some(c=>c<0||c>1)))fail('car colors');
     if (s.protectedMask.some(v => v !== 0 && v !== 1) || s.displacementM.some(v => v < 0)) fail('mask/displacement');
   }
   if (r.baseline.displacementM.some(d => d !== 0)) fail('baseline displacement');
@@ -46,6 +50,7 @@ export function validateLiveRun(input: unknown, runId?: string): LiveRun {
   } else if (r.status !== 'analysis' || r.forces.candidateN !== null || r.forces.candidateDragN !== null || r.forces.predictedDragN !== null || r.validation.freshEvaluation !== 'not-run') fail('analysis must not invent a candidate');
   if (!r.trust || !['refuse', 'shrink', 'accept'].includes(r.trust.decision) || typeof r.trust.calibrated !== 'boolean' || !r.trust.reason || (r.trust.predictionErrorPercent !== null && (!Number.isFinite(r.trust.predictionErrorPercent) || r.trust.predictionErrorPercent < 0))) fail('trust');
   if (r.trust.decision === 'accept' && (!r.candidate || !r.trust.calibrated || r.validation.geometry !== 'passed')) fail('unearned acceptance');
+  if(r.airflow){const id=r.geometryId??r.intent?.request.geometryId??'drivaer-1';validateAirflow(r.airflow.baseline,id,r.provenance.meshHash);if(r.airflow.candidate)validateAirflow(r.airflow.candidate,id,String(r.provenance.candidateMeshHash));}
   return r;
 }
 export function nextEvents(job: Job, runId: string, sequence: number): JobEvent[] {

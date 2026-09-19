@@ -55,7 +55,10 @@ def execute(job_dir):
     for key in ('bounding_box', 'bounding_box_surface'):
         if OmegaConf.to_container(cfg.data[key]) != OmegaConf.to_container(training.data[key]):
             raise ValueError('Inference bounding boxes differ from training bundle')
-    mesh = pv.read(WORKFLOW / 'geometries/drivaer_1.stl')
+    from zephyr.local.cars import mesh_path,car_definition
+    selected=car_definition(request['geometryId'])
+    input_path=mesh_path(request['geometryId'])
+    mesh = pv.read(input_path)
     if not mesh.is_all_triangles or mesh.n_open_edges:
         raise ValueError('Official input must be triangular and watertight')
     emit('loading', 'Loading DoMINO.0.501.mdlus on ' + torch.cuda.get_device_name(0))
@@ -101,13 +104,13 @@ def execute(job_dir):
     run_id = job_dir.name
     evidence_url = '/api/runs/' + run_id + '/evidence'
     payload = {'schemaVersion': 'zephyr.surface.v2', 'runId': run_id, 'source': 'live',
-        'createdAt': datetime.now(timezone.utc).isoformat(), 'status': 'analysis',
+        'geometryId':request['geometryId'],'car':selected,'createdAt': datetime.now(timezone.utc).isoformat(), 'status': 'analysis',
         'coordinates': {'units': 'm', 'up': '+Y', 'streamwise': '+X', 'handedness': 'right', 'fieldAssociation': 'vertex',
             'rotation': ROTATION.tolist(), 'upstreamOriginM': origin.tolist(), 'transform': '(upstream - origin) @ rotation.T'},
         'provenance': {'artifactVersion': 'domino-local-v1', 'modelVersion': 'DoMINO.0.501.mdlus',
             'checkpointSha256': checks[0].actual_sha256, 'bundle': [c.to_dict() for c in checks], 'upstreamCommit': pin,
             'workflowFilesSha256': {str(p.relative_to(WORKFLOW)): _file_sha256(p) for p in sorted(WORKFLOW.rglob('*.py'))},
-            'meshHash': mesh_hash(mesh), 'inputStlSha256': _file_sha256(WORKFLOW / 'geometries/drivaer_1.stl'),
+            'meshHash': mesh_hash(mesh), 'inputGeometrySha256': _file_sha256(input_path),'inputGeometryFormat':input_path.suffix,
             'evidenceUrls': [evidence_url], 'solver': None, 'reduction': reduction,
             'fieldTransfer': 'Pressure/shear: area-weighted adjacent cells -> original points -> retained vertices. Sensitivity: upstream 20-step smoothed point field.',
             'sensitivityConvention': 'Upstream d(-Fx)/dX at geometry cell centroids; displayed smoothed normal projection, N/m. Drag D=Fx; the sensitivity ascends -drag.',
@@ -162,6 +165,21 @@ def execute(job_dir):
             payload['trust'].update(reason=reason, predictionErrorPercent=error)
             payload['validation'].update(geometry='incomplete', freshEvaluation='passed')
             payload['validation']['evidenceIds'].append(run_id + ':candidate')
+    # Release surface/autograd memory before loading the separate velocity model.
+    del domino
+    import gc
+    gc.collect();torch.cuda.empty_cache()
+    from zephyr.local.volume import predict_airflow
+    try:
+        payload['airflow']={'baseline':predict_airflow(mesh,origin,job_dir/'volume-baseline',request['geometryId'],emit)}
+        if payload['candidate'] is not None:
+            payload['airflow']['candidate']=predict_airflow(candidate,origin,job_dir/'volume-candidate',request['geometryId'],emit)
+        payload['airflowStatus']='ready'
+    except Exception as exc:
+        # Keep completed surface evidence available, but never label placeholder flow as calculated.
+        payload['airflowStatus']='failed'
+        payload['airflowError']=type(exc).__name__+': '+str(exc)[:300]
+        emit('volume-failed','Air movement calculation failed; surface results remain available')
     timings['totalSeconds'] = time.perf_counter() - started
     payload['provenance']['peakCudaAllocatedBytes'] = torch.cuda.max_memory_allocated()
     write_json(job_dir / 'result.json', payload)

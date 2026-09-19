@@ -1,0 +1,11 @@
+Use case: precise-object-edit / scientific-educational annotation.
+Edit target: the MOST RECENT image, the actual FULL Zephyr screenshot with Pressure selected and a yellow/green/red car. This is teaching image 2 of 3. Preserve the ENTIRE screenshot and all four edges, all text/numbers, layout and car. Never crop or invent UI. Add outer margins if needed; screenshot remains complete. Do not repaint or change the pressure colors.
+Use large readable white numbered callout boxes, dark plain-English text, warm yellow arrows and outlines. Match an accessible annotated-screen tutorial. Place boxes in empty dark areas or margins, not over target elements or car.
+Title: "2. AFTER THE GPU: NOW THERE IS A CALCULATION"
+Exactly these 4 labels:
+1, arrow to selected Pressure tab: "Pressure view: the model predicts how air presses on the car's surface."
+2, arrow to colored car and its color legend: "Red = higher pressure. Blue = lower pressure. These colors are NOT temperature or a good/bad score."
+3, arrow to '01 Baseline' selected button: "Baseline means the original car. Here you are looking at the original shape."
+4, arrow to the large 621.70 N -> 621.83 N comparison: "Drag = the air force resisting the car. Lower is the goal. These are model estimates, not a real wind-tunnel test."
+Bottom banner: "The GPU calculated the original car, then calculated the changed car. About 66 seconds + 65 seconds in this run."
+Do NOT change 621.70 N, 621.83 N, +0.021%, source status or any original UI values. Do not claim the car improved. One high-resolution annotated image with the full screen preserved.

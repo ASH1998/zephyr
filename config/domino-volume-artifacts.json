@@ -1,0 +1,21 @@
+{
+  "revision": "35b1bf1edafdaa2600d16182825890cd51c07427",
+  "source": "https://huggingface.co/nvidia/domino_drivaerml",
+  "required": [
+    {
+      "path": "DoMINO.0.501.mdlus",
+      "sha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882",
+      "purpose": "NVIDIA volume inference bundle"
+    },
+    {
+      "path": "config.yaml",
+      "sha256": "2c9670c7c3139e9c4e12799e66efdd94a7793e4516c0bfbb4fc98d592e209f73",
+      "purpose": "NVIDIA volume inference bundle"
+    },
+    {
+      "path": "scaling_factors.pkl",
+      "sha256": "895b876ab7a2f32b4c714e4eafc7b2e7d94029e037bfc2950cf8c6cb2a818c2d",
+      "purpose": "NVIDIA volume inference bundle"
+    }
+  ]
+}

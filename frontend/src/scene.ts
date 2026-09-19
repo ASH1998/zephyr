@@ -5,9 +5,12 @@ import type { SimulationRun, Surface, ViewMode } from './data';
 import type { VehicleAsset } from './vehicle';
 import { fieldRange } from './data';
 import type { StoryState } from './run-story';
+import { FlowRibbons } from './flow-ribbons';
+import { illustrateFlow } from './flow-illustration';
+import type { Airflow } from './airflow';
 import { previewWake } from './flow-preview';
 
-type SurfaceRun = Pick<SimulationRun, 'baseline'> & { source: SimulationRun['source'] | 'geometry-preview'; candidate: Surface | null };
+type SurfaceRun = Pick<SimulationRun, 'baseline'> & { source: SimulationRun['source'] | 'geometry-preview'; candidate: Surface | null; airflow?:{baseline:Airflow;candidate?:Airflow} };
 
 export class FlowScene {
   private scene = new THREE.Scene();
@@ -23,6 +26,10 @@ export class FlowScene {
   private flowMaterials: THREE.ShaderMaterial[] = [];
   private flowCurves: THREE.CatmullRomCurve3[] = [];
   private flowParticles?: THREE.Points;
+  private computedAirflow?: Airflow;
+  private flowStyle:'illustration'|'prediction'='illustration';
+  private illustratedFlow?:FlowRibbons;
+  private predictedFlow?:FlowRibbons;
   private surfaceMesh: THREE.Mesh;
   private mode: ViewMode = 'airflow';
   private blend = 0;
@@ -36,6 +43,7 @@ export class FlowScene {
   private frame = 0;
   private disposed = false;
   private cabinTop = 1.4;
+  private fitScale=1;
   private story?: StoryState;
   private changeOverlay?: THREE.Mesh;
   private lockOverlay?: THREE.Mesh;
@@ -47,6 +55,7 @@ export class FlowScene {
   private flowTarget = 0;
   constructor(private host: HTMLElement, private run: SurfaceRun, private vehicle?: VehicleAsset) {
     this.cabinTop = run.baseline.protectedMask.reduce((top, locked, i) => locked ? Math.max(top, run.baseline.positions[i * 3 + 1]) : top, .9);
+    const xs=run.baseline.positions.filter((_,i)=>i%3===0);const range=fieldRange(xs);this.fitScale=vehicle?.aircraft? .78 : Math.max(1,(range[1]-range[0])/4.45,this.cabinTop/1.7);
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.7));
     this.renderer.setClearColor(0x07111d, 0);
@@ -88,20 +97,46 @@ export class FlowScene {
     else {
       const points: THREE.Vector3[] = [];
       run.baseline.protectedMask.forEach((locked, i) => { if (locked && run.baseline.positions[i * 3 + 1] > .95 && Math.abs(run.baseline.positions[i * 3]) < 1.05) points.push(new THREE.Vector3().fromArray(run.baseline.positions, i * 3)); });
-      if (points.length) this.scene.add(new THREE.Box3Helper(new THREE.Box3().setFromPoints(points), 0x8be7df));
+      if (points.length && !vehicle?.aircraft) this.scene.add(new THREE.Box3Helper(new THREE.Box3().setFromPoints(points), 0x8be7df));
     }
     const grid = new THREE.GridHelper(18, 36, 0x203c50, 0x112a3d); grid.position.y = .01; (grid.material as THREE.Material).transparent = true; (grid.material as THREE.Material).opacity = .18; this.scene.add(grid);
     const shadowCanvas = document.createElement('canvas'); shadowCanvas.width = shadowCanvas.height = 128;
     const ctx = shadowCanvas.getContext('2d')!;
     const gradient = ctx.createRadialGradient(64, 64, 10, 64, 64, 64); gradient.addColorStop(0, '#000e'); gradient.addColorStop(.55, '#0009'); gradient.addColorStop(1, '#0000'); ctx.fillStyle = gradient; ctx.fillRect(0, 0, 128, 128);
     const shadow = new THREE.Mesh(new THREE.PlaneGeometry(6.7, 3.8), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(shadowCanvas), transparent: true, depthWrite: false })); shadow.rotation.x = -Math.PI / 2; shadow.position.y = .05; this.scene.add(shadow);
-    this.addFlow();
+    if(run.source==='illustrative')this.addFlow();
+    else {
+      const points=run.baseline.positions;const rear=Math.max(...points.filter((_,i)=>i%3===0));
+      this.illustratedFlow=new FlowRibbons(illustrateFlow(points,vehicle?.aircraft),false,rear,vehicle?.aircraft?.65:1);
+      this.scene.add(this.illustratedFlow);
+    }
     this.scene.add(this.flow, this.flowGhost, this.rearMarker); this.flowGhost.visible = false;
     if (run.source !== 'geometry-preview') this.addSensitivity(); this.scene.add(this.arrows); this.arrows.visible = false;
     this.updateSurface();
     this.addStoryOverlays();
     this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(host);
+    if(run.airflow?.baseline)this.setAirflow(run.airflow.baseline);
     this.resize(); this.animate();
+  }
+  setAirflow(value:Airflow) {
+    if(this.computedAirflow?.meshHash===value.meshHash)return;
+    this.computedAirflow=value;
+    this.predictedFlow?.dispose();if(this.predictedFlow)this.scene.remove(this.predictedFlow);
+    const points=this.run.baseline.positions;
+    const xs=points.filter((_,i)=>i%3===0), ys=points.filter((_,i)=>i%3===1), zs=points.filter((_,i)=>i%3===2);
+    const front=Math.min(...xs),rear=Math.max(...xs),top=Math.max(...ys),side=Math.max(...zs.map(Math.abs));
+    // Keep the measured paths near the body; remove remote-box clutter only.
+    const paths=value.paths.filter(p=>{for(let i=0;i<p.positions.length;i+=3)if(p.positions[i]>front-.4&&p.positions[i]<rear+.8&&p.positions[i+1]<top+.65&&Math.abs(p.positions[i+2])<side+.6)return true;return false;}).slice(0,48);
+    this.predictedFlow=new FlowRibbons(paths,true,rear,this.vehicle?.aircraft?.65:1);this.scene.add(this.predictedFlow);
+    this.setFlowStyle(this.flowStyle);
+    this.updateSurface();
+  }
+  setFlowStyle(style:'illustration'|'prediction') {
+    this.flowStyle=style;
+    if(this.illustratedFlow)this.illustratedFlow.visible=this.mode==='airflow'&&style==='illustration';
+    if(this.predictedFlow)this.predictedFlow.visible=this.mode==='airflow'&&style==='prediction';
+    if(this.run.source!=='illustrative')this.flow.visible=false;
+    this.renderer.domElement.setAttribute('aria-label',`${this.vehicle?.aircraft?'Aircraft':'Car'} with ${style==='illustration'?'illustrated airflow bending around the shape; amber trails explain the wake, not a computed field':'NVIDIA predicted velocity paths in slow motion'}. Use arrow keys to orbit; plus and minus to zoom.`);
   }
   private addWheels() {
     for (const x of [-1.47, 1.48]) for (const z of [-.88, .88]) {
@@ -267,7 +302,7 @@ export class FlowScene {
     if (stage) {
       this.flow.visible = demoFlow || (this.run.source !== 'illustrative' && this.mode === 'airflow');
       const destination = stage === 'intent' ? new THREE.Vector3(-3.4, 3.1, 6.7) : new THREE.Vector3(3.6, 2.5, 5.7);
-      this.controls.target.set(.15, .8, 0);
+      destination.multiplyScalar(this.fitScale);this.controls.target.set(.15, .8, 0);
       if (this.reduced) this.camera.position.copy(destination); else this.cameraDestination = destination;
     }
   }
@@ -280,7 +315,7 @@ export class FlowScene {
     const low = Math.min(pLo, cLo), high = Math.max(pHi, cHi);
     const maximumDisplacement = Math.max(fieldRange(c.displacementM)[1], 1e-9);
     for (let i = 0; i < b.positions.length / 3; i++) {
-      for (let k = 0; k < 3; k++) p.array[i * 3 + k] = b.positions[i * 3 + k] + (c.positions[i * 3 + k] - b.positions[i * 3 + k]) * this.blend * this.magnification;
+      for (let k = 0; k < 3; k++) p.array[i * 3 + k] = b.positions[i * 3 + k] + (c.positions[i * 3 + k] - b.positions[i * 3 + k]) * (this.computedAirflow&&this.mode==='airflow'&&this.run.candidate&&!this.run.airflow?.candidate?0:this.blend) * (this.computedAirflow&&this.mode==='airflow'?1:this.magnification);
       const x = b.positions[i * 3], y = b.positions[i * 3 + 1], z = b.positions[i * 3 + 2];
       if (this.mode === 'pressure') { const v = (b.pressurePa[i] + (c.pressurePa[i] - b.pressurePa[i]) * this.blend - low) / Math.max(high - low, 1e-9); color.setHSL(.64 - Math.max(0, Math.min(1, v)) * .62, .8, .4); }
       else if (this.mode === 'sensitivity') {
@@ -293,25 +328,29 @@ export class FlowScene {
         else if (v < .07) color.setHex(0x172d3b);
         else color.setHex(0xffdd85).lerp(new THREE.Color(0xee642b), v);
       }
+      else if(b.displayColor && this.mode==='airflow'){color.fromArray(b.displayColor,i*3);}
       else { const glass = b.protectedMask[i] && y > .98 && y < 1.40 && (Math.abs(z) > .44 || x < -.5 || x > .5); color.setHex(glass ? 0x102331 : this.mode === 'mesh' ? 0x142b3b : 0x9eafbc); }
       colors.setXYZ(i, color.r, color.g, color.b);
     }
     p.needsUpdate = true; colors.needsUpdate = true; this.geometry.computeVertexNormals();
     if (this.vehicle) for (const part of this.vehicle.exterior) {
       const positions = part.mesh.geometry.getAttribute('position') as THREE.BufferAttribute;
-      for (let i = 0; i < part.count; i++) positions.setXYZ(i, p.getX(part.offset + i), p.getY(part.offset + i), p.getZ(part.offset + i));
+      for (let i = 0; i < part.count; i++) {
+        if(part.basePositions && part.surfaceIndices){const id=part.surfaceIndices[i],base=part.basePositions;positions.setXYZ(i,base[i*3]+(id<0?0:p.getX(id)-b.positions[id*3]),base[i*3+1]+(id<0?0:p.getY(id)-b.positions[id*3+1]),base[i*3+2]+(id<0?0:p.getZ(id)-b.positions[id*3+2]));}
+        else positions.setXYZ(i, p.getX(part.offset + i), p.getY(part.offset + i), p.getZ(part.offset + i));
+      }
       positions.needsUpdate = true;
     }
     if (this.mode === 'mesh') { this.wire.geometry.dispose(); this.wire.geometry = new THREE.WireframeGeometry(this.geometry); }
   }
-  setMode(mode: ViewMode) { if(this.run.source === 'geometry-preview' && !['airflow','mesh'].includes(mode)) return; this.mode = mode; this.wire.visible = mode === 'mesh'; this.arrows.visible = mode === 'sensitivity'; this.flow.visible = mode === 'airflow'; this.material.roughness = mode === 'airflow' ? .3 : .7; this.material.metalness = mode === 'airflow' ? .52 : .1; this.material.clearcoat = mode === 'airflow' ? .8 : 0; this.material.envMapIntensity = mode === 'airflow' ? 1 : .2; this.renderer.toneMappingExposure = mode === 'airflow' ? 1 : .7;
+  setMode(mode: ViewMode) { if(this.run.source === 'geometry-preview' && !['airflow','mesh'].includes(mode)) return; this.mode = mode; this.wire.visible = mode === 'mesh'; this.arrows.visible = mode === 'sensitivity'; this.flow.visible = mode === 'airflow'; this.material.roughness = mode === 'airflow' ? .48 : .7; this.material.metalness = mode === 'airflow' ? .2 : .1; this.material.clearcoat = mode === 'airflow' ? .4 : 0; this.material.envMapIntensity = mode === 'airflow' ? 1 : .2; this.renderer.toneMappingExposure = mode === 'airflow' ? 1 : .7;
     if (this.vehicle) { this.surfaceMesh.visible = mode !== 'airflow'; this.vehicle.exterior.forEach(p => p.mesh.visible = mode === 'airflow'); }
-    this.updateSurface(); }
-  setBlend(value: number) { this.target = value; if (this.story === 'result' && this.run.source === 'illustrative') this.flowTarget = value; if (this.story === 'result' || this.story === 'candidate') this.rearMarker.visible = value > 0; if (this.reduced) { this.blend = value; this.updateSurface(); } }
-  setMagnified(on: boolean) { this.magnification = on ? 24 : 1; this.updateSurface(); }
+    this.setFlowStyle(this.flowStyle);this.updateSurface(); }
+  setBlend(value: number) { this.target = value; if(this.run.airflow){const field=value>=.5?this.run.airflow.candidate??this.run.airflow.baseline:this.run.airflow.baseline;this.setAirflow(field);} if (this.story === 'result' && this.run.source === 'illustrative') this.flowTarget = value; if (this.story === 'result' || this.story === 'candidate') this.rearMarker.visible = value > 0; if (this.reduced) { this.blend = value; this.updateSurface(); } }
+  setMagnified(on: boolean, factor = 24) { this.magnification = on ? factor : 1; this.updateSurface(); }
   setPaused(on: boolean) { this.paused = on; }
   setRun(run: SurfaceRun) { this.run = run; this.updateSurface(); }
-  resetCamera() { this.cameraDestination = undefined; this.camera.position.set(-5.5, 2.45, 5.5); this.controls.target.set(0, .85, 0); this.controls.update(); }
+  resetCamera() { this.cameraDestination = undefined; this.camera.position.set(...(this.vehicle?.aircraft?[-3.6,3.1,3.7] as [number,number,number]:[-5.5*this.fitScale,2.45*this.fitScale,5.5*this.fitScale] as [number,number,number])); this.controls.target.set(this.vehicle?.aircraft?.4:0,this.vehicle?.aircraft ? .35 : .85,0); this.controls.update(); }
   private resize() { const { width, height } = this.host.getBoundingClientRect(); this.camera.aspect = width / Math.max(1, height); this.camera.zoom = Math.min(1.28, this.camera.aspect * .93); this.camera.updateProjectionMatrix(); this.renderer.setSize(width, height); }
   private animate = () => {
     if (this.disposed) return;
@@ -325,6 +364,7 @@ export class FlowScene {
     if (!this.paused && !this.reduced) this.elapsed += dt;
     this.flowBlend = this.reduced ? this.flowTarget : THREE.MathUtils.lerp(this.flowBlend, this.flowTarget, Math.min(1, dt * .9));
     this.flowMaterials.forEach(m => { m.uniforms.time.value = this.elapsed; m.uniforms.morph.value = this.flowBlend; });
+    this.illustratedFlow?.tick(this.elapsed);this.predictedFlow?.tick(this.elapsed,this.computedAirflow?.playbackTimeScale??1);
     if (this.flowParticles) {
       const positions = this.flowParticles.geometry.getAttribute('position') as THREE.BufferAttribute;
       const point = new THREE.Vector3();
@@ -354,7 +394,7 @@ export class FlowScene {
     if (Math.abs(this.blend - this.target) > .0005) { this.blend += (this.target - this.blend) * Math.min(1, dt * (this.story === 'candidate' ? 1.4 : 7)); this.updateSurface(); }
     this.controls.update(); this.renderer.render(this.scene, this.camera);
   };
-  dispose() { this.disposed = true; cancelAnimationFrame(this.frame); this.resizeObserver.disconnect(); this.controls.dispose(); this.scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.Line || o instanceof THREE.Points) { o.geometry.dispose(); const mats = Array.isArray(o.material) ? o.material : [o.material]; mats.forEach(m => m.dispose()); } }); this.scene.environment?.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); }
+  dispose() { this.disposed = true; cancelAnimationFrame(this.frame); this.resizeObserver.disconnect(); this.controls.dispose(); this.scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.Line || o instanceof THREE.Points) { o.geometry.dispose(); const mats = Array.isArray(o.material) ? o.material : [o.material]; mats.forEach(m => {Object.values(m).forEach(value=>{if(value instanceof THREE.Texture)value.dispose();});m.dispose();}); } }); this.scene.environment?.dispose(); this.renderer.dispose(); this.renderer.domElement.remove(); }
 }
 
 

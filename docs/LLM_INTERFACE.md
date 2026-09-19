@@ -32,11 +32,11 @@ and labels non-Nemotron models as development models.
    candidate. A numeric mm ceiling in the brief is combined with the slider
    using the smaller bound. The 4 mm product ceiling, fixed cabin/topology,
    geometry gates and trust decisions are never controlled by the model.
-5. On completion, **LLM-ranked evidence** orders measured facts. Every displayed
-   force, displacement and decision is generated from the server's evidence,
-   with links to that run. The LLM selects fact IDs; it cannot invent numbers or
-   turn a controller refusal into acceptance. Explanation failure leaves the
-   GPU result available and offers an explicit retry.
+5. On completion, **Your result, explained** shows a short readable summary.
+   **Ask about this result** accepts plain-English questions and follow-ups.
+   Summaries are free deterministic text. For questions, GLM chooses up to four
+   relevant supplied facts; it cannot author numbers or change the decision.
+   Detailed evidence and calculation checks stay in expandable sections.
 
 Each request is bound to a server-owned `intentId`, including brief, geometry,
 mode and slider budget. Changed inputs or expired IDs cannot start a worker.
@@ -45,12 +45,12 @@ validation. Numeric constraints that cannot be grounded require clarification.
 The language interpretation is still fallible; inspect the compiled constraints.
 Unsupported geometry or trust settings cannot be executed even if misclassified.
 
-Identical brief requests reuse the cached interpretation during the server
-session. Explanations are cached per run. Reload only retrieves an existing
-explanation; it does not automatically make a paid call for a completed run.
-There is one concurrent model request and one concurrent GPU job. Each model
-call has a 60-second timeout and a 2,048-token output cap, with no automatic
-paid retries. A first complete iteration normally uses two model requests.
+Identical briefs reuse their interpretation during the server session. Summary
+and reload do not make paid calls. Each submitted question uses one model call;
+identical question/run/parent combinations are cached. Follow-ups include up to
+four earlier turns, bound to the same completed run. Questions do not launch GPU
+work. There is one concurrent model request and one concurrent GPU job. Calls
+have a 60-second timeout and a 2,048-token output cap, without automatic retries.
 
 ## API and evidence
 
@@ -58,13 +58,15 @@ paid retries. A first complete iteration normally uses two model requests.
 - `POST /api/intent`: `{geometryId, budgetMm, brief, mode}` → validated plan.
 - `POST /api/runs`: same request plus `intentId` when LLM mode is enabled.
 - `POST /api/runs/<id>/explain`: empty JSON body; uses completed server evidence.
-- `GET /api/runs/<id>/explanation`: cached explanation, with no model call.
+- `GET /api/runs/<id>/explanation`: legacy cached explanation, with no model call.
+- `GET /api/runs/<id>/summary`: readable recorded result, with no model call.
+- `POST /api/runs/<id>/questions`: `{question, parentAnswerId?}`; server evidence only.
 
-Plans and explanations are saved under ignored `.local/copilot/`. The exact
+Plans, explanations, and question responses are saved under ignored `.local/copilot/`. The exact
 plan is also embedded in the run request, result and evidence JSON. Plans record
 requested/returned model, prompt and request hashes, elapsed time and usage.
-The API's run registry and plan authorization expire on server restart; files
-remain on disk. This is a local development service, not a multiuser deployment.
+Plan authorization and conversation history expire on restart. Completed runs
+with matching evidence and result files are recovered from disk when requested. This is a local development service, not a multiuser deployment.
 
 Independent CFD, calibrated trust and full intersection validation remain
 pending. These model features do not change the scientific acceptance boundary.
@@ -82,3 +84,24 @@ Model identity and exact usage for both calls are recorded in the evidence.
 
 Verification: 24 Python tests, 18 frontend tests, and the production frontend
 build passed. The existing large frontend bundle warning remains.
+
+## Presentation update
+
+The live interface now has **Show me the change**, a 3.5-second original/changed
+replay. It turns to the rear and enlarges movement 120 times on screen. The label
+and checkbox expose the enlargement; actual displacement and force numbers are
+unchanged. Reduced-motion users receive the final comparison without replay.
+
+GPU progress shows five understandable stages, elapsed time, and percentages
+only when actual batch counts are available. Each calculation has its own
+percentage. Completed-run progress collapses to leave room for the car.
+
+Verification: 29 backend tests and 21 frontend tests passed; production build
+passed with the existing bundle-size warning. Historical evidence above describes
+the previous automatic-explanation UI, retained here as a dated smoke record.
+
+Browser verification on the existing completed run: GLM answered “Why does it
+look like nothing changed?” with the actual 0.500 mm movement, the display replay,
+and the smaller brief limit. A follow-up “So the orange is not heat?” retained
+that context. No GPU job was started by either question. The result and Q&A now
+appear at the top of the sidebar; Edit brief / run again returns to the controls.

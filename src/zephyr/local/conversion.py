@@ -66,6 +66,8 @@ def surface(mesh, ids, triangles, protected, origin, baseline=None):
     if any(not np.isfinite(v).all() for v in fields.values()):
         raise ValueError('Non-finite model/geometry field')
     result = {key: value[ids].reshape(-1).tolist() for key, value in fields.items()}
+    if 'displayColor' in mesh.point_data:
+        result['displayColor']=np.asarray(mesh.point_data['displayColor'])[ids].reshape(-1).tolist()
     result['triangles'] = triangles.reshape(-1).tolist()
     ranges = {key: [float(np.min(value)), float(np.max(value))] for key, value in fields.items() if key in ('pressurePa', 'normalSensitivity')}
     return result, ranges

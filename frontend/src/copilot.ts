@@ -1,3 +1,4 @@
+import { createRunAssistant } from './run-assistant.ts';
 import { api } from './live-data.ts';
 
 export interface IntentRequest { geometryId: string; budgetMm: number; brief: string; mode: 'analysis'|'iteration' }
@@ -27,16 +28,15 @@ export function createCopilot(getRequest:()=>IntentRequest,lock:(busy:boolean)=>
   brief.after(panel);
   const $=<T extends HTMLElement>(s:string)=>panel.querySelector<T>(s)!;
   const preview=$<HTMLButtonElement>('.copilot-interpret');preview.disabled=true;
-  const result=document.createElement('section');result.className='copilot-explanation';result.hidden=true;result.innerHTML='<div class="copilot-heading">LLM-RANKED EVIDENCE</div><p aria-live="polite"></p><ul></ul><button type="button" class="boundary">Explain this result ↗</button>';
-  document.querySelector('.decision')!.after(result);
-  let enabled=false,plan:IntentPlan|undefined,currentRun:string|undefined,explaining=false;
+  const assistant=createRunAssistant();
+  let enabled=false,plan:IntentPlan|undefined;
   let healthReady=false, controlsBusy=false;
   const ready=api<{copilot:{enabled:boolean;model?:string;competitionModel?:boolean}}>('/api/health').then(h=>{
-    enabled=!!h.copilot?.enabled;healthReady=true;preview.disabled=!enabled||controlsBusy;
+    enabled=!!h.copilot?.enabled;assistant.setEnabled(enabled);healthReady=true;preview.disabled=!enabled||controlsBusy;
     $('.copilot-state').textContent=enabled?'Connected':'Disabled';
     $('.copilot-model').textContent=enabled?`${h.copilot.model} · ${h.copilot.competitionModel?'Nemotron':'development model'}`:'Local preset mode';
     $('.copilot-message').textContent=enabled?'Interpret your brief, then run a bounded local evaluation. Model calls use your configured API.':'Start the API with --enable-llm to use the configured model.';
-    if(enabled){document.querySelector('#decision-copy')!.textContent='Your brief is interpreted before the local GPU run. The controller enforces the cabin lock and movement limit.';document.querySelector('.dialog-note')!.textContent='Brief interpretation and evidence ranking use the configured cloud model. GPU inference runs locally. Model provenance and full-resolution evidence stay in .local.';}
+    if(enabled){document.querySelector('#decision-copy')!.textContent='Your brief is interpreted before the local GPU run. The controller enforces the cabin lock and movement limit.';document.querySelector('.dialog-note')!.textContent='Brief interpretation and questions use the configured cloud model. GPU inference runs locally. Model provenance and full-resolution evidence stay in .local.';}
   }).catch(()=>{$('.copilot-state').textContent='Offline';$('.copilot-message').textContent='Local API unavailable. Start it with --enable-llm and reload.';});
   function renderPlan(value:IntentPlan) {
       $('.copilot-state').textContent=value.graph.status==='ready'?'Ready':value.graph.status==='clarify'?'Clarify':'Refused';
@@ -60,26 +60,10 @@ export function createCopilot(getRequest:()=>IntentRequest,lock:(busy:boolean)=>
   }
   preview.onclick=async()=>{lock(true);try{await prepare(getRequest());}catch{/* Displayed above. */}finally{lock(false);}};
   function invalidate(){plan=undefined;if(enabled){$('.copilot-state').textContent='Brief changed';$('.copilot-message').textContent='Interpretation will refresh before the next run.';$('details').hidden=true;}}
-  brief.addEventListener('input',invalidate);document.querySelector('#budget')!.addEventListener('input',invalidate);
-  const explainButton=result.querySelector<HTMLButtonElement>('button')!;
-  async function explain(runId:string,cachedOnly=false) {
-    await ready;if(!enabled)return;
-    currentRun=runId;result.hidden=false;
-    const message=result.querySelector('p')!;
-    if(explaining)return;
-    explaining=true;explainButton.disabled=true;message.textContent=cachedOnly?'Loading saved explanation…':'Ranking the measured evidence…';
-    try{
-      const value=validateExplanation(await api<Explanation>(`/api/runs/${runId}/${cachedOnly?'explanation':'explain'}`,cachedOnly?undefined:{}),runId);
-      if(currentRun!==runId)return;
-      result.querySelector('ul')!.replaceChildren(...value.facts.map(f=>{const li=document.createElement('li'),a=document.createElement('a');li.append(f.text+' ');a.href=value.evidenceUrl;a.textContent='[evidence]';a.title=f.evidenceId;a.target='_blank';a.rel='noopener';li.append(a);return li;}));
-      message.textContent=`${value.provenance.model} · statements drawn from this run’s evidence`;explainButton.hidden=true;
-    }catch(error){if(currentRun===runId){message.textContent=cachedOnly?'Generate an explanation from this completed run.':`Explanation unavailable: ${error instanceof Error?error.message:String(error)}. Your GPU result remains available.`;explainButton.hidden=false;}}
-    finally{explaining=false;explainButton.disabled=false;}
-  }
-  explainButton.onclick=()=>{if(currentRun)void explain(currentRun);};
-  return {prepare,explain,restore:(value:IntentPlan)=>{
+  document.querySelector('#vehicle')!.addEventListener('change',invalidate);brief.addEventListener('input',invalidate);document.querySelector('#budget')!.addEventListener('input',invalidate);
+  return {prepare,showResult:assistant.show,restore:(value:IntentPlan)=>{
     plan=validatePlan(value,value.request);renderPlan(plan);brief.value=plan.request.brief;
     const budget=document.querySelector<HTMLInputElement>('#budget')!;budget.value=String(plan.request.budgetMm);
     document.querySelector('#budget-value')!.textContent=`${plan.request.budgetMm.toFixed(1)} mm`;
-  },setBusy:(busy:boolean)=>{controlsBusy=busy;preview.disabled=busy||!enabled;},reset:()=>{currentRun=undefined;result.hidden=true;result.querySelector('ul')!.replaceChildren();explainButton.hidden=false;}};
+  },setBusy:(busy:boolean)=>{controlsBusy=busy;preview.disabled=busy||!enabled;},reset:assistant.reset};
 }

@@ -1,0 +1,630 @@
+{
+  "schemaVersion": 1,
+  "credits": "frontend/public/models/VEHICLE_CREDITS.md",
+  "artifacts": [
+    {
+      "path": "stuntrally-v1/data/cars/HR/HR_body.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/HR/HR_body.mesh",
+      "bytes": 921062,
+      "sha256": "587e62be76c017a64ef12d9c028cfb8c6f3dabbcc9b3483b3b3368d621aebd99"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/HR/HR_glass.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/HR/HR_glass.mesh",
+      "bytes": 722,
+      "sha256": "7dfd0bd6296c22a2787421eb537e50f0c2d2de486babd8999ce988e15d1cf6fc"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/HR/HR_interior.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/HR/HR_interior.mesh",
+      "bytes": 710618,
+      "sha256": "64c79effbd67207a385f938279bbac8cc9b8563755a6d8ec1338d10076470103"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/HR/HR_wheel.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/HR/HR_wheel.mesh",
+      "bytes": 307795,
+      "sha256": "a15f3bcc50ee2f0c08d70bcbb2ccba7c587c2eea90da558a97451ac5cd8fe942"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/S8/S8_body.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/S8/S8_body.mesh",
+      "bytes": 502568,
+      "sha256": "f518e02c8e52b2e1371b6760ec657ebb373735998e043b20005a89d2dc65e3e5"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/S8/S8_brake.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/S8/S8_brake.mesh",
+      "bytes": 41120,
+      "sha256": "89a268cbb5e7afebf7a4f31442b2fe12210f4ff922ffeec6dff27bf2d9d0a87f"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/S8/S8_glass.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/S8/S8_glass.mesh",
+      "bytes": 179694,
+      "sha256": "7cd828299824333ad09e1f53e700f45d277b955bb2dd3ee687c5fba334f7328c"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/S8/S8_interior.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/S8/S8_interior.mesh",
+      "bytes": 1127864,
+      "sha256": "f3c59e55118ab4447dc43fc23300f95a25509c80dfb191c25e5c85b12b28d2fa"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/S8/S8_wheel.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/S8/S8_wheel.mesh",
+      "bytes": 49925,
+      "sha256": "55a052a9d64b4534a6954ffcb62bcd581a429fd714ee56c2687999cf759c3b3e"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/XZ/XZ_body.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/XZ/XZ_body.mesh",
+      "bytes": 239153,
+      "sha256": "626df4be9b1dbf8f36613bd2e6dace47ee64e83acf92137c5b3888c423e87bf5"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/XZ/XZ_brake.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/XZ/XZ_brake.mesh",
+      "bytes": 5470,
+      "sha256": "9edbd839e3d31e3f844e501c96c8211ed5ad6aa8fab3a99b2f79b3f893200bd2"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/XZ/XZ_glass.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/XZ/XZ_glass.mesh",
+      "bytes": 28642,
+      "sha256": "a324fbbaf1e1b60e9fb2d909b38a824eacbb19dfdc7b193440796ad10b6e46da"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/XZ/XZ_interior.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/XZ/XZ_interior.mesh",
+      "bytes": 315077,
+      "sha256": "b6a59731a5a234713ab868a43bf9f9b89d0d260f12de4a42f0d08a51c712516b"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/XZ/XZ_wheel.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/XZ/XZ_wheel.mesh",
+      "bytes": 201130,
+      "sha256": "4bf4cb9df300fc158fbdb511694ee4da4219060d37568bc2b2894bd1e78cf66b"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/Y7/Y7_body.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/Y7/Y7_body.mesh",
+      "bytes": 918683,
+      "sha256": "44eb57a06ab587fc9ba595c7de5b628a95af5318815ca41607060a62d214deec"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/Y7/Y7_brake.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/Y7/Y7_brake.mesh",
+      "bytes": 5085,
+      "sha256": "bbfec65949b575860da88bc652bff886e61226e771126df41bcd6dcb03febd8f"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/Y7/Y7_glass.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/Y7/Y7_glass.mesh",
+      "bytes": 35629,
+      "sha256": "f806cfce4ed508695436a8238c99e6256704e6c5589e50c92bee003a9d234be8"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/Y7/Y7_interior.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/Y7/Y7_interior.mesh",
+      "bytes": 1835875,
+      "sha256": "33835694d42964bfb23255caebaff7852a77897acba30113a7f27ebc0acdbc18"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/Y7/Y7_wheel_front.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/Y7/Y7_wheel_front.mesh",
+      "bytes": 122153,
+      "sha256": "1c745b4014d777eeeacc2cd7c5dd4766c91aed6c071d9f38efd3f17406d25a72"
+    },
+    {
+      "path": "stuntrally-v1/data/cars/Y7/Y7_wheel_rear.mesh",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally/9a7efa5aea7f792f88220d75a6e0d9e22c8ea6e6/data/cars/Y7/Y7_wheel_rear.mesh",
+      "bytes": 122153,
+      "sha256": "b84dff8b9dc89b97b8e6822cae7471ddb4eaece21f11d6aef3093f3b6ce569c5"
+    },
+    {
+      "path": "stuntrally/data/cars/HR/about.txt",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/HR/about.txt",
+      "bytes": 125,
+      "sha256": "cbde3221f3c1773f01f87c294eed18463be235a601a5daa7361f5770a374315b"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/about.txt",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/about.txt",
+      "bytes": 91,
+      "sha256": "72e8dd517ffb426b1b516be09c1f79d6ac9a73b1853e1c4ed5e43369b6d8c736"
+    },
+    {
+      "path": "stuntrally/data/cars/XZ/about.txt",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/XZ/about.txt",
+      "bytes": 118,
+      "sha256": "d5e3b88745699aac69fe0e5ed8b9063707eb758f48f42f3d4651a75ea447bda8"
+    },
+    {
+      "path": "stuntrally/data/cars/Y7/about.txt",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/Y7/about.txt",
+      "bytes": 108,
+      "sha256": "0e6aea82d4f3746a4ed18ff5670e39ce3356c893805aaa0a454c540088d27f9c"
+    },
+    {
+      "path": "stuntrally/data/cars/HR/textures/HR_body_add.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/HR/textures/HR_body_add.png",
+      "bytes": 2978,
+      "sha256": "713814b01846a7f3658e2fc27588c662af7db50d47c7cfe82d811cede869b9db"
+    },
+    {
+      "path": "stuntrally/data/cars/HR/textures/HR_body_brake.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/HR/textures/HR_body_brake.png",
+      "bytes": 2978,
+      "sha256": "713814b01846a7f3658e2fc27588c662af7db50d47c7cfe82d811cede869b9db"
+    },
+    {
+      "path": "stuntrally/data/cars/HR/textures/HR_body_red.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/HR/textures/HR_body_red.png",
+      "bytes": 211,
+      "sha256": "d11525bdea20de9f6522a3e7335a12275c14d502283c05f8d319d8f505212d98"
+    },
+    {
+      "path": "stuntrally/data/cars/HR/textures/HR_glass.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/HR/textures/HR_glass.png",
+      "bytes": 183,
+      "sha256": "0693c46c00da64b7b115f78486e16df051cf1772fd965d163a3799943c64ddeb"
+    },
+    {
+      "path": "stuntrally/data/cars/HR/textures/HR_interior.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/HR/textures/HR_interior.png",
+      "bytes": 761309,
+      "sha256": "043451cb8f7ee3e56a1f7e9b6a1b591b3db8e21e0fcdd5378ceabeb867ca8fa4"
+    },
+    {
+      "path": "stuntrally/data/cars/HR/textures/HR_refl.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/HR/textures/HR_refl.png",
+      "bytes": 211,
+      "sha256": "d11525bdea20de9f6522a3e7335a12275c14d502283c05f8d319d8f505212d98"
+    },
+    {
+      "path": "stuntrally/data/cars/HR/textures/HR_wheel.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/HR/textures/HR_wheel.png",
+      "bytes": 612850,
+      "sha256": "24032eae60231a601ccf17b360052395422759cfff2526806c8179124057b514"
+    },
+    {
+      "path": "stuntrally/data/cars/HR/textures/HR_wheel_norm.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/HR/textures/HR_wheel_norm.png",
+      "bytes": 1116790,
+      "sha256": "f4e510027775b3603b44ade91dd1f6a9ab7a32ba9110088d134fc983d106d616"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/textures/S8_body_add.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/textures/S8_body_add.png",
+      "bytes": 2978,
+      "sha256": "713814b01846a7f3658e2fc27588c662af7db50d47c7cfe82d811cede869b9db"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/textures/S8_body_brake.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/textures/S8_body_brake.png",
+      "bytes": 2978,
+      "sha256": "713814b01846a7f3658e2fc27588c662af7db50d47c7cfe82d811cede869b9db"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/textures/S8_body_red.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/textures/S8_body_red.png",
+      "bytes": 157636,
+      "sha256": "560fdff54402f4c536eb8f417e643ab6cfb08219687f5b8d6cc56a7dbbe30564"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/textures/S8_body_white.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/textures/S8_body_white.png",
+      "bytes": 76150,
+      "sha256": "fceaa7b9e8d4c3966f7a7498f376819aa6523db09a52ae9ab7bc337e8500f401"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/textures/S8_brake.jpg",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/textures/S8_brake.jpg",
+      "bytes": 96186,
+      "sha256": "59b8b30f92cfb3e9c38f11337c670a4bd0554b5c502e65edc15930fe76a65ab6"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/textures/S8_glass.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/textures/S8_glass.png",
+      "bytes": 2960,
+      "sha256": "470d34f3a705895ec5417be187af399b97332f25e54facbdc9c5e062384d96c6"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/textures/S8_interior.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/textures/S8_interior.png",
+      "bytes": 641014,
+      "sha256": "9590f9cdbfc7847dba10f8d2c3baaa0aaee2bed8c4d548707467055ba5d2cb4d"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/textures/S8_rear_lights.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/textures/S8_rear_lights.png",
+      "bytes": 74505,
+      "sha256": "2b038748f5e2a2755b233f133ba653b03b49b5e53c749527bd1d0b94f4fd133e"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/textures/S8_refl.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/textures/S8_refl.png",
+      "bytes": 211,
+      "sha256": "d11525bdea20de9f6522a3e7335a12275c14d502283c05f8d319d8f505212d98"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/textures/S8_wheel.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/textures/S8_wheel.png",
+      "bytes": 102550,
+      "sha256": "8071f56328571a5d0cec2607e91ba94a88d14ab351f373356e7810c06acad48b"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/textures/S8_wheel_norm.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/textures/S8_wheel_norm.png",
+      "bytes": 83985,
+      "sha256": "522171442c284f45e51f47403edf531d0b850bdb64f03f4563738eec171b059d"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/textures/S8_wheel_refl.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/textures/S8_wheel_refl.png",
+      "bytes": 1853,
+      "sha256": "2cb2e8aeaea654caf6d33322a4c3bbc28ae5b8eba00c28bc4c1b01a19b087ac4"
+    },
+    {
+      "path": "stuntrally/data/cars/S8/textures/S8_wheel_spec.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/S8/textures/S8_wheel_spec.png",
+      "bytes": 4045,
+      "sha256": "38d2aafe01940b481ac55efec1a1daa42319d4d8faa32316060c76732a46271b"
+    },
+    {
+      "path": "stuntrally/data/cars/XZ/textures/XZ_body_add.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/XZ/textures/XZ_body_add.png",
+      "bytes": 2978,
+      "sha256": "713814b01846a7f3658e2fc27588c662af7db50d47c7cfe82d811cede869b9db"
+    },
+    {
+      "path": "stuntrally/data/cars/XZ/textures/XZ_body_brake.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/XZ/textures/XZ_body_brake.png",
+      "bytes": 2978,
+      "sha256": "713814b01846a7f3658e2fc27588c662af7db50d47c7cfe82d811cede869b9db"
+    },
+    {
+      "path": "stuntrally/data/cars/XZ/textures/XZ_body_red.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/XZ/textures/XZ_body_red.png",
+      "bytes": 232265,
+      "sha256": "23293704239cdfe91552d4d3f4072d22b8f8be80cf340a7e4747bf53ca55bd85"
+    },
+    {
+      "path": "stuntrally/data/cars/XZ/textures/XZ_glass.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/XZ/textures/XZ_glass.png",
+      "bytes": 183,
+      "sha256": "0693c46c00da64b7b115f78486e16df051cf1772fd965d163a3799943c64ddeb"
+    },
+    {
+      "path": "stuntrally/data/cars/XZ/textures/XZ_interior.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/XZ/textures/XZ_interior.png",
+      "bytes": 627733,
+      "sha256": "9aa1eb759a12d3c289a450455a819c7f8383a34e6a546e38fa90f48bbae506bd"
+    },
+    {
+      "path": "stuntrally/data/cars/XZ/textures/XZ_interior_refl.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/XZ/textures/XZ_interior_refl.png",
+      "bytes": 92546,
+      "sha256": "72b8b1d13f4a2cb3f79103aaf07c4c56152ee887223d9e94c4a40ff355e86222"
+    },
+    {
+      "path": "stuntrally/data/cars/XZ/textures/XZ_refl.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/XZ/textures/XZ_refl.png",
+      "bytes": 211,
+      "sha256": "d11525bdea20de9f6522a3e7335a12275c14d502283c05f8d319d8f505212d98"
+    },
+    {
+      "path": "stuntrally/data/cars/XZ/textures/XZ_Tire.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/XZ/textures/XZ_Tire.png",
+      "bytes": 147566,
+      "sha256": "ed2f6791639fbef96425368203b9c19951418ff1d7f5c47dab41de4243e745e9"
+    },
+    {
+      "path": "stuntrally/data/cars/XZ/textures/XZ_Tire_norm.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/XZ/textures/XZ_Tire_norm.png",
+      "bytes": 106830,
+      "sha256": "e4f6bd5b2ea8ba3d2613d902ffaa9ac1d750fb228fdc10f535a218250b54b92c"
+    },
+    {
+      "path": "stuntrally/data/cars/XZ/textures/XZ_Tire_refl.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/XZ/textures/XZ_Tire_refl.png",
+      "bytes": 6858,
+      "sha256": "996b34e9c03c2977f35faf814e7820afecf238c1f42808208385b9fec6f60780"
+    },
+    {
+      "path": "stuntrally/data/cars/XZ/textures/XZ_Tire_spec.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/XZ/textures/XZ_Tire_spec.png",
+      "bytes": 3572,
+      "sha256": "2843e4cf6cddd0d776c3a155ce5e51c2e18fd3df80b1afaef7e575bb6e3e6ac8"
+    },
+    {
+      "path": "stuntrally/data/cars/Y7/textures/Y7_body_add.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/Y7/textures/Y7_body_add.png",
+      "bytes": 219,
+      "sha256": "60f7faff380994955ca118c0e142e29c484c368e9e9bf86850b1d1bd76ecffa8"
+    },
+    {
+      "path": "stuntrally/data/cars/Y7/textures/Y7_body_brake.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/Y7/textures/Y7_body_brake.png",
+      "bytes": 219,
+      "sha256": "60f7faff380994955ca118c0e142e29c484c368e9e9bf86850b1d1bd76ecffa8"
+    },
+    {
+      "path": "stuntrally/data/cars/Y7/textures/Y7_body_red.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/Y7/textures/Y7_body_red.png",
+      "bytes": 287508,
+      "sha256": "a556b844a6588512ee0c2e387c0ecdfac1e6db2b9b9f3db32ae38f8395ec7adb"
+    },
+    {
+      "path": "stuntrally/data/cars/Y7/textures/Y7_glass.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/Y7/textures/Y7_glass.png",
+      "bytes": 183,
+      "sha256": "0693c46c00da64b7b115f78486e16df051cf1772fd965d163a3799943c64ddeb"
+    },
+    {
+      "path": "stuntrally/data/cars/Y7/textures/Y7_interior.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/Y7/textures/Y7_interior.png",
+      "bytes": 1414606,
+      "sha256": "34f124d928c8127b4147affd8d87cdec2b751bd599b8995c603f5b7341edcc0e"
+    },
+    {
+      "path": "stuntrally/data/cars/Y7/textures/Y7_interior_refl.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/Y7/textures/Y7_interior_refl.png",
+      "bytes": 49259,
+      "sha256": "a3af73d67627f6ee0a3cc81f937c5d54c082e9ff9fc35499ba7695f6e0e01b45"
+    },
+    {
+      "path": "stuntrally/data/cars/Y7/textures/Y7_interior_spec.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/Y7/textures/Y7_interior_spec.png",
+      "bytes": 45397,
+      "sha256": "a415177f277191aa4a16afdae0eeaac4aaebcac93a80145524b23af2f043c34a"
+    },
+    {
+      "path": "stuntrally/data/cars/Y7/textures/Y7_refl.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/Y7/textures/Y7_refl.png",
+      "bytes": 211,
+      "sha256": "d11525bdea20de9f6522a3e7335a12275c14d502283c05f8d319d8f505212d98"
+    },
+    {
+      "path": "stuntrally/data/cars/Y7/textures/Y7_Tire.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/Y7/textures/Y7_Tire.png",
+      "bytes": 140264,
+      "sha256": "eb316d995c742edfca5cf1ee4b88c63eb6ca204dbc51ef53fefea63d50ab5561"
+    },
+    {
+      "path": "stuntrally/data/cars/Y7/textures/Y7_Tire_norm.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/Y7/textures/Y7_Tire_norm.png",
+      "bytes": 106830,
+      "sha256": "e4f6bd5b2ea8ba3d2613d902ffaa9ac1d750fb228fdc10f535a218250b54b92c"
+    },
+    {
+      "path": "stuntrally/data/cars/Y7/textures/Y7_Tire_refl.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/Y7/textures/Y7_Tire_refl.png",
+      "bytes": 6858,
+      "sha256": "996b34e9c03c2977f35faf814e7820afecf238c1f42808208385b9fec6f60780"
+    },
+    {
+      "path": "stuntrally/data/cars/Y7/textures/Y7_Tire_spec.png",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/cars/Y7/textures/Y7_Tire_spec.png",
+      "bytes": 3572,
+      "sha256": "2843e4cf6cddd0d776c3a155ce5e51c2e18fd3df80b1afaef7e575bb6e3e6ac8"
+    },
+    {
+      "path": "stuntrally/data/carsim/normal/cars/HR.car",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/carsim/normal/cars/HR.car",
+      "bytes": 4632,
+      "sha256": "23b236b1f0493c4d0e441e5492377f5f6f1e7b5c477fb7641e32036f46eedceb"
+    },
+    {
+      "path": "stuntrally/data/carsim/normal/cars/S8.car",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/carsim/normal/cars/S8.car",
+      "bytes": 4735,
+      "sha256": "e64b2be129c2dd8c0b2f90df191ebe58e6a95858f570fa3b937baf50de343e22"
+    },
+    {
+      "path": "stuntrally/data/carsim/normal/cars/XZ.car",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/carsim/normal/cars/XZ.car",
+      "bytes": 4839,
+      "sha256": "d92c314e0563fbefd68b8bc56a8b0e39f1771b4208124add78547547dfe2a81e"
+    },
+    {
+      "path": "stuntrally/data/carsim/normal/cars/Y7.car",
+      "url": "https://raw.githubusercontent.com/stuntrally/stuntrally3/fe3ecd73fff671c3d75ecaeadccea5c5e6afe0d8/data/carsim/normal/cars/Y7.car",
+      "bytes": 4909,
+      "sha256": "00f5549e3e591468a3923715cf23759490a268638889ecb86d1722591a062f00"
+    },
+    {
+      "path": "webots/backwards_white_lights.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/backwards_white_lights.obj",
+      "bytes": 120984,
+      "sha256": "e85fdcaeedf330c66bb8ba45e82f327b4d2b59e1312f5fff7dd00e8eb14a4710"
+    },
+    {
+      "path": "webots/body.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/body.obj",
+      "bytes": 207100,
+      "sha256": "2d78a3ef7bdccba78a07908d081052362ebfca20d4c0c02aaa1de8411d68c761"
+    },
+    {
+      "path": "webots/braking_side_lights.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/braking_side_lights.obj",
+      "bytes": 122804,
+      "sha256": "03014dfd1995716c21904aa11bb7861e3787908d8c55a142eac87f24f74447d0"
+    },
+    {
+      "path": "webots/braking_top_light.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/braking_top_light.obj",
+      "bytes": 17063,
+      "sha256": "7d1eb30c26ddff67a16d5403d5f9fae02766074bc6023eb613c33815efd1d387"
+    },
+    {
+      "path": "webots/bumper.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/bumper.obj",
+      "bytes": 1930215,
+      "sha256": "1816c013873a295bd455cc7c3566d87d2d1c9cc456344ca66e2c16912c4415d6"
+    },
+    {
+      "path": "webots/central_mirror.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/central_mirror.obj",
+      "bytes": 9529,
+      "sha256": "39f55a25e9c60eacb00c30183aaddecd5b50384a65c440f763f419cf96c20456"
+    },
+    {
+      "path": "webots/coachwork.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/coachwork.obj",
+      "bytes": 1848998,
+      "sha256": "dcbc78b53e1d4f845c015a6b54af0ae946f4395366215814fc148d07d180dc2d"
+    },
+    {
+      "path": "webots/coachwork_front.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/coachwork_front.obj",
+      "bytes": 1539477,
+      "sha256": "c08a21cadcc7eeaf9214bc7fb751b35fb76e65665e718071e5d2f6a54f052393"
+    },
+    {
+      "path": "webots/cockpit.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/cockpit.obj",
+      "bytes": 90208,
+      "sha256": "748a11cca43857f8c1f4f9b3346e517b513057b1abafc9f8c309564debb54caa"
+    },
+    {
+      "path": "webots/front_light.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/front_light.obj",
+      "bytes": 137034,
+      "sha256": "51f511bdd217459497fb4f2fb26ca1f11387704c40e83dbeb049a91ca9a962a1"
+    },
+    {
+      "path": "webots/front_logo.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/front_logo.obj",
+      "bytes": 59276,
+      "sha256": "0424c3e1527621db813f7e76389b0d4e47ee59b25fedc4f4210a5eb9bce051b1"
+    },
+    {
+      "path": "webots/front_logo_support.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/front_logo_support.obj",
+      "bytes": 341450,
+      "sha256": "d0642108be5e8deb23eca809579609ea2740959496a1c1b040289ea121295f40"
+    },
+    {
+      "path": "webots/front_radiator.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/front_radiator.obj",
+      "bytes": 55484,
+      "sha256": "a59638bfb479d9abbf83beff814520725087d29bda942ac31d458d85465100d2"
+    },
+    {
+      "path": "webots/handles.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/handles.obj",
+      "bytes": 145569,
+      "sha256": "32cde31311fb00355b70f45e693066b3b042904e1cde5135455af5b2855980b8"
+    },
+    {
+      "path": "webots/left_indicator.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/left_indicator.obj",
+      "bytes": 337153,
+      "sha256": "be9151349dad26092aaffae3df2b40c031cce796fae6b406853363fdbeceb56b"
+    },
+    {
+      "path": "webots/mirrors.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/mirrors.obj",
+      "bytes": 68147,
+      "sha256": "c783be88759dadb66a1541f323de8039211fec460886ea6ea1fe38ab19c9356a"
+    },
+    {
+      "path": "webots/plastic.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/plastic.obj",
+      "bytes": 1774326,
+      "sha256": "c414d1046fbfd04c1550488a1393acc76ab939036760431f5b03cd49407723e2"
+    },
+    {
+      "path": "webots/polymer.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/polymer.obj",
+      "bytes": 557030,
+      "sha256": "3f7223ad0b42f1e326cdf6e9a2c3892bb259e5f62d6d99c6b9bc8c916dd4815c"
+    },
+    {
+      "path": "webots/rear_door_joints.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/rear_door_joints.obj",
+      "bytes": 404001,
+      "sha256": "e9d01a2cb284bf87a027cf69228c732281119640fcca69e600488799f03afb86"
+    },
+    {
+      "path": "webots/rear_fog_lights.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/rear_fog_lights.obj",
+      "bytes": 55090,
+      "sha256": "36292a58032d8e66039f89cd97738bad7a6506768a426b917a2427b733d605f2"
+    },
+    {
+      "path": "webots/rear_logo.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/rear_logo.obj",
+      "bytes": 75972,
+      "sha256": "ab8fa8e8d2dfe29474bb1e9d0bf627b9630b77b37abdf1de36b3e9df5a107f54"
+    },
+    {
+      "path": "webots/right_indicator.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/right_indicator.obj",
+      "bytes": 338757,
+      "sha256": "9d50fde1402193bf7a20cd013dc6cabd48f549f80327aa5984e07b75c96cac3c"
+    },
+    {
+      "path": "webots/roof_and_rear.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/roof_and_rear.obj",
+      "bytes": 1771223,
+      "sha256": "18426c0d3e0f7c0b6686415d57439796d4b6432a5a504933a15990ac1cf16176"
+    },
+    {
+      "path": "webots/seats.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/seats.obj",
+      "bytes": 737750,
+      "sha256": "e7f383990c1cceed6d3fefdaaf543a910a9a621bf4a041b24315574a457eaf06"
+    },
+    {
+      "path": "webots/steering_wheel.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/steering_wheel.obj",
+      "bytes": 242559,
+      "sha256": "1f89816b5cf9ce1193d2b9220df2d440f3d21dc784059faa44395c8e94a5b512"
+    },
+    {
+      "path": "webots/tail_lights.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/tail_lights.obj",
+      "bytes": 288565,
+      "sha256": "c7216181d709218ee2e57f91fedb40546d2d9795e01b9ea0a81036e8594beddf"
+    },
+    {
+      "path": "webots/windows.obj",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/meshes/windows.obj",
+      "bytes": 1086284,
+      "sha256": "e3ef58ff83d652007e06ef2f348afac8df552659e5483920685e22909da978b5"
+    },
+    {
+      "path": "MercedesBenzSprinterLights.proto",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/MercedesBenzSprinterLights.proto",
+      "bytes": 2661,
+      "sha256": "66e0387d0e25de6b5d790be6670e9fe1e0c6ace8cd31d9ad24f9338463a557b4"
+    },
+    {
+      "path": "MercedesBenzSprinterLogos.proto",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/MercedesBenzSprinterLogos.proto",
+      "bytes": 1021,
+      "sha256": "75d5fbe883587835d32a732f35f114f6911ab697447dde0d9f9696d9d75fc389"
+    },
+    {
+      "path": "MercedesBenzSprinterSimple.proto",
+      "url": "https://raw.githubusercontent.com/cyberbotics/webots/d2ba706776b080addfcca8d4900c735921f998da/projects/vehicles/protos/mercedes_benz/MercedesBenzSprinterSimple.proto",
+      "bytes": 8497,
+      "sha256": "87a3c4d1d71e19d2ea2ceccf4959de5985eae83844e196d839ba3b8a2abe5d2b"
+    },
+    {
+      "path": "nasa/x57.glb",
+      "url": "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/11ebb4ee043715aefbba6aeec8a61746fad67fa7/3D%20Models/X-57/X-57.glb",
+      "bytes": 13302236,
+      "sha256": "f7e36ef23425ab2aae808a2f19883b8d52a5c8b46fb7d92deb3449431f04333a"
+    },
+    {
+      "path": "nasa/global-hawk.glb",
+      "url": "https://raw.githubusercontent.com/nasa/NASA-3D-Resources/11ebb4ee043715aefbba6aeec8a61746fad67fa7/3D%20Models/Global%20Hawk/Global%20Hawk.glb",
+      "bytes": 1184092,
+      "sha256": "75b62cc2fa101fc517b8be4ebe79a7cc5206bcce38efbf104dde7414c810b667"
+    }
+  ]
+}

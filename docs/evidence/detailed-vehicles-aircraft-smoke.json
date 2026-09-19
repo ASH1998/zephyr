@@ -1,0 +1,358 @@
+{
+  "date": "2026-09-19",
+  "models": [
+    {
+      "geometryId": "coupe",
+      "meshHash": "5ace691e0d9dcca5a9901afa645c4bf54d9a07d33ec2c76d21f920b4c3720845",
+      "visualSha256": "3dd5635bd680c914fe7cd3bf76065560a01e0129222de5c9d6b01deb0469b5d5",
+      "visualBytes": 1578016,
+      "surfaceVertices": 17999,
+      "surfaceTriangles": 35998,
+      "flowMeshHash": "5ace691e0d9dcca5a9901afa645c4bf54d9a07d33ec2c76d21f920b4c3720845",
+      "flowSeconds": 4.791,
+      "pathCount": 94,
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882"
+    },
+    {
+      "geometryId": "global-hawk",
+      "meshHash": "7d937aedc4ca9c1cb6bb718fdc9200ee2643c290caca4aef4b9d2241643f904c",
+      "visualSha256": "483bcb4cd2257ffe730065d84983de0c69b753a93471ed94dcd9305765eb1321",
+      "visualBytes": 1015704,
+      "surfaceVertices": 3048,
+      "surfaceTriangles": 6092,
+      "flowMeshHash": "7d937aedc4ca9c1cb6bb718fdc9200ee2643c290caca4aef4b9d2241643f904c",
+      "flowSeconds": 4.97,
+      "pathCount": 95,
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882"
+    },
+    {
+      "geometryId": "hatchback",
+      "meshHash": "7c3558aa9e514dd2a5414f6e2f216c28ddff47b4ac6776c5cd115ebb421dd0bd",
+      "visualSha256": "e4c94e84edae1ddf018db7c8bf557dfb60a2a649dc5f6d33646e382d407500d7",
+      "visualBytes": 2670500,
+      "surfaceVertices": 17995,
+      "surfaceTriangles": 36014,
+      "flowMeshHash": "7c3558aa9e514dd2a5414f6e2f216c28ddff47b4ac6776c5cd115ebb421dd0bd",
+      "flowSeconds": 5.226,
+      "pathCount": 95,
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882"
+    },
+    {
+      "geometryId": "sports",
+      "meshHash": "3aacc05fe8e6fbcef34c0fea48a394e7e52a9cef0df1247f0e1bb2a5f4193568",
+      "visualSha256": "b841689367b4674b7d1ee996ad430d80dc57aacddff9bab6fa0ac205ac7f14d5",
+      "visualBytes": 4327272,
+      "surfaceVertices": 17999,
+      "surfaceTriangles": 36002,
+      "flowMeshHash": "3aacc05fe8e6fbcef34c0fea48a394e7e52a9cef0df1247f0e1bb2a5f4193568",
+      "flowSeconds": 4.696,
+      "pathCount": 92,
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882"
+    },
+    {
+      "geometryId": "suv",
+      "meshHash": "11b1ece5d1dc93c470a7de566e35dd7cd95426d30c169ad960ccbf66c82f87b5",
+      "visualSha256": "b076956fcaab054a1a8d6a1f2efdca5fd63d8707cbd8973b61e7c4d69df5a7df",
+      "visualBytes": 3530040,
+      "surfaceVertices": 48192,
+      "surfaceTriangles": 96436,
+      "flowMeshHash": "11b1ece5d1dc93c470a7de566e35dd7cd95426d30c169ad960ccbf66c82f87b5",
+      "flowSeconds": 4.78,
+      "pathCount": 95,
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882"
+    },
+    {
+      "geometryId": "van",
+      "meshHash": "d9c04529e70cce2e7f5dd4c1b7f24b5833201b58eb51d5c3daf7cc8302f764d0",
+      "visualSha256": "801d102334468d964fdf891a7059d050dde4eeb737b031bd2e8426dda66971a0",
+      "visualBytes": 3821620,
+      "surfaceVertices": 67058,
+      "surfaceTriangles": 134284,
+      "flowMeshHash": "d9c04529e70cce2e7f5dd4c1b7f24b5833201b58eb51d5c3daf7cc8302f764d0",
+      "flowSeconds": 4.754,
+      "pathCount": 95,
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882"
+    },
+    {
+      "geometryId": "wagon",
+      "meshHash": "fcc185f69f4537cb05a20387b6b38630550938ba7628fc22658dcbdf0b3a0410",
+      "visualSha256": "5a5ce04fa2574d0272769d60889891f06c7a0bf90bda697810b075d0d3ae6404",
+      "visualBytes": 2013280,
+      "surfaceVertices": 17995,
+      "surfaceTriangles": 36010,
+      "flowMeshHash": "fcc185f69f4537cb05a20387b6b38630550938ba7628fc22658dcbdf0b3a0410",
+      "flowSeconds": 4.787,
+      "pathCount": 92,
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882"
+    },
+    {
+      "geometryId": "x57",
+      "meshHash": "c59ed9dc052a8da1ab027c6c8b8c73ed72e40daec19753543694852bfdcabcdc",
+      "visualSha256": "64a6f8bae67be1b49774b63fc75ed5c24fe6afeea77ec1b1efa02bd93949ae2c",
+      "visualBytes": 1600244,
+      "surfaceVertices": 6090,
+      "surfaceTriangles": 12188,
+      "flowMeshHash": "c59ed9dc052a8da1ab027c6c8b8c73ed72e40daec19753543694852bfdcabcdc",
+      "flowSeconds": 4.693,
+      "pathCount": 95,
+      "checkpointSha256": "faf54e217ca7855fa085122fb3a77b3aeae39f0a09a9b14c1652f1a6c9902882"
+    }
+  ],
+  "testRun": {
+    "runId": "local-336be40999c940e9acff6f83fa10bd8a",
+    "geometryId": "hatchback",
+    "forces": {
+      "baselineN": [
+        474.92291259765625,
+        478.8136901855469,
+        -76.211181640625
+      ],
+      "candidateN": [
+        473.5019226074219,
+        478.7315368652344,
+        -76.6705322265625
+      ],
+      "baselineDragN": 474.92291259765625,
+      "candidateDragN": 473.5019226074219,
+      "predictedDragN": 474.98934533267783
+    },
+    "timings": {
+      "baselineSeconds": 2.776936799999021,
+      "evaluateSeconds": 1.746436299999914,
+      "totalSeconds": 22.086663699999917
+    },
+    "validation": {
+      "geometry": "incomplete",
+      "freshEvaluation": "passed",
+      "independentCfd": "not-run",
+      "evidenceIds": [
+        "local-336be40999c940e9acff6f83fa10bd8a:baseline",
+        "local-336be40999c940e9acff6f83fa10bd8a:candidate"
+      ],
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 14967
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0036000000000000476
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9997186026969479
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9803318740254339,
+          "maximumRatio": 1.1893433738128882
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        },
+        "symmetricHandle": {
+          "status": "passed",
+          "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+        },
+        "transition": {
+          "status": "passed",
+          "detail": "Quintic C2 transition; exactly zero on protected boundary."
+        },
+        "selfIntersection": {
+          "status": "not-run",
+          "detail": "Full triangle intersection audit unavailable; candidate cannot be accepted."
+        }
+      }
+    },
+    "trust": {
+      "decision": "refuse",
+      "calibrated": false,
+      "predictionErrorPercent": 2238.9906493724006,
+      "reason": "Fresh surrogate drag decreased, but trust radius and triangle intersection audit are not validated; acceptance refused."
+    },
+    "provenance": {
+      "artifactVersion": "domino-local-v1",
+      "modelVersion": "DoMINO.0.501.mdlus",
+      "checkpointSha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+      "bundle": [
+        {
+          "path": "DoMINO.0.501.mdlus",
+          "purpose": "Self-describing model architecture and weights",
+          "exists": true,
+          "nonempty": true,
+          "expected_sha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+          "actual_sha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+          "checksum_matches": true
+        },
+        {
+          "path": "scaling_factors.pkl",
+          "purpose": "Training-time field scaling used to recover physical units",
+          "exists": true,
+          "nonempty": true,
+          "expected_sha256": "895b876ab7a2f32b4c714e4eafc7b2e7d94029e037bfc2950cf8c6cb2a818c2d",
+          "actual_sha256": "895b876ab7a2f32b4c714e4eafc7b2e7d94029e037bfc2950cf8c6cb2a818c2d",
+          "checksum_matches": true
+        },
+        {
+          "path": "config.yaml",
+          "purpose": "Training-domain bounding boxes required by inference",
+          "exists": true,
+          "nonempty": true,
+          "expected_sha256": "43a3e7360e319b239d3d946aa04e3ac310dde1b20f7eb71be38943dd3bb27202",
+          "actual_sha256": "43a3e7360e319b239d3d946aa04e3ac310dde1b20f7eb71be38943dd3bb27202",
+          "checksum_matches": true
+        }
+      ],
+      "upstreamCommit": "0612ec4ed54484a47bfa134eda7b3b012a607624",
+      "workflowFilesSha256": {
+        "design_datapipe.py": "d70263e45ee0b7538b88453c0279f6231fe70e7178f81543f8ebea3ad7e89e65",
+        "main.py": "923a6380da888323255e544496a4b812f58903bca4b82dd7970f4f5f10fb5cd3",
+        "utilities\\download.py": "abd842fc22bcaf9389768c6244092b65d2386a97844071376421f7c05697bcb9",
+        "utilities\\mesh_postprocessing.py": "b828be45964f273ac4236653b9a0131fcc5d6fc1945c0ce38c2593cb0bc62369"
+      },
+      "meshHash": "7c3558aa9e514dd2a5414f6e2f216c28ddff47b4ac6776c5cd115ebb421dd0bd",
+      "inputGeometrySha256": "88f3352f7678def57e4999371d06d67f967ccc1ec6646a490b8dd5112b327103",
+      "inputGeometryFormat": ".vtp",
+      "evidenceUrls": [
+        "/api/runs/local-336be40999c940e9acff6f83fa10bd8a/evidence"
+      ],
+      "solver": null,
+      "reduction": {
+        "method": "identity"
+      },
+      "fieldTransfer": "Pressure/shear: area-weighted adjacent cells -> original points -> retained vertices. Sensitivity: upstream 20-step smoothed point field.",
+      "sensitivityConvention": "Upstream d(-Fx)/dX at geometry cell centroids; displayed smoothed normal projection, N/m. Drag D=Fx; the sensitivity ascends -drag.",
+      "forceConvention": "Upstream sum A*(p*n_inward - wallShear), n_inward=-VTK cell normal. Raw signed Fx > 0 on this sample; displayed drag D=Fx. Full source mesh, not reduced display mesh.",
+      "fullResolutionRanges": {
+        "pressurePa": [
+          -1679.33531984465,
+          1155.2341730277512
+        ],
+        "normalSensitivity": [
+          -0.36290553180662655,
+          0.5195641341911853
+        ]
+      },
+      "gpu": "NVIDIA GeForce RTX 4070 Ti SUPER",
+      "candidateMeshHash": "c155f7d5be82292a2042af05e4ba4385ee9be3af2ee16f23bb8a9175de3565da",
+      "candidateFullResolutionRanges": {
+        "pressurePa": [
+          -1679.70191884391,
+          1155.152085249078
+        ],
+        "normalSensitivity": [
+          -0.36312770939574035,
+          0.520074681688856
+        ]
+      },
+      "peakCudaAllocatedBytes": 3335824896
+    }
+  },
+  "verification": {
+    "backendTests": 32,
+    "frontendTests": 24,
+    "productionBuild": "passed; existing bundle-size warning",
+    "visualCheck": "All six detailed cars and both NASA aircraft inspected in local browser"
+  },
+  "limitations": [
+    "AI-predicted fields, not independent CFD",
+    "Aircraft scaled to 3.3 m wingspan and outside car training distribution",
+    "Detailed visual geometry mapped to simplified inference surfaces",
+    "Wagon is a generic adapted hatchback, not a production vehicle"
+  ],
+  "aircraftBaselineRun": {
+    "runId": "local-7e61426fe5664b8e9de44a8a3e8dbfe3",
+    "geometryId": "global-hawk",
+    "status": "analysis",
+    "forces": {
+      "baselineN": [
+        49.538753509521484,
+        -37.8487663269043,
+        -47.510231018066406
+      ],
+      "candidateN": null,
+      "baselineDragN": 49.538753509521484,
+      "candidateDragN": null,
+      "predictedDragN": null
+    },
+    "timings": {
+      "baselineSeconds": 1.5902426000011474,
+      "totalSeconds": 14.404500300001018
+    },
+    "provenance": {
+      "artifactVersion": "domino-local-v1",
+      "modelVersion": "DoMINO.0.501.mdlus",
+      "checkpointSha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+      "bundle": [
+        {
+          "path": "DoMINO.0.501.mdlus",
+          "purpose": "Self-describing model architecture and weights",
+          "exists": true,
+          "nonempty": true,
+          "expected_sha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+          "actual_sha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+          "checksum_matches": true
+        },
+        {
+          "path": "scaling_factors.pkl",
+          "purpose": "Training-time field scaling used to recover physical units",
+          "exists": true,
+          "nonempty": true,
+          "expected_sha256": "895b876ab7a2f32b4c714e4eafc7b2e7d94029e037bfc2950cf8c6cb2a818c2d",
+          "actual_sha256": "895b876ab7a2f32b4c714e4eafc7b2e7d94029e037bfc2950cf8c6cb2a818c2d",
+          "checksum_matches": true
+        },
+        {
+          "path": "config.yaml",
+          "purpose": "Training-domain bounding boxes required by inference",
+          "exists": true,
+          "nonempty": true,
+          "expected_sha256": "43a3e7360e319b239d3d946aa04e3ac310dde1b20f7eb71be38943dd3bb27202",
+          "actual_sha256": "43a3e7360e319b239d3d946aa04e3ac310dde1b20f7eb71be38943dd3bb27202",
+          "checksum_matches": true
+        }
+      ],
+      "upstreamCommit": "0612ec4ed54484a47bfa134eda7b3b012a607624",
+      "workflowFilesSha256": {
+        "design_datapipe.py": "d70263e45ee0b7538b88453c0279f6231fe70e7178f81543f8ebea3ad7e89e65",
+        "main.py": "923a6380da888323255e544496a4b812f58903bca4b82dd7970f4f5f10fb5cd3",
+        "utilities\\download.py": "abd842fc22bcaf9389768c6244092b65d2386a97844071376421f7c05697bcb9",
+        "utilities\\mesh_postprocessing.py": "b828be45964f273ac4236653b9a0131fcc5d6fc1945c0ce38c2593cb0bc62369"
+      },
+      "meshHash": "7d937aedc4ca9c1cb6bb718fdc9200ee2643c290caca4aef4b9d2241643f904c",
+      "inputGeometrySha256": "070fad0655ee264e3d1581b02fd976512ccf50f824cb5b2bd3ddb8a5024fde4f",
+      "inputGeometryFormat": ".vtp",
+      "evidenceUrls": [
+        "/api/runs/local-7e61426fe5664b8e9de44a8a3e8dbfe3/evidence"
+      ],
+      "solver": null,
+      "reduction": {
+        "method": "identity"
+      },
+      "fieldTransfer": "Pressure/shear: area-weighted adjacent cells -> original points -> retained vertices. Sensitivity: upstream 20-step smoothed point field.",
+      "sensitivityConvention": "Upstream d(-Fx)/dX at geometry cell centroids; displayed smoothed normal projection, N/m. Drag D=Fx; the sensitivity ascends -drag.",
+      "forceConvention": "Upstream sum A*(p*n_inward - wallShear), n_inward=-VTK cell normal. Raw signed Fx > 0 on this sample; displayed drag D=Fx. Full source mesh, not reduced display mesh.",
+      "fullResolutionRanges": {
+        "pressurePa": [
+          -1949.983741694911,
+          675.2393409135707
+        ],
+        "normalSensitivity": [
+          -0.01188286661417852,
+          0.037995890066444785
+        ]
+      },
+      "gpu": "NVIDIA GeForce RTX 4070 Ti SUPER",
+      "peakCudaAllocatedBytes": 3335571968
+    },
+    "airflowPaths": 95
+  }
+}
