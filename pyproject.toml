@@ -12,7 +12,7 @@ dependencies = []
 
 [project.scripts]
 zephyr-day0 = "zephyr.probes.day0:main"
+zephyr-config = "zephyr.config:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-

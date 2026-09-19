@@ -47,6 +47,10 @@ class TokenFactoryTests(unittest.TestCase):
         self.assertTrue(validate_constraint_probe(value))
         self.assertFalse(validate_constraint_probe({**value, "extra": True}))
 
+    def test_truncated_completion_is_rejected_even_if_json_parses(self) -> None:
+        with self.assertRaisesRegex(TokenFactoryError, "token limit"):
+            parse_structured_message({"choices": [{"finish_reason": "length", "message": {"content": "{}"}}]})
+
     def test_owner_can_mark_nvidia_candidate(self) -> None:
         self.assertTrue(is_nvidia_candidate(ModelInfo(id="some/model", owned_by="NVIDIA")))
 

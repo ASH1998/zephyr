@@ -11,6 +11,7 @@ import sys
 from typing import Any
 
 from zephyr.artifacts import bundle_ready, validate_bundle
+from zephyr.config import load_env_file
 from zephyr.token_factory import (
     DEFAULT_BASE_URL,
     TokenFactoryClient,
@@ -124,6 +125,7 @@ def requested_gates_pass(report: dict[str, Any]) -> bool:
 
 
 def main(argv: list[str] | None = None) -> int:
+    load_env_file(REPOSITORY_ROOT / ".env")
     args = build_parser().parse_args(argv)
     report = make_report(args)
     rendered = json.dumps(report, indent=2, sort_keys=True)

@@ -37,10 +37,13 @@ def parse_model_list(payload: dict[str, Any]) -> list[ModelInfo]:
 
 def parse_structured_message(payload: dict[str, Any]) -> dict[str, Any]:
     try:
-        message = payload["choices"][0]["message"]
+        choice = payload["choices"][0]
+        if choice.get("finish_reason") == "length":
+            raise TokenFactoryError("Structured response hit its token limit; no constraints were accepted")
+        message = choice["message"]
         refusal = message.get("refusal")
         content = message["content"]
-    except (KeyError, IndexError, TypeError) as exc:
+    except (KeyError, IndexError, TypeError, AttributeError) as exc:
         raise TokenFactoryError("Completion response did not contain a message") from exc
     if refusal:
         raise TokenFactoryError("Selected model refused the structured probe")
@@ -90,6 +93,23 @@ class TokenFactoryClient:
         suffix = f"?{query}" if query else ""
         return parse_model_list(self._request_json("GET", f"/models{suffix}"))
 
+    def complete_json(self, model: str, system: str, user: str, schema: dict[str, Any],
+                      *, name: str, ai_project_id: str | None = None, max_tokens: int = 2048):
+        """One bounded structured call. Return content and credential-free provenance."""
+        import time
+        query = urlencode({"ai_project_id": ai_project_id}) if ai_project_id else ""
+        suffix = f"?{query}" if query else ""
+        payload = {"model": model, "messages": [{"role": "system", "content": system},
+                   {"role": "user", "content": user}], "temperature": 0, "max_tokens": max_tokens,
+                   "response_format": {"type": "json_schema", "json_schema": {
+                       "name": name, "strict": True, "schema": schema}}}
+        started = time.perf_counter()
+        response = self._request_json("POST", f"/chat/completions{suffix}", payload)
+        value = parse_structured_message(response)
+        return value, {"model": response.get("model", model), "requestedModel": model,
+                       "seconds": round(time.perf_counter() - started, 3),
+                       "usage": response.get("usage"), "schema": name}
+
     def probe_constraint_schema(self, model: str, ai_project_id: str | None = None) -> dict[str, Any]:
         schema = {
             "name": "zephyr_constraint_probe",
@@ -124,7 +144,8 @@ class TokenFactoryClient:
             ],
             "response_format": {"type": "json_schema", "json_schema": schema},
             "temperature": 0,
-            "max_tokens": 120,
+            # Reasoning models share this budget between reasoning and the final JSON.
+            "max_tokens": 1024,
         }
         query = urlencode({"ai_project_id": ai_project_id}) if ai_project_id else ""
         suffix = f"?{query}" if query else ""
