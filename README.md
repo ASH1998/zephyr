@@ -4,7 +4,7 @@
 
 Zephyr helps engineers reshape vehicles for lower drag—with AI-guided changes and simulation-backed proof.
 
-The local application runs NVIDIA DoMINO surface and volume models, displays seven cars and two aircraft, and provides a brief copilot and result Q&A. The next milestone is a clearer original/changed comparison. See the [current project plan](PROJECT_PLAN.md) and [progress tracker](progress.md) for implemented work, evidence and next steps.
+The local application runs NVIDIA DoMINO surface and volume models, displays seven cars and two aircraft, and provides linked original/changed comparison, a brief copilot and result Q&A. Local acceptance and [runtime checks](docs/RUNTIME_CHECKS.md) record both passing and refused steps; independent physical validation remains pending. See the [current project plan](PROJECT_PLAN.md) and [progress tracker](progress.md) for evidence and next steps.
 
 ## Live local GPU application
 

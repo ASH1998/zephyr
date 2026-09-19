@@ -1,0 +1,47 @@
+{
+  "date": "2026-09-19",
+  "method": "temporary hidden in-app browser; DOM and screenshot verification",
+  "runs": [
+    {
+      "runId": "local-c29499fe827b4d7e9b7ac01f29ff8428",
+      "checks": [
+        "RECORDED REPLAY label",
+        "7m 52s elapsed",
+        "local check passed; independent validation pending",
+        "0.375 mm summary and 0.37 mm rounded comparison",
+        "linked comparison opens",
+        "keyboard orbit action",
+        "pause/resume control state",
+        "120x Change enlargement turned off",
+        "pressure uses true-size geometry and shared scale -3090.75 to 1266.31 Pa"
+      ],
+      "screenshots": [
+        "replay-sedan.png",
+        "replay-sedan-pressure.png"
+      ]
+    },
+    {
+      "runId": "local-dfd56fe51ebc497a9d768d7498cede7a",
+      "checks": [
+        "RECORDED REPLAY label",
+        "0m 30s elapsed",
+        "refusal despite 1.13 N lower estimate",
+        "59.6 percent prediction disagreement shown",
+        "3.00 mm actual movement and protected cabin",
+        "experimental-domain refusal",
+        "comparison opens and loads both shapes",
+        "pause state"
+      ],
+      "screenshots": [
+        "replay-hatchback.png"
+      ]
+    }
+  ],
+  "browserConsoleErrorsObserved": [],
+  "limitations": [
+    "No additional live GPU job or language-model request was started by the browser rehearsal.",
+    "Replay browser work overlapped the 0.25 mm budget run; do not treat its duration as an isolated latency benchmark.",
+    "Full-page screenshots capture the summary; the comparison controls and verdict were also checked through visible accessibility state."
+  ],
+  "temporaryTabClosed": true
+}

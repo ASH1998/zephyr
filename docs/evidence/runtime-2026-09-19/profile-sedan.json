@@ -1,0 +1,92 @@
+{
+  "geometry": "drivaer-1",
+  "upstreamCommit": "0612ec4ed54484a47bfa134eda7b3b012a607624",
+  "checkpointSha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+  "installedModelSha256": "b36df3198ddf45a4062b6cc8574f736f855f782ba926b6b75cfe67a11a5f6d76",
+  "localNumericsSha256": {
+    "sensitivity.py": "8cdfdca0829998bd5da9bb9103fb80ce87165efb529b88560f29ed7cc8a9948d",
+    "forward.py": "c2b845fe4199f49c8e3c5b42139654b9352f031017aa04f5d63af6d6e6fc2128",
+    "trust.py": "2a4319a95a50d5a724dcf2c7aadf062eacca4574db4ce6eb52ea835e50623d69"
+  },
+  "evaluations": {
+    "autograd": {
+      "wallSeconds": 58.194214700000884,
+      "forceN": [
+        621.695556640625,
+        71.85599517822266,
+        877.1947021484375
+      ]
+    },
+    "forward": {
+      "method": "fresh-probe-forward-v1",
+      "freshGeometry": true,
+      "autograd": false,
+      "geometryReuseScope": "none",
+      "preprocessingSeconds": 2.479968600000575,
+      "batchSeconds": 49.92201650000061,
+      "batches": 92,
+      "totalSeconds": 52.40198850000161,
+      "wallSeconds": 52.40549900000042,
+      "forceN": [
+        621.695556640625,
+        71.85599517822266,
+        877.1947021484375
+      ],
+      "parity": {
+        "geometry_coordinates": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "pred_surf_pressure": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "pred_surf_wall_shear_stress": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "aerodynamic_force": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        }
+      }
+    },
+    "forward-reuse": {
+      "method": "fresh-probe-forward-v1",
+      "freshGeometry": true,
+      "autograd": false,
+      "geometryReuseScope": "within-evaluation",
+      "preprocessingSeconds": 2.479102099998272,
+      "geometryCalls": 92,
+      "geometryCacheHits": 91,
+      "batchSeconds": 18.07519659999889,
+      "batches": 92,
+      "totalSeconds": 20.55430029999843,
+      "wallSeconds": 20.558422100002645,
+      "forceN": [
+        621.695556640625,
+        71.85599517822266,
+        877.1947021484375
+      ],
+      "parity": {
+        "geometry_coordinates": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "pred_surf_pressure": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "pred_surf_wall_shear_stress": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "aerodynamic_force": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        }
+      }
+    }
+  },
+  "passed": true
+}

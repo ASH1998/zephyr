@@ -1,6 +1,6 @@
 # Zephyr — current project plan
 
-Updated: 2026-09-19. Implementation baseline: `0c40934` on `main`.
+Updated: 2026-09-19. Committed implementation baseline: `85f5ec5` on `main`.
 Status: before-and-after demo and local acceptance checks completed; independent physical validation remains pending.
 Tracking: [progress.md](progress.md). Earlier research and its source list are retained in
 [the archived plan](docs/archive/PROJECT_PLAN_RESEARCH_2026-09-18.md).
@@ -32,15 +32,15 @@ they do not currently support shape optimization or validated flight analysis.
 | GPU volume work | Separate NVIDIA volume checkpoint; saved baseline paths for all nine geometries; fresh original/candidate fields during car iteration | Steady predicted velocity, not time-resolved turbulence; car-trained model is experimental on planes |
 | Flow illustration | Default blue paths around original geometry; broad car corridor; orange paired wingtip spirals turning in opposite directions | Authored explanation, not computed speed or candidate improvement |
 | NVIDIA prediction view | Separate toggle; mesh-bound paths, true sample timing slowed for display, moving streaks, remote paths filtered | Do not substitute illustrative vortices into this view |
-| Existing comparison | Original/candidate slider and buttons, field modes, actual mm, 120× Change-view enlargement, replay | One viewport; simultaneous linked comparison is missing |
-| Progress | Five plain-English stages, elapsed time, batch percentages when known, cancellation and failure states | Needs browser regression across live success, failure, cancellation, and partial-result paths |
-| Result explanation | Readable deterministic summary, evidence-bound Q&A and follow-ups, expandable calculation checks | Needs regression with the new comparison; not an unconstrained engineering assistant |
-| Evidence | Downloadable run JSON, source hashes, retained VTK/raw fields and run IDs | No accepted engineering design claim: trust calibration/full intersection checks/independent CFD remain incomplete |
+| Existing comparison | Linked Original / Changed views, field modes, actual mm, 120× Change-view enlargement, replay | Available for completed car runs with a real candidate |
+| Progress | Five plain-English stages, elapsed time, real batch counts, cancellation and failure states; browser regression completed | Percentages describe stages, not a promised finish time |
+| Result explanation | Readable deterministic summary, evidence-bound Q&A and follow-ups, expandable calculation checks; acceptance and refusal checked | Local surrogate evidence, not an unconstrained engineering assistant |
+| Evidence | Downloadable run JSON, source hashes, retained VTK/raw fields, exact intersection audits and local handle calibration | Independent CFD and transferable physical calibration remain pending |
 
 See [vehicle/airflow details](docs/CARS_AND_AIRFLOW.md),
 [local GPU workflow](docs/LOCAL_DOMINO.md), and [copilot contract](docs/LLM_INTERFACE.md).
 
-## 3. Immediate milestone: make the GPU result obvious
+## 3. Completed presentation milestone: make the GPU result obvious
 
 ### P0 — audit and regression before new UI
 
@@ -113,7 +113,7 @@ lower number and describe it as validated aerodynamic improvement.
 4. **Scan/upload pipeline:** asset upload, units/orientation, cleanup, watertight
    proxy, protected regions and a supported-domain check. Scanning and arbitrary
    uploads are not implemented. Do not imply any scan is simulation-ready.
-5. **Scientific validation:** full intersection checks, calibrated trust radius,
+5. **Scientific validation:** transferable calibrated trust radius,
    held-out benchmarking, independent CFD and direction/ranking checks. Preserve
    the archived benchmarks as future research targets, not hackathon UI blockers
    or completed results. No flight-performance claims from aircraft previews.
@@ -138,7 +138,7 @@ build to pass, linked comparison verified in browser, one live car iteration
 without duplicate jobs, correct missing-field/failure behavior, and a short
 rehearsal script. Record exact run IDs and what was visually checked.
 
-The latest full verification before this documentation audit was 32 Python +
+The historical full verification before the presentation milestone was 32 Python +
 29 frontend tests (61 total), plus the production build. The existing ~759 KB
 frontend bundle warning is known; investigate growth if dual rendering worsens
 loading or frame rate. Do not call these scientific validation tests.
@@ -161,3 +161,20 @@ CFD and a reusable physical trust radius still pending. See
 [policy, measured results and evidence](docs/ACCEPTANCE_CHECKS.md).
 Final suite: 43 Python + 36 frontend tests; production build and real browser
 acceptance/refusal/Q&A checks passed. Prior presentation evidence is preserved.
+
+## 8. Repeatability and runtime milestone — 2026-09-19
+
+The user authorized the predeclared R01–R03 work in `progress.md`. The worker now
+uses fresh forward-only repeat/probe evaluations with geometry encoding reused
+only across identical inputs within one evaluation. Baseline and candidate
+autograd, all geometry gates, trust thresholds and GPU leases are preserved.
+The matching sedan fell from 472.074 to 271.387 seconds, with exact force,
+pressure/shear, geometry and decision parity. The raw partial sensitivity field
+did not meet the strict repeatability tolerance even in an unmodified process
+repeat; this failed check remains recorded. See [RUNTIME_CHECKS.md](docs/RUNTIME_CHECKS.md)
+for all matrix outcomes, source hashes and limitations.
+
+The [60-second script](docs/DEMO_60_SECONDS.md) now presents the accepted sedan and
+refused hatchback as clearly labeled recordings. Both were browser checked.
+Forty-six Python tests passed. The existing frontend was unchanged. Nemotron,
+public deployment and independent CFD remain separate later work.

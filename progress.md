@@ -1,8 +1,41 @@
 # Zephyr progress
 
 Last updated: 2026-09-19. Product plan: [PROJECT_PLAN.md](PROJECT_PLAN.md).
-Implementation baseline: `0c40934` (pushed to `origin/main`).
-Current phase: presentation milestone implemented and verified locally.
+Implementation baseline: [`85f5ec5`](https://github.com/ASH1998/zephyr/commit/85f5ec51703898421f266bc55d45bdf15551cbd6), committed and pushed to `origin/main`.
+Current phase: R01–R03 measurements and demo update completed. Force/pressure/shear
+parity passed; raw partial sensitivity parity failed and remains an open limitation.
+
+## Current snapshot
+
+- Latest verification: **46 Python tests passed**, including fresh forward-force
+  and cache-scope checks. The unchanged frontend previously passed 36 tests and
+  production build; the updated acceptance/refusal replay walkthrough was checked.
+- DrivAer passed the provisional local-surrogate policy at **0.375 mm**:
+  predicted reduction **0.09645 N**, fresh reduction **0.09045 N**, prediction
+  disagreement **6.22%**. Full-resolution geometry and intersection checks passed.
+- Hatchback remained refused: failed local probe linearity, 59.64% candidate
+  disagreement, and experimental model domain. A larger reduction did not bypass gates.
+- Sedan runtime: **472.074 → 271.387 s (4m 31s)**, 42.5% less worker time.
+  Two full sensitivity evaluations remain; five fresh calibration evaluations
+  use forward-only inference and within-evaluation geometry encoding reuse.
+- Matched sedan forces, probes, geometry, pressure/shear and decision are exact.
+  Raw baseline partial sensitivity exceeds the frozen field tolerance in both
+  the unmodified repeat and optimized run; this limitation is retained, not waived.
+- All five production cases completed and passed independent artifact verification.
+  The 0.375 mm sedan step remained accepted; 0.25 and 0.5 mm steps were refused.
+  The hatchback remained refused at 3 mm and took 28.205 s. Its raw candidate
+  sensitivity also exceeded tolerance; acceptance-driving outputs matched exactly.
+- Acceptance means **accepted for further evaluation**, not engineering validation.
+  Independent CFD and a transferable physical trust radius remain pending.
+- Commit `85f5ec5` includes comparison, numerical fixes, tests and recorded evidence.
+  Push succeeded to `ASH1998/zephyr` on `main`; the tree was clean after that push.
+  The subsequent runtime implementation, evidence and documentation are local
+  and have not been committed.
+
+Evidence and policy: [ACCEPTANCE_CHECKS.md](docs/ACCEPTANCE_CHECKS.md).
+New measurements: [RUNTIME_CHECKS.md](docs/RUNTIME_CHECKS.md).
+The dated entries below preserve earlier states; this snapshot and the next-work
+table describe the current handoff.
 
 ## Status rules
 
@@ -25,8 +58,13 @@ The archived plan is research history; the root plan controls current priorities
 | D08 | Explicit Flow illustration / NVIDIA prediction toggle; timed moving ribbons, pause/resume, preserved raw prediction paths | `frontend/src/flow-ribbons.ts`, `airflow.ts`, `scene.ts`; browser checked |
 | D09 | Paired opposite-turning wingtip spirals, wider car corridor over twice body width | `frontend/src/flow-illustration.ts`; placement/rotation/width tests; both planes visually checked |
 | D10 | Model switches clear previous results; aircraft reject car deformation requests | Geometry/flow identity tests and both aircraft request-validator tests |
-| D11 | Full implementation committed and pushed | `0c40934b95e20e837f48a59f29800f2d45090921` |
+| D11 | Original vehicle/airflow implementation committed and pushed | `0c40934b95e20e837f48a59f29800f2d45090921` |
 | D12 | Plan audit and tracking document | Root plan rewritten; old research plan preserved in `docs/archive/`; current doc inconsistencies corrected |
+| D13 | Linked Original / Changed comparison and presentation regression | Completed N01–N08 below; `docs/evidence/presentation-2026-09-19/` |
+| D14 | Batch-gradient correction, fresh normals and geometry-safe full-pipeline probes | `src/zephyr/local/sensitivity.py`, `trust.py`; `tests/test_acceptance.py` |
+| D15 | Exact-predicate intersection audit and scoped local acceptance | `src/zephyr/local/intersections.py`; final sedan/hatchback evidence in `docs/evidence/acceptance-2026-09-19/` |
+| D16 | 79 automated tests, production build, real acceptance/refusal and GLM explanation checks | Acceptance-hardening entry below; `docs/ACCEPTANCE_CHECKS.md` |
+| D17 | Presentation and acceptance changes committed and pushed | `85f5ec51703898421f266bc55d45bdf15551cbd6`, `origin/main` |
 
 ## Recorded GPU evidence
 
@@ -44,7 +82,7 @@ Current detailed assets: [detailed-vehicles-aircraft-smoke.json](docs/evidence/d
 - `output/understanding-zephyr/` contains earlier full-page annotated explanations;
   screenshots and UI descriptions there precede the current volume/illustration views.
 
-## Last verification
+## Historical verification before presentation and acceptance work
 
 2026-09-19, before the plan-only changes:
 
@@ -60,7 +98,7 @@ Current detailed assets: [detailed-vehicles-aircraft-smoke.json](docs/evidence/d
 
 This is not a complete regression of every UI action and is not CFD validation.
 
-## Next task checklist
+## Completed presentation checklist
 
 | ID | Priority / status | Work and acceptance |
 |---|---|---|
@@ -73,22 +111,45 @@ This is not a complete regression of every UI action and is not CFD validation.
 | N07 | P2 / Done + Verified | Write a 60-second rehearsal script and clearly labeled recorded fallback; finish with aircraft vortices; report actual live duration |
 | N08 | P2 / Done + Verified | Update this log with files, commands, test counts, run IDs, screenshots/observations, and remaining limitations |
 
-Do not start N02 before N01 identifies which behavior already works. Use saved
-artifacts for repeated UI development, and reserve GPU runs for meaningful end-to-end
-verification. If there is no fresh result, say so; do not manufacture evidence.
+N01–N08 are complete; do not restart them as unfinished work. Use saved artifacts
+for repeated UI development and reserve GPU runs for meaningful verification.
+
+## Repeatability and runtime milestone — authorized 2026-09-19
+
+| ID | Priority / status | Work | Completion evidence |
+|---|---|---|---|
+| R01 | P0 / Measured; sensitivity limitation | Establish repeatability around the accepted sedan step: repeat the accepted case in a separate process, test a small predeclared set of smaller/larger budgets, and retain a refused control. Keep policy thresholds fixed. | Record every requested/effective step, predicted/fresh change, decision, source hash and duration. Explain any decision changes; one accepted case is not broad calibration. |
+| R02 | P0 / Implemented; force parity verified | Profile the 472 s sedan path and reduce unnecessary work. Investigate forward-only repeat/probe evaluations and reusable inputs where mathematically valid; preserve a fresh candidate evaluation. | Compare against the current raw-force and field evidence within explicit numerical tolerances; preserve geometry/acceptance decisions, cancellation and GPU leases. Report measured latency, not a promised speed target. |
+| R03 | P1 / Verified | Update the 60-second walkthrough to show the accepted sedan alongside the refused hatchback. Present long computations using clearly labeled replay. | Browser rehearsal with correct movement, prediction disagreement, real elapsed time, acceptance scope and run IDs; no implication of a live sub-minute sedan run. |
+| R04 | P2 / Deferred | Qualify Nemotron and prepare competition/public-demo requirements. Keep GLM for development until the planned explicit switch. | Verify the exact available model/endpoint, supported brief schemas, Q&A and latency; recheck official requirements before making eligibility or deployment claims. |
+| R05 | Research / Pending | Compare the original and accepted candidate with independent CFD and quantify numerical uncertainty. | Establish whether the very small surrogate reduction is resolvable and whether its direction agrees with independent simulation before claiming physical improvement. |
+
+The reference evidence and policy were frozen before optimization. The production
+matrix is complete; force-only profiling passed with exact outputs on both shapes.
+Within-evaluation encoding reuse shares an identical intermediate across batches;
+every mesh evaluation remains fresh, with no cross-run evidence reuse. Baseline
+and candidate autograd remain unchanged. Full raw sensitivity parity has a
+documented failure; no tolerance or trust threshold was relaxed.
+
+The user authorized this local GPU work and demo update. GLM remains selected;
+model migration, paid cloud resources, deployment and independent CFD are deferred.
 
 ## Deferred and release gaps
 
 - Nemotron configuration switch and fresh runtime/schema/Q&A verification.
 - Official competition requirements/deadlines/runtime eligibility recheck.
 - Nebius GPU deployment, public judge demo, rate limits and clean-install rehearsal.
-- Multi-handle optimization, calibrated trust, full self-intersection checking.
+- Raw partial sensitivity reproducibility: the unmodified repeat, optimized
+  sedan baseline and hatchback candidate exceed the field tolerance; pressure/shear and
+  acceptance-driving forces remain exact.
+- Multi-handle optimization and a transferable calibrated trust radius.
+  Full triangle intersection checking is now implemented and tested locally.
 - Independent CFD, public-case benchmarking and verified held-out split.
 - Scan/upload/import workflow; arbitrary geometry and aircraft optimization.
 - Candidate STL export and broad design history are not established deliverables.
 
-The user prioritizes clear presentation. Keep these limitations visible without
-blocking ordinary UI work or presenting later research gates as implemented features.
+Presentation and local acceptance hardening are complete. Keep these remaining
+limits visible without presenting research gates as implemented features.
 
 ## Local handoff details
 
@@ -105,7 +166,8 @@ blocking ordinary UI work or presenting later research gates as implemented feat
   from the actual repo; `npm.cmd --prefix frontend run dev` for Vite.
 - Never print `.env`. Keep GLM selected during this milestone. Use CUA for browser
   inspection and a temporary tab to avoid disrupting the user's active page.
-- The next task should test and implement N01–N08, not just produce another plan.
+- N01–N08 are complete. R01–R03 are the authorized runtime/repeatability milestone;
+  preserve all outcomes and the raw sensitivity limitation in the handoff.
 
 ## Change log
 
@@ -113,7 +175,7 @@ blocking ordinary UI work or presenting later research gates as implemented feat
   presentation-first milestones; retained original research; created tracking and
   testing checklist. No new comparison implementation or GPU run during this audit.
 
-## Active handoff
+## Historical presentation handoff
 
 - Task: Zephyr: test the app and build linked before-and-after comparison.
 - Task ID: `01a0b8d3-73f0-7db1-838f-d38255d15c6e`.
@@ -220,3 +282,48 @@ this work used five separately recorded local GPU regression runs.
 Full policy, development-run IDs, commands and limits: [ACCEPTANCE_CHECKS.md](docs/ACCEPTANCE_CHECKS.md).
 Final compact verified artifacts and browser screenshots:
 `docs/evidence/acceptance-2026-09-19/`.
+
+
+## Runtime and repeatability results — 2026-09-19
+
+- The frozen five-case plan is complete. `trust.py` SHA-256 remains
+  `2a4319a95a50d5a724dcf2c7aadf062eacca4574db4ce6eb52ea835e50623d69`.
+- Unmodified sedan repeat: `local-cdd1b1d4afbf40b8b5e9af03e8c07ddb`, 459.679 s,
+  accepted at 0.375 mm; all forces, pressure/shear and geometry matched exactly.
+- Optimized matching sedan: `local-cb9886c7e716448e957a595e4556a9d7`, 271.387 s,
+  accepted at 0.375 mm, 6.22% candidate disagreement, exact force/pressure/shear
+  parity. Worker time fell 42.5% against the original 472.074 s reference.
+- Smaller budget: `local-26b4f0c324844c4d9fd17cc066df9c71`, 0.25 mm, 268.852 s,
+  refused: unresolved fine probes, 79.48% slope disagreement, failed centering,
+  434.58% candidate disagreement. Browser rehearsal overlapped this measurement.
+- Larger budget: `local-830086728750406597352c1ce6576dd3`, 0.5 mm, 268.240 s,
+  refused: probe midpoint offset 0.020782 N exceeds the 0.008738 N allowance,
+  despite only 8.20% candidate disagreement. No safe-radius claim follows.
+- Hatchback control: `local-f9d19c3398f84b9cabbef3ca574d45d2`, 3 mm, 28.205 s,
+  refusal and forces/pressure/shear matched the reference exactly.
+- Raw partial sensitivity exceeded rtol=1e-6 / atol=1e-5 in the unmodified sedan
+  baseline (max 1.297891e-5 N/m), optimized sedan baseline (3.832579e-5 N/m), and
+  hatchback candidate (1.591444e-5 N/m). Full field parity is **failed**. These
+  fields do not drive acceptance; no tolerance or policy threshold was relaxed.
+- All five runs passed independent raw-artifact verification: full geometry,
+  protected coordinates, exact intersection audit, force reintegration and
+  recomputed verdict. Each optimized run has both fresh volume fields, and its
+  recorded numerical source hashes match the final files. Both GPU leases released.
+- Forward-only profiling matched full autograd pressure/shear/force arrays exactly
+  on both cars. Within-evaluation geometry reuse reduced the sedan forward path
+  from 52.405 to 20.558 s; baseline/candidate sensitivity paths remain unchanged.
+- **46 Python tests passed** including cache mutation/scope/error restoration,
+  analytic two-batch force integration and existing cancellation/lease tests.
+  Frontend code was unchanged; its prior 36 tests and production build still form
+  the baseline. Browser rehearsal checked both frozen replays and no console errors.
+- The 60-second script now shows accepted sedan and refused hatchback, with explicit
+  recorded labels, original run timings, actual movement, enlargement and CFD limits.
+- Runtime code, scripts, evidence and docs are local, uncommitted changes after
+  `85f5ec5`. GLM remains configured. No cloud resource, model switch or CFD run.
+
+Evidence: [RUNTIME_CHECKS.md](docs/RUNTIME_CHECKS.md),
+[matrix](docs/evidence/runtime-2026-09-19/matrix.json),
+[verification summary](docs/evidence/runtime-2026-09-19/summary.json).
+Next numerical work: investigate partial sensitivity variability and design a
+predeclared calibration study across probe scales. Independent CFD is required
+before interpreting this small surrogate reduction as physical improvement.

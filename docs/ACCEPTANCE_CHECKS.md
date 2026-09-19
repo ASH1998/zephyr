@@ -128,11 +128,12 @@ baseline. This failed the local linearity check; its candidate disagreement also
 exceeded 25%. Its experimental domain independently excludes acceptance. This
 case demonstrates that a larger reduction does not automatically pass.
 
-Both baselines repeated exactly in this environment. Independent double-precision
+Both baseline forces repeated exactly in this environment. Independent double-precision
 reintegration of saved pressure/shear on fresh triangle normals differed from the
 recorded Fx by at most 0.000130 N, below the numerical floor. VTK hashes, full
 topology, protection, displacement and separate surface/volume mesh binding were
-verified. All five recorded local numerical source hashes match the final files.
+verified. All five recorded local numerical source hashes match the files at
+commit `85f5ec5`, before the subsequent runtime optimization.
 
 - Sedan: `local-c29499fe827b4d7e9b7ac01f29ff8428`;
   [verified evidence](evidence/acceptance-2026-09-19/sedan-final.json).
@@ -155,3 +156,9 @@ The idle API was restarted on 8766 with its existing `--enable-llm` flags; GLM
 remains `zai-org/GLM-5.3-Flash`. Port 8765 was untouched. No cloud GPU, physical
 CFD, deployment, commit or push was performed. The temporary PyMeshLab package
 was removed; libigl 2.6.3 is the pinned production dependency.
+
+Subsequent [runtime and repeatability checks](RUNTIME_CHECKS.md) preserve this
+policy and both reference runs. The optimized matching sedan reproduces forces,
+pressure/shear, geometry and decision exactly. Raw partial sensitivity is not
+fully repeatable even with unchanged code; the failed field-tolerance checks and
+all neighboring-budget outcomes are retained in that report.

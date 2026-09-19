@@ -1,50 +1,37 @@
 # Zephyr: 60-second presentation
 
-Use a wide desktop for the side-by-side view. At 979×882 the views stack and remain
-linked. Start the local API on 8766 and UI on 5173; keep the configured GLM development
-model. This walkthrough does not claim a Nemotron or Nebius GPU deployment.
+Use a wide desktop for linked Original / Changed views. At narrower widths the views stack. Local API: 8766; UI: 5173. Keep the configured GLM development model. This walkthrough makes no Nemotron, Nebius GPU deployment or independent CFD claim.
 
-## Rehearsal using recorded evidence
+## Prepare two recorded results
 
-Open [the recorded hatchback replay](http://127.0.0.1:5173/?replay=local-336be40999c940e9acff6f83fa10bd8a).
-The page must say **RECORDED REPLAY**. This is a completed local GPU calculation,
-not a live inference or the separate illustrative design walkthrough.
+Open these completed local GPU results in separate tabs before presenting:
+
+- [Accepted sedan](http://127.0.0.1:5173/?replay=local-c29499fe827b4d7e9b7ac01f29ff8428): 621.69556 → 621.60510 N; predicted reduction 0.09645 N, fresh reduction 0.09045 N, disagreement 6.22%; actual maximum movement 0.375 mm. Worker time **7m 52s**.
+- [Refused hatchback](http://127.0.0.1:5173/?replay=local-dfd56fe51ebc497a9d768d7498cede7a): 474.92291 → 473.78961 N; predicted reduction 0.70990 N, fresh reduction 1.13330 N, disagreement 59.64%; maximum movement 3.00 mm. Worker time **30.43s**.
+
+Both pages must visibly say **RECORDED REPLAY**. The same fixed local policy is used for both; the hatchback also lies outside the model's supported training domain. Use these run IDs and numbers together. New optimized runs have their own IDs and timings in [RUNTIME_CHECKS.md](RUNTIME_CHECKS.md); do not attach those timings to these older recordings.
+
+## Walkthrough
 
 | Time | Action and narration |
 |---|---|
-| 0–8 s | Show the hatchback and brief. “Zephyr explores a small change to this car while keeping the passenger cabin fixed. This is a recorded local GPU result.” |
-| 8–15 s | Point to completed progress and elapsed time. “The NVIDIA model tested the original, we made a bounded rear taper, checked it, then tested the changed shape.” Do not play these stages as if a GPU is running now. |
-| 15–30 s | Click **Compare Original / Changed**. “Original on the left, changed on the right. Orange shows where it moved. The largest actual movement was 3.60 millimeters; the shape movement here is enlarged 120 times.” Orbit either view; both move together. |
-| 30–40 s | Uncheck enlargement, then select **Pressure** or **NVIDIA airflow**. “Each shape has its own calculated field, with the same color scale. These paths are steady predictions shown in slow motion.” |
-| 40–50 s | Read the verdict. “Estimated resistance fell by 1.42 newtons, about 0.299 percent. Engineering acceptance is still refused: calibration and full intersection checks are unfinished. This is not independent CFD proof.” |
-| 50–60 s | Close comparison. Select **NASA Global Hawk**, then **Flow illustration**. “Aircraft exploration is experimental. These two opposite-turning wingtip spirals are an illustration, not a flight-performance result.” |
+| 0–8 s | Show the sedan and replay label. “Zephyr tests a small shape change while keeping the cabin fixed. This is a recorded local GPU calculation.” |
+| 8–18 s | Open **Compare Original / Changed** and select **Change**. “It checked the original, measured small test changes, then evaluated this candidate independently. Geometry checks reduced the requested 3 millimeters to 0.375 millimeters.” |
+| 18–30 s | Orbit the linked pair; point to actual movement and enlargement label. “Both views move together. Orange marks the changed area. Movement is enlarged 120 times so you can see it.” Turn enlargement off before comparing true geometry. |
+| 30–42 s | Read the sedan verdict, then select **Pressure**. “The model predicted a 0.096-newton reduction and measured 0.090 in the fresh candidate evaluation: 6.22 percent disagreement. It passes our local checks for further evaluation. Independent CFD is still required.” |
+| 42–55 s | Switch to the hatchback tab and open comparison. “This car shows a larger estimated reduction, but we refuse the step: the probe check failed, prediction disagreement is 59.64 percent, and this shape is experimental for the model.” |
+| 55–60 s | Point to the refusal and replay label. “A lower model estimate alone is not enough. Zephyr shows the evidence and the limits.” |
 
-For a short pitch, use the deterministic visible summary. An optional question such
-as “Why was it rejected?” uses the configured model and may take extra time. Follow-up
-questions remain attached to the same run and do not start another GPU calculation.
+Pressure and NVIDIA airflow use each shape's own calculated fields with shared scales. **Flow illustration** is an authored explanation. Aircraft and their illustrated wingtip spirals are optional exploration after the timed walkthrough.
+
+Optional Q&A (“Why was this accepted?” / “Why was this refused?”) remains bound to the selected run and may take extra time. Use the deterministic summary for the timed presentation. Do not describe local surrogate acceptance as physical proof.
 
 ## Live rehearsal
 
-Check `/api/health` for an idle GPU. Select Impreza hatchback, enter a bounded brief,
-and click **Run bounded iteration** once. Use the real progress and elapsed clock;
-never promise completion inside 60 seconds. If it runs long, explicitly switch to
-the recorded replay above in another tab, without cancelling or duplicating the job.
-Report the current live result even if resistance increases or acceptance is refused.
+Check `/api/health` for an idle GPU before starting a job. Select DrivAer sedan, use the bounded rear-width brief and 3 mm ceiling, then click **Run bounded iteration** once. Report actual progress and elapsed time. If presenting while it runs, switch explicitly to one of the recordings above; do not cancel or duplicate the job just to meet the presentation length. Report a fresh refusal if it occurs.
 
-The recorded original took 22.087 seconds of worker time. Brief interpretation,
-asset loading and browser polling are additional time. See `progress.md` and the
-presentation evidence for the fresh rehearsal's actual run ID and duration.
+The 60 seconds covers the presentation, not live sedan computation. GPU worker timings exclude brief interpretation, asset loading and browser polling.
 
-## Repeatable regression fixtures
+## Development regression fixtures
 
-Development only: `/tests/browser-harness.html?scenario=missing-volume`, `failed`,
-`cancelled`, `running`, or `reduced-motion`. These pages visibly label altered
-recorded responses and block POST requests. They are excluded from the production
-build. Never use a fixture page as inference evidence or as the presentation fallback.
-
-Fresh rehearsal: `local-f76a1757dc7d4143abbbd8f69e53d5f3`, worker time 22.581 s,
-474.9229 to 473.4725 N, 3.00 mm maximum, protected cabin unchanged, acceptance
-refused. Its [recorded replay](http://127.0.0.1:5173/?replay=local-f76a1757dc7d4143abbbd8f69e53d5f3)
-is also available; use the corresponding numbers if presenting this run.
-The `publishing` fixture checks the interval between worker completion and final
-API publication without launching another job.
+`/tests/browser-harness.html?scenario=missing-volume`, `failed`, `cancelled`, `running`, `publishing`, or `reduced-motion` are visibly labeled synthetic fixtures that block POST requests and are excluded from production builds. They are not inference evidence or presentation fallbacks. Earlier hatchback rehearsals remain historical evidence in `progress.md`; this script uses the two frozen acceptance references above.

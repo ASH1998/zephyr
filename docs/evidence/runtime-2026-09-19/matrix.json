@@ -1,0 +1,293 @@
+{
+  "planSha256": "07fbb1f17a87136dae149e07770f60af4b3c94bd942f40064bc61bc9484a6b29",
+  "policySha256": "2a4319a95a50d5a724dcf2c7aadf062eacca4574db4ce6eb52ea835e50623d69",
+  "cases": [
+    {
+      "geometry": "drivaer-1",
+      "budgetMm": 3,
+      "purpose": "optimized parity and timing",
+      "runId": "local-cb9886c7e716448e957a595e4556a9d7",
+      "verifiedEvidence": "case-1.json",
+      "forces": {
+        "baselineN": [
+          621.695556640625,
+          877.1947021484375,
+          -71.85599517822266
+        ],
+        "candidateN": [
+          621.6051025390625,
+          876.4642333984375,
+          -71.48468017578125
+        ],
+        "baselineDragN": 621.695556640625,
+        "candidateDragN": 621.6051025390625,
+        "predictedDragN": 621.5991058349609
+      },
+      "trust": {
+        "decision": "accept",
+        "calibrated": true,
+        "calibrationScope": "local-surrogate-handle-only",
+        "policyVersion": "local-handle-check-v1",
+        "engineeringValidated": false,
+        "predictionErrorPercent": 6.217370669197911,
+        "predictionErrorN": 0.0059967041015625,
+        "predictionErrorBaselinePercent": 0.0009645724563267117,
+        "actualDragDeltaN": -0.0904541015625,
+        "predictedDragDeltaN": -0.0964508056640625,
+        "reductionRatio": 0.9378262933080209,
+        "reason": "Geometry checks shrank 3.000 to 0.375 mm. Accepted for further evaluation: local surrogate prediction and fresh reduction agree; geometry checks passed. Independent CFD is still required."
+      },
+      "timings": {
+        "baselineSeconds": 60.929877199996554,
+        "repeatSeconds": 21.204775100002735,
+        "probe-plus-hSeconds": 21.17215440000291,
+        "probe-minus-hSeconds": 21.108216500000708,
+        "probe-plus-halfSeconds": 20.945638500001223,
+        "probe-minus-halfSeconds": 20.915309800002433,
+        "evaluateSeconds": 60.53715650000231,
+        "totalSeconds": 271.38707429999704
+      },
+      "effectiveAmplitudeM": -0.000375,
+      "calibrationStatus": "passed",
+      "parity": {
+        "referenceRunId": "local-c29499fe827b4d7e9b7ac01f29ff8428",
+        "checks": {
+          "meshHash": true,
+          "candidateMeshHash": true,
+          "amplitude": true,
+          "decision": true,
+          "calibrated": true,
+          "baselineDragN": true,
+          "candidateDragN": true,
+          "predictedDragN": true,
+          "probeMeshes": true,
+          "probe-plus-h": true,
+          "probe-minus-h": true,
+          "probe-plus-half": true,
+          "probe-minus-half": true,
+          "baseline.vtk:coordinates": true,
+          "baseline.vtk:topology": true,
+          "baseline.vtk:pred_surf_pressure": true,
+          "baseline.vtk:pred_surf_wall_shear_stress": true,
+          "baseline.vtk:geometry_sensitivity": false,
+          "evaluate.vtk:coordinates": true,
+          "evaluate.vtk:topology": true,
+          "evaluate.vtk:pred_surf_pressure": true,
+          "evaluate.vtk:pred_surf_wall_shear_stress": true,
+          "evaluate.vtk:geometry_sensitivity": true
+        },
+        "forceAbsoluteDifferencesN": {
+          "baselineDragN": 0.0,
+          "candidateDragN": 0.0,
+          "predictedDragN": 0.0,
+          "probe-plus-h": 0.0,
+          "probe-minus-h": 0.0,
+          "probe-plus-half": 0.0,
+          "probe-minus-half": 0.0
+        },
+        "fieldMaximumAbsoluteDifferences": {
+          "baseline.vtk:pred_surf_pressure": 0.0,
+          "baseline.vtk:pred_surf_wall_shear_stress": 0.0,
+          "baseline.vtk:geometry_sensitivity": 3.832578659057617e-05,
+          "evaluate.vtk:pred_surf_pressure": 0.0,
+          "evaluate.vtk:pred_surf_wall_shear_stress": 0.0,
+          "evaluate.vtk:geometry_sensitivity": 4.738569259643555e-06
+        },
+        "passed": false
+      }
+    },
+    {
+      "geometry": "drivaer-1",
+      "budgetMm": 0.25,
+      "purpose": "smaller effective step",
+      "runId": "local-26b4f0c324844c4d9fd17cc066df9c71",
+      "verifiedEvidence": "case-2.json",
+      "forces": {
+        "baselineN": [
+          621.695556640625,
+          877.1947021484375,
+          -71.85599517822266
+        ],
+        "candidateN": [
+          621.625732421875,
+          876.711181640625,
+          -71.69509887695312
+        ],
+        "baselineDragN": 621.695556640625,
+        "candidateDragN": 621.625732421875,
+        "predictedDragN": 621.6824951171875
+      },
+      "trust": {
+        "decision": "refuse",
+        "calibrated": false,
+        "calibrationScope": "local-surrogate-handle-only",
+        "policyVersion": "local-handle-check-v1",
+        "engineeringValidated": false,
+        "predictionErrorPercent": 434.57943925233644,
+        "predictionErrorN": 0.0567626953125,
+        "predictionErrorBaselinePercent": 0.009130304166756661,
+        "actualDragDeltaN": -0.06982421875,
+        "predictedDragDeltaN": -0.0130615234375,
+        "reductionRatio": 5.345794392523365,
+        "reason": "Fresh reduction or local prediction agreement is insufficient; step refused."
+      },
+      "timings": {
+        "baselineSeconds": 60.94312329999957,
+        "repeatSeconds": 21.365706800002954,
+        "probe-plus-hSeconds": 21.078723300001002,
+        "probe-minus-hSeconds": 21.095764300000155,
+        "probe-plus-halfSeconds": 23.1653538999999,
+        "probe-minus-halfSeconds": 21.150328300002002,
+        "evaluateSeconds": 60.5251219999991,
+        "totalSeconds": 268.85186989999784
+      },
+      "effectiveAmplitudeM": -0.00025,
+      "calibrationStatus": "failed"
+    },
+    {
+      "geometry": "drivaer-1",
+      "budgetMm": 0.5,
+      "purpose": "larger effective step",
+      "runId": "local-830086728750406597352c1ce6576dd3",
+      "verifiedEvidence": "case-3.json",
+      "forces": {
+        "baselineN": [
+          621.695556640625,
+          877.1947021484375,
+          -71.85599517822266
+        ],
+        "candidateN": [
+          621.5786743164062,
+          876.4675903320312,
+          -71.27291870117188
+        ],
+        "baselineDragN": 621.695556640625,
+        "candidateDragN": 621.5786743164062,
+        "predictedDragN": 621.5682373046875
+      },
+      "trust": {
+        "decision": "refuse",
+        "calibrated": false,
+        "calibrationScope": "local-surrogate-handle-only",
+        "policyVersion": "local-handle-check-v1",
+        "engineeringValidated": false,
+        "predictionErrorPercent": 8.19750719079578,
+        "predictionErrorN": 0.01043701171875,
+        "predictionErrorBaselinePercent": 0.0016787978629197733,
+        "actualDragDeltaN": -0.11688232421875,
+        "predictedDragDeltaN": -0.1273193359375,
+        "reductionRatio": 0.9180249280920422,
+        "reason": "Fresh reduction or local prediction agreement is insufficient; step refused."
+      },
+      "timings": {
+        "baselineSeconds": 61.28962479999973,
+        "repeatSeconds": 21.513685499998246,
+        "probe-plus-hSeconds": 21.190014199997677,
+        "probe-minus-hSeconds": 21.13904829999956,
+        "probe-plus-halfSeconds": 21.052822699999524,
+        "probe-minus-halfSeconds": 21.28677819999939,
+        "evaluateSeconds": 60.879110000001674,
+        "totalSeconds": 268.23967520000224
+      },
+      "effectiveAmplitudeM": -0.0005,
+      "calibrationStatus": "failed"
+    },
+    {
+      "geometry": "hatchback",
+      "budgetMm": 3,
+      "purpose": "refused control",
+      "runId": "local-f9d19c3398f84b9cabbef3ca574d45d2",
+      "verifiedEvidence": "case-4.json",
+      "forces": {
+        "baselineN": [
+          474.92291259765625,
+          478.8136901855469,
+          -76.211181640625
+        ],
+        "candidateN": [
+          473.78961181640625,
+          478.49969482421875,
+          -76.30499267578125
+        ],
+        "baselineDragN": 474.92291259765625,
+        "candidateDragN": 473.78961181640625,
+        "predictedDragN": 474.2130126953125
+      },
+      "trust": {
+        "decision": "refuse",
+        "calibrated": false,
+        "calibrationScope": "local-surrogate-handle-only",
+        "policyVersion": "local-handle-check-v1",
+        "engineeringValidated": false,
+        "predictionErrorPercent": 59.64233513885306,
+        "predictionErrorN": 0.42340087890625,
+        "predictionErrorBaselinePercent": 0.0891514954691069,
+        "actualDragDeltaN": -1.13330078125,
+        "predictedDragDeltaN": -0.70989990234375,
+        "reductionRatio": 1.5964233513885306,
+        "reason": "Experimental geometry outside the validated model domain; step refused regardless of the numerical improvement."
+      },
+      "timings": {
+        "baselineSeconds": 2.746563299999252,
+        "repeatSeconds": 1.1160769999987679,
+        "probe-plus-hSeconds": 1.1139136999991024,
+        "probe-minus-hSeconds": 1.119174600000406,
+        "probe-plus-halfSeconds": 1.1067588000005344,
+        "probe-minus-halfSeconds": 1.1138590000009572,
+        "evaluateSeconds": 1.6841180999981589,
+        "totalSeconds": 28.204667600002722
+      },
+      "effectiveAmplitudeM": -0.003,
+      "calibrationStatus": "failed",
+      "parity": {
+        "referenceRunId": "local-dfd56fe51ebc497a9d768d7498cede7a",
+        "checks": {
+          "meshHash": true,
+          "candidateMeshHash": true,
+          "amplitude": true,
+          "decision": true,
+          "calibrated": true,
+          "baselineDragN": true,
+          "candidateDragN": true,
+          "predictedDragN": true,
+          "probeMeshes": true,
+          "probe-plus-h": true,
+          "probe-minus-h": true,
+          "probe-plus-half": true,
+          "probe-minus-half": true,
+          "baseline.vtk:coordinates": true,
+          "baseline.vtk:topology": true,
+          "baseline.vtk:pred_surf_pressure": true,
+          "baseline.vtk:pred_surf_wall_shear_stress": true,
+          "baseline.vtk:geometry_sensitivity": true,
+          "evaluate.vtk:coordinates": true,
+          "evaluate.vtk:topology": true,
+          "evaluate.vtk:pred_surf_pressure": true,
+          "evaluate.vtk:pred_surf_wall_shear_stress": true,
+          "evaluate.vtk:geometry_sensitivity": false
+        },
+        "forceAbsoluteDifferencesN": {
+          "baselineDragN": 0.0,
+          "candidateDragN": 0.0,
+          "predictedDragN": 0.0,
+          "probe-plus-h": 0.0,
+          "probe-minus-h": 0.0,
+          "probe-plus-half": 0.0,
+          "probe-minus-half": 0.0
+        },
+        "fieldMaximumAbsoluteDifferences": {
+          "baseline.vtk:pred_surf_pressure": 0.0,
+          "baseline.vtk:pred_surf_wall_shear_stress": 0.0,
+          "baseline.vtk:geometry_sensitivity": 7.82310962677002e-06,
+          "evaluate.vtk:pred_surf_pressure": 0.0,
+          "evaluate.vtk:pred_surf_wall_shear_stress": 0.0,
+          "evaluate.vtk:geometry_sensitivity": 1.5914440155029297e-05
+        },
+        "passed": false
+      }
+    }
+  ],
+  "complete": true,
+  "allParityChecksPassed": false,
+  "note": "All four optimized cases completed. Both matching cases have a raw sensitivity tolerance failure; acceptance-driving forces, geometry, pressure and shear match exactly. Tolerances are unchanged."
+}

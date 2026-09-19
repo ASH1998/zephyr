@@ -1,0 +1,624 @@
+{
+  "schemaVersion": "zephyr.surface.v2",
+  "runId": "local-830086728750406597352c1ce6576dd3",
+  "source": "live",
+  "createdAt": "2026-09-19T10:33:52.453372+00:00",
+  "geometryId": "drivaer-1",
+  "car": {
+    "id": "drivaer-1",
+    "label": "DrivAer sedan",
+    "description": "Official NVIDIA sample",
+    "experimental": false,
+    "preview": "/models/drivaer-preview.json",
+    "category": "car",
+    "airflow": "/models/airflow/drivaer-1.json"
+  },
+  "provenance": {
+    "artifactVersion": "domino-local-v1",
+    "modelVersion": "DoMINO.0.501.mdlus",
+    "sensitivityAdapter": "fresh-normals-batch-reset-v1",
+    "probeForwardAdapter": "fresh-probe-forward-v1",
+    "localNumericsSha256": {
+      "worker.py": "3e19a50227e707fd310995627cb094a8918cbee1b61a1bcb905ec07cd4a26786",
+      "sensitivity.py": "8cdfdca0829998bd5da9bb9103fb80ce87165efb529b88560f29ed7cc8a9948d",
+      "forward.py": "c2b845fe4199f49c8e3c5b42139654b9352f031017aa04f5d63af6d6e6fc2128",
+      "trust.py": "2a4319a95a50d5a724dcf2c7aadf062eacca4574db4ce6eb52ea835e50623d69",
+      "geometry.py": "4370c205ac0fc3791594db3244a58c51bd43e62e77ff320136ddfbe10b92c3ee",
+      "intersections.py": "4fb3bedec9304bfbd75ad2080bc5e9d3112275602b98e49a46d1a8fcf9c73b29"
+    },
+    "checkpointSha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+    "bundle": [
+      {
+        "path": "DoMINO.0.501.mdlus",
+        "purpose": "Self-describing model architecture and weights",
+        "exists": true,
+        "nonempty": true,
+        "expected_sha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+        "actual_sha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+        "checksum_matches": true
+      },
+      {
+        "path": "scaling_factors.pkl",
+        "purpose": "Training-time field scaling used to recover physical units",
+        "exists": true,
+        "nonempty": true,
+        "expected_sha256": "895b876ab7a2f32b4c714e4eafc7b2e7d94029e037bfc2950cf8c6cb2a818c2d",
+        "actual_sha256": "895b876ab7a2f32b4c714e4eafc7b2e7d94029e037bfc2950cf8c6cb2a818c2d",
+        "checksum_matches": true
+      },
+      {
+        "path": "config.yaml",
+        "purpose": "Training-domain bounding boxes required by inference",
+        "exists": true,
+        "nonempty": true,
+        "expected_sha256": "43a3e7360e319b239d3d946aa04e3ac310dde1b20f7eb71be38943dd3bb27202",
+        "actual_sha256": "43a3e7360e319b239d3d946aa04e3ac310dde1b20f7eb71be38943dd3bb27202",
+        "checksum_matches": true
+      }
+    ],
+    "upstreamCommit": "0612ec4ed54484a47bfa134eda7b3b012a607624",
+    "workflowFilesSha256": {
+      "design_datapipe.py": "d70263e45ee0b7538b88453c0279f6231fe70e7178f81543f8ebea3ad7e89e65",
+      "main.py": "923a6380da888323255e544496a4b812f58903bca4b82dd7970f4f5f10fb5cd3",
+      "utilities\\download.py": "abd842fc22bcaf9389768c6244092b65d2386a97844071376421f7c05697bcb9",
+      "utilities\\mesh_postprocessing.py": "b828be45964f273ac4236653b9a0131fcc5d6fc1945c0ce38c2593cb0bc62369"
+    },
+    "meshHash": "fdade0e1a06daca1a9f7ed32585bb49f8968353c71a2a773aa57ee4656344fce",
+    "inputGeometrySha256": "411e6651284a26fc94924106b833fd79febc6deba63922c929dd8acfc99720d2",
+    "inputGeometryFormat": ".stl",
+    "evidenceUrls": [
+      "/api/runs/local-830086728750406597352c1ce6576dd3/evidence"
+    ],
+    "solver": null,
+    "reduction": {
+      "method": "VTK DecimatePro; preserve topology; retained original vertices",
+      "sourceVertices": 376531,
+      "sourceTriangles": 753234,
+      "displayVertices": 110339,
+      "displayTriangles": 220850,
+      "maximumRetainedPointErrorM": 0.0,
+      "mapSha256": "858e844675eef1b49ca86717df9b449c064fc137630a87915b9b70ae0fee5331",
+      "limitation": "Display approximation. Small features/extrema can be omitted; forces use every original cell."
+    },
+    "fieldTransfer": "Pressure/shear: area-weighted adjacent cells -> original points -> retained vertices. Sensitivity: upstream 20-step smoothed point field.",
+    "sensitivityConvention": "Batch-corrected partial d(-Fx)/dX at geometry cell centroids; other model inputs held fixed. Not the total mesh derivative. Displayed smoothed normal projection, N/m. Candidate prediction uses separate full-pipeline finite differences.",
+    "forceConvention": "Upstream sum A*(p*n_inward - wallShear), n_inward=-VTK cell normal. Raw signed Fx > 0 on this sample; displayed drag D=Fx. Full source mesh, not reduced display mesh.",
+    "fullResolutionRanges": {
+      "pressurePa": [
+        -3222.166659097297,
+        1266.289114838388
+      ],
+      "normalSensitivity": [
+        -0.07216930933217587,
+        0.09661409440676368
+      ]
+    },
+    "gpu": "NVIDIA GeForce RTX 4070 Ti SUPER",
+    "candidateMeshHash": "2222304420eb28885756dddf75f1c7bb5fa742411afbbe2ee214d61943d5572d",
+    "candidateFullResolutionRanges": {
+      "pressurePa": [
+        -3221.8920204390506,
+        1266.3135337441881
+      ],
+      "normalSensitivity": [
+        -0.0720689276658737,
+        0.09659728325983755
+      ]
+    },
+    "peakCudaAllocatedBytes": 3373765632
+  },
+  "conditions": {
+    "streamVelocityMps": [
+      38.889,
+      0,
+      0
+    ],
+    "densityKgM3": 1.205
+  },
+  "constraints": {
+    "maxDisplacementM": 0.0005,
+    "protectedRegion": "Front 82% including cabin; underbody below z=0.05 m upstream"
+  },
+  "forces": {
+    "baselineN": [
+      621.695556640625,
+      877.1947021484375,
+      -71.85599517822266
+    ],
+    "candidateN": [
+      621.5786743164062,
+      876.4675903320312,
+      -71.27291870117188
+    ],
+    "baselineDragN": 621.695556640625,
+    "candidateDragN": 621.5786743164062,
+    "predictedDragN": 621.5682373046875
+  },
+  "trust": {
+    "decision": "refuse",
+    "calibrated": false,
+    "calibrationScope": "local-surrogate-handle-only",
+    "policyVersion": "local-handle-check-v1",
+    "engineeringValidated": false,
+    "predictionErrorPercent": 8.19750719079578,
+    "predictionErrorN": 0.01043701171875,
+    "predictionErrorBaselinePercent": 0.0016787978629197733,
+    "actualDragDeltaN": -0.11688232421875,
+    "predictedDragDeltaN": -0.1273193359375,
+    "reductionRatio": 0.9180249280920422,
+    "reason": "Fresh reduction or local prediction agreement is insufficient; step refused."
+  },
+  "calibration": {
+    "status": "failed",
+    "policyVersion": "local-handle-check-v1",
+    "scope": "This mesh, conditions and rear handle only; not physical validation or a global trust radius",
+    "policy": {
+      "slopeRelativeTolerance": 0.2,
+      "centeringRelativeTolerance": 0.2,
+      "candidateRelativeTolerance": 0.25,
+      "minimumSignalToNoise": 5.0,
+      "float32EpsilonMultiplier": 32.0
+    },
+    "baselineDragN": 621.695556640625,
+    "repeatedBaselineDragN": 621.695556640625,
+    "baselineRepeatDifferenceN": 0.0,
+    "numericalFloorN": 0.0023715803399682045,
+    "probeRadiusM": 0.00025,
+    "coarseSlopeNPerM": 257.2021484375,
+    "slopeNPerM": 254.638671875,
+    "fineProbeMidpointOffsetN": 0.020782470703125,
+    "probeCenteringPassed": false,
+    "slopeDisagreementPercent": 0.9966777408637874,
+    "samples": [
+      {
+        "name": "probe-plus-h",
+        "amplitudeM": 0.00025,
+        "dragN": 621.7543334960938,
+        "meshHash": "5269b570ee73af9351cf7d9340611ea8eadb0d395ab721abe5e5a6bbe62d27a6"
+      },
+      {
+        "name": "probe-minus-h",
+        "amplitudeM": -0.00025,
+        "dragN": 621.625732421875,
+        "meshHash": "7689e2f22a47c1c757d9d367e62bcb0da7e1881a11493cef77ae795f85548701"
+      },
+      {
+        "name": "probe-plus-half",
+        "amplitudeM": 0.000125,
+        "dragN": 621.7066040039062,
+        "meshHash": "399d795499ad0a7070b600298980cd51ad400458a89614b5f489bdba009b8527"
+      },
+      {
+        "name": "probe-minus-half",
+        "amplitudeM": -0.000125,
+        "dragN": 621.6429443359375,
+        "meshHash": "60617f2a677565f7932d440e0c1381a2e5b9744c871f388b208989539d64dd51"
+      }
+    ],
+    "reason": "Directional slope is unstable or unresolved above the numerical floor",
+    "radiusAttempts": [],
+    "runId": "local-830086728750406597352c1ce6576dd3",
+    "meshHash": "fdade0e1a06daca1a9f7ed32585bb49f8968353c71a2a773aa57ee4656344fce",
+    "checkpointSha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+    "upstreamCommit": "0612ec4ed54484a47bfa134eda7b3b012a607624",
+    "sensitivityAdapter": "fresh-normals-batch-reset-v1",
+    "conditions": {
+      "streamVelocityMps": [
+        38.889,
+        0,
+        0
+      ],
+      "densityKgM3": 1.205
+    },
+    "handle": "rear-width-quintic-v1"
+  },
+  "handle": {
+    "handle": "rear-width-quintic-v1",
+    "definition": {
+      "rearStartXMetres": 3.0918182337284086,
+      "heightStartMetres": 0.05,
+      "heightTransitionMetres": 0.25,
+      "lateralNormalizationMetres": 0.662125480734039
+    },
+    "amplitudeM": -0.0005,
+    "smoothedProjectionNPerM": 1.3811837063188024,
+    "predictedDragDeltaN": -0.1273193359375,
+    "partialGradientDragDeltaN": 0.001182104347919495,
+    "predictionMethod": "central-finite-difference",
+    "checks": {
+      "topology": {
+        "status": "passed"
+      },
+      "finite": {
+        "status": "passed"
+      },
+      "protected": {
+        "status": "passed",
+        "vertices": 340330
+      },
+      "bounds": {
+        "status": "passed",
+        "maximumM": 0.0004999999999999449
+      },
+      "normals": {
+        "status": "passed",
+        "minimumCosine": 0.9930965683628233
+      },
+      "triangleArea": {
+        "status": "passed",
+        "minimumRatio": 0.955572926064689,
+        "maximumRatio": 1.0477879742014322
+      },
+      "watertight": {
+        "status": "passed",
+        "baselineOpenEdges": 0,
+        "candidateOpenEdges": 0
+      },
+      "symmetricHandle": {
+        "status": "passed",
+        "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+      },
+      "transition": {
+        "status": "passed",
+        "detail": "Quintic C2 transition; exactly zero on protected boundary."
+      },
+      "selfIntersection": {
+        "status": "passed",
+        "baseline": {
+          "status": "passed",
+          "method": "libigl.predicates.find_self_intersections (AABB + exact predicates)",
+          "version": "2.6.3",
+          "testedFaces": 753234,
+          "intersectingFaces": 0,
+          "faceIds": [],
+          "pairs": [],
+          "coplanarPairs": 0
+        },
+        "candidate": {
+          "status": "passed",
+          "method": "libigl.predicates.find_self_intersections (AABB + exact predicates)",
+          "version": "2.6.3",
+          "testedFaces": 753234,
+          "intersectingFaces": 0,
+          "faceIds": [],
+          "pairs": [],
+          "coplanarPairs": 0
+        }
+      }
+    }
+  },
+  "attempts": [
+    {
+      "handle": "rear-width-quintic-v1",
+      "definition": {
+        "rearStartXMetres": 3.0918182337284086,
+        "heightStartMetres": 0.05,
+        "heightTransitionMetres": 0.25,
+        "lateralNormalizationMetres": 0.662125480734039
+      },
+      "amplitudeM": -0.0005,
+      "smoothedProjectionNPerM": 1.3811837063188024,
+      "predictedDragDeltaN": -0.1273193359375,
+      "partialGradientDragDeltaN": 0.001182104347919495,
+      "predictionMethod": "central-finite-difference",
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 340330
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0004999999999999449
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9930965683628233
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.955572926064689,
+          "maximumRatio": 1.0477879742014322
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        },
+        "symmetricHandle": {
+          "status": "passed",
+          "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+        },
+        "transition": {
+          "status": "passed",
+          "detail": "Quintic C2 transition; exactly zero on protected boundary."
+        },
+        "selfIntersection": {
+          "status": "passed",
+          "baseline": {
+            "status": "passed",
+            "method": "libigl.predicates.find_self_intersections (AABB + exact predicates)",
+            "version": "2.6.3",
+            "testedFaces": 753234,
+            "intersectingFaces": 0,
+            "faceIds": [],
+            "pairs": [],
+            "coplanarPairs": 0
+          },
+          "candidate": {
+            "status": "passed",
+            "method": "libigl.predicates.find_self_intersections (AABB + exact predicates)",
+            "version": "2.6.3",
+            "testedFaces": 753234,
+            "intersectingFaces": 0,
+            "faceIds": [],
+            "pairs": [],
+            "coplanarPairs": 0
+          }
+        }
+      }
+    }
+  ],
+  "validation": {
+    "geometry": "passed",
+    "freshEvaluation": "passed",
+    "independentCfd": "not-run",
+    "evidenceIds": [
+      "local-830086728750406597352c1ce6576dd3:baseline",
+      "local-830086728750406597352c1ce6576dd3:candidate"
+    ],
+    "checks": {
+      "topology": {
+        "status": "passed"
+      },
+      "finite": {
+        "status": "passed"
+      },
+      "protected": {
+        "status": "passed",
+        "vertices": 340330
+      },
+      "bounds": {
+        "status": "passed",
+        "maximumM": 0.0004999999999999449
+      },
+      "normals": {
+        "status": "passed",
+        "minimumCosine": 0.9930965683628233
+      },
+      "triangleArea": {
+        "status": "passed",
+        "minimumRatio": 0.955572926064689,
+        "maximumRatio": 1.0477879742014322
+      },
+      "watertight": {
+        "status": "passed",
+        "baselineOpenEdges": 0,
+        "candidateOpenEdges": 0
+      },
+      "symmetricHandle": {
+        "status": "passed",
+        "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+      },
+      "transition": {
+        "status": "passed",
+        "detail": "Quintic C2 transition; exactly zero on protected boundary."
+      },
+      "selfIntersection": {
+        "status": "passed",
+        "baseline": {
+          "status": "passed",
+          "method": "libigl.predicates.find_self_intersections (AABB + exact predicates)",
+          "version": "2.6.3",
+          "testedFaces": 753234,
+          "intersectingFaces": 0,
+          "faceIds": [],
+          "pairs": [],
+          "coplanarPairs": 0
+        },
+        "candidate": {
+          "status": "passed",
+          "method": "libigl.predicates.find_self_intersections (AABB + exact predicates)",
+          "version": "2.6.3",
+          "testedFaces": 753234,
+          "intersectingFaces": 0,
+          "faceIds": [],
+          "pairs": [],
+          "coplanarPairs": 0
+        }
+      }
+    }
+  },
+  "timings": {
+    "baselineSeconds": 61.28962479999973,
+    "repeatSeconds": 21.513685499998246,
+    "probe-plus-hSeconds": 21.190014199997677,
+    "probe-minus-hSeconds": 21.13904829999956,
+    "probe-plus-halfSeconds": 21.052822699999524,
+    "probe-minus-halfSeconds": 21.28677819999939,
+    "evaluateSeconds": 60.879110000001674,
+    "totalSeconds": 268.23967520000224
+  },
+  "artifacts": {
+    "baseline.vtk": {
+      "sha256": "fcee6fb86113fc2c5b8807b0bc447acc348f96f616585f1d82be12155000ba26",
+      "bytes": 111474571
+    },
+    "evaluate.vtk": {
+      "sha256": "35286cab85f98170252df43550fc91141b95d295d5df187e9b93f74ba0b5c128",
+      "bytes": 111474571
+    }
+  },
+  "airflowStatus": "ready",
+  "artifactVerification": {
+    "scriptSha256": "fcab6d63e94f3a45da1e2841675fce933912cb9e59ac13644d0e9314a45627d6",
+    "sourceEvidenceSha256": "bb456d52512f542aebf91afe60925281eb869bce46207c56c53516b2b71686a9",
+    "fullResolutionGeometry": {
+      "topology": {
+        "status": "passed"
+      },
+      "finite": {
+        "status": "passed"
+      },
+      "protected": {
+        "status": "passed",
+        "vertices": 340330
+      },
+      "bounds": {
+        "status": "passed",
+        "maximumM": 0.0004999999999999449
+      },
+      "normals": {
+        "status": "passed",
+        "minimumCosine": 0.9930965683628233
+      },
+      "triangleArea": {
+        "status": "passed",
+        "minimumRatio": 0.955572926064689,
+        "maximumRatio": 1.0477879742014322
+      },
+      "watertight": {
+        "status": "passed",
+        "baselineOpenEdges": 0,
+        "candidateOpenEdges": 0
+      },
+      "symmetricHandle": {
+        "status": "passed",
+        "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+      },
+      "transition": {
+        "status": "passed",
+        "detail": "Quintic C2 transition; exactly zero on protected boundary."
+      },
+      "selfIntersection": {
+        "status": "passed",
+        "baseline": {
+          "status": "passed",
+          "method": "libigl.predicates.find_self_intersections (AABB + exact predicates)",
+          "version": "2.6.3",
+          "testedFaces": 753234,
+          "intersectingFaces": 0,
+          "faceIds": [],
+          "pairs": [],
+          "coplanarPairs": 0
+        },
+        "candidate": {
+          "status": "passed",
+          "method": "libigl.predicates.find_self_intersections (AABB + exact predicates)",
+          "version": "2.6.3",
+          "testedFaces": 753234,
+          "intersectingFaces": 0,
+          "faceIds": [],
+          "pairs": [],
+          "coplanarPairs": 0
+        }
+      }
+    },
+    "forceReintegration": {
+      "baseline": {
+        "reintegratedFxN": 621.695546852327,
+        "recordedFxN": 621.695556640625,
+        "absoluteDifferenceN": 9.78829802988912e-06,
+        "toleranceN": 0.0023715803399682045
+      },
+      "candidate": {
+        "reintegratedFxN": 621.5786839755525,
+        "recordedFxN": 621.5786743164062,
+        "absoluteDifferenceN": 9.659146257945395e-06,
+        "toleranceN": 0.0023711344692856073
+      }
+    },
+    "recomputedDecision": {
+      "decision": "refuse",
+      "calibrated": false,
+      "calibrationScope": "local-surrogate-handle-only",
+      "policyVersion": "local-handle-check-v1",
+      "engineeringValidated": false,
+      "predictionErrorPercent": 8.19750719079578,
+      "predictionErrorN": 0.01043701171875,
+      "predictionErrorBaselinePercent": 0.0016787978629197733,
+      "actualDragDeltaN": -0.11688232421875,
+      "predictedDragDeltaN": -0.1273193359375,
+      "reductionRatio": 0.9180249280920422,
+      "reason": "Fresh reduction or local prediction agreement is insufficient; step refused."
+    },
+    "status": "passed"
+  },
+  "surfaceProfiles": {
+    "repeat": {
+      "method": "fresh-probe-forward-v1",
+      "freshGeometry": true,
+      "autograd": false,
+      "geometryReuseScope": "within-evaluation",
+      "preprocessingSeconds": 2.6029293999999936,
+      "geometryCalls": 92,
+      "geometryCacheHits": 91,
+      "batchSeconds": 18.899138100001437,
+      "batches": 92,
+      "totalSeconds": 21.502070000002277
+    },
+    "probe-plus-h": {
+      "method": "fresh-probe-forward-v1",
+      "freshGeometry": true,
+      "autograd": false,
+      "geometryReuseScope": "within-evaluation",
+      "preprocessingSeconds": 2.428182600000582,
+      "geometryCalls": 92,
+      "geometryCacheHits": 91,
+      "batchSeconds": 18.748744800002896,
+      "batches": 92,
+      "totalSeconds": 21.17692900000111
+    },
+    "probe-minus-h": {
+      "method": "fresh-probe-forward-v1",
+      "freshGeometry": true,
+      "autograd": false,
+      "geometryReuseScope": "within-evaluation",
+      "preprocessingSeconds": 2.434488800001418,
+      "geometryCalls": 92,
+      "geometryCacheHits": 91,
+      "batchSeconds": 18.692238300001918,
+      "batches": 92,
+      "totalSeconds": 21.126728700000967
+    },
+    "probe-plus-half": {
+      "method": "fresh-probe-forward-v1",
+      "freshGeometry": true,
+      "autograd": false,
+      "geometryReuseScope": "within-evaluation",
+      "preprocessingSeconds": 2.4164440000022296,
+      "geometryCalls": 92,
+      "geometryCacheHits": 91,
+      "batchSeconds": 18.624284199999238,
+      "batches": 92,
+      "totalSeconds": 21.04072939999969
+    },
+    "probe-minus-half": {
+      "method": "fresh-probe-forward-v1",
+      "freshGeometry": true,
+      "autograd": false,
+      "geometryReuseScope": "within-evaluation",
+      "preprocessingSeconds": 2.444206899999699,
+      "geometryCalls": 92,
+      "geometryCacheHits": 91,
+      "batchSeconds": 18.83073290000175,
+      "batches": 92,
+      "totalSeconds": 21.274941200001194
+    }
+  },
+  "airflowBinding": {
+    "baseline": {
+      "meshHash": "fdade0e1a06daca1a9f7ed32585bb49f8968353c71a2a773aa57ee4656344fce",
+      "geometryId": "drivaer-1"
+    },
+    "candidate": {
+      "meshHash": "2222304420eb28885756dddf75f1c7bb5fa742411afbbe2ee214d61943d5572d",
+      "geometryId": "drivaer-1"
+    }
+  }
+}

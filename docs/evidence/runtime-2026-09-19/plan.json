@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "zephyr.runtime-plan.v1",
+  "baselineCommit": "85f5ec51703898421f266bc55d45bdf15551cbd6",
+  "referenceRuns": {
+    "sedan": "local-c29499fe827b4d7e9b7ac01f29ff8428",
+    "hatchback": "local-dfd56fe51ebc497a9d768d7498cede7a"
+  },
+  "policySha256": "2a4319a95a50d5a724dcf2c7aadf062eacca4574db4ce6eb52ea835e50623d69",
+  "cases": [
+    {
+      "geometry": "drivaer-1",
+      "budgetMm": 3,
+      "purpose": "separate-process unmodified repeat"
+    },
+    {
+      "geometry": "drivaer-1",
+      "budgetMm": 3,
+      "purpose": "optimized parity and timing"
+    },
+    {
+      "geometry": "drivaer-1",
+      "budgetMm": 0.25,
+      "purpose": "smaller effective step"
+    },
+    {
+      "geometry": "drivaer-1",
+      "budgetMm": 0.5,
+      "purpose": "larger effective step"
+    },
+    {
+      "geometry": "hatchback",
+      "budgetMm": 3,
+      "purpose": "refused control"
+    }
+  ],
+  "parityCriteria": {
+    "forceAbsoluteTolerance": "32 * float32 epsilon * max(abs(reference force), 1 N)",
+    "surfaceFields": "rtol=1e-6, atol=1e-5; all values checked",
+    "geometry": "identical topology, protected coordinates, mesh hashes and selected amplitude for matching requests",
+    "decisions": "unchanged for matching requests; report all neighboring-budget outcomes",
+    "timing": "report observed full-worker and per-phase timings; no fixed speed promise"
+  },
+  "constraints": [
+    "No policy changes",
+    "No cross-run cached evidence",
+    "Fresh independent candidate evaluation",
+    "Keep baseline and candidate autograd/sensitivity fields",
+    "No model switch or paid cloud GPU"
+  ]
+}

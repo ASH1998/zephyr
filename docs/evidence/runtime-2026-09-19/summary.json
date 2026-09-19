@@ -1,0 +1,40 @@
+{
+  "planComplete": true,
+  "policyUnchanged": true,
+  "caseVerification": [
+    {
+      "runId": "local-cb9886c7e716448e957a595e4556a9d7",
+      "artifactVerification": "passed",
+      "currentSourceHashesMatch": true,
+      "bothFreshVolumeFields": true
+    },
+    {
+      "runId": "local-26b4f0c324844c4d9fd17cc066df9c71",
+      "artifactVerification": "passed",
+      "currentSourceHashesMatch": true,
+      "bothFreshVolumeFields": true
+    },
+    {
+      "runId": "local-830086728750406597352c1ce6576dd3",
+      "artifactVerification": "passed",
+      "currentSourceHashesMatch": true,
+      "bothFreshVolumeFields": true
+    },
+    {
+      "runId": "local-f9d19c3398f84b9cabbef3ca574d45d2",
+      "artifactVerification": "passed",
+      "currentSourceHashesMatch": true,
+      "bothFreshVolumeFields": true
+    }
+  ],
+  "gpuLeasesReleased": true,
+  "pythonTestsPassed": 46,
+  "frontend": "unchanged; previous 36 tests and production build passed",
+  "browserRehearsal": "browser-rehearsal.json",
+  "allFieldParityPassed": false,
+  "limitations": [
+    "Raw partial sensitivity exceeded frozen tolerance in unmodified sedan repeat, optimized sedan baseline, and optimized hatchback candidate.",
+    "Independent CFD and transferable physical calibration remain pending."
+  ],
+  "matchingSedanRuntimeReductionPercent": 42.51177074915844
+}

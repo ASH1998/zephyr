@@ -1,0 +1,43 @@
+{
+  "referenceRunId": "local-c29499fe827b4d7e9b7ac01f29ff8428",
+  "repeatRunId": "local-cdd1b1d4afbf40b8b5e9af03e8c07ddb",
+  "checks": {
+    "forcesExact": true,
+    "probesExact": true,
+    "decisionExact": true,
+    "amplitudeExact": true,
+    "sourceHashesExact": true,
+    "baseline.vtk:pointsExact": true,
+    "baseline.vtk:topologyExact": true,
+    "baseline.vtk:pred_surf_pressure": true,
+    "baseline.vtk:pred_surf_wall_shear_stress": true,
+    "baseline.vtk:geometry_sensitivity": false,
+    "evaluate.vtk:pointsExact": true,
+    "evaluate.vtk:topologyExact": true,
+    "evaluate.vtk:pred_surf_pressure": true,
+    "evaluate.vtk:pred_surf_wall_shear_stress": true,
+    "evaluate.vtk:geometry_sensitivity": false
+  },
+  "passed": false,
+  "referenceSeconds": 472.07415820000097,
+  "repeatSeconds": 459.6789948000005,
+  "sensitivityToleranceChecks": {
+    "baseline.vtk": {
+      "rtol": 1e-06,
+      "atol": 1e-05,
+      "maximumAbsoluteDifference": 1.2978911399841309e-05,
+      "valuesOutsideTolerance": 7,
+      "totalValues": 2259702,
+      "passed": false
+    },
+    "evaluate.vtk": {
+      "rtol": 1e-06,
+      "atol": 1e-05,
+      "maximumAbsoluteDifference": 3.769993782043457e-06,
+      "valuesOutsideTolerance": 0,
+      "totalValues": 2259702,
+      "passed": true
+    }
+  },
+  "interpretation": "Unmodified code reproduced geometry, forces, probes, decisions, pressure and shear exactly. Raw partial sensitivity is not bitwise reproducible; seven baseline components also exceed the predeclared field tolerance. This failed check is retained. Acceptance uses fresh full-pipeline finite differences, not the raw partial sensitivity."
+}
