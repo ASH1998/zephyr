@@ -59,6 +59,7 @@ report['artifactVerification'] = {'scriptSha256': _file_sha256(Path(__file__)),
     'sourceEvidenceSha256': _file_sha256(directory / 'evidence.json'),
     'fullResolutionGeometry': checks, 'forceReintegration': integrations,
     'recomputedDecision': decision, 'status': 'passed'}
+report['surfaceProfiles'] = evidence.get('surfaceProfiles', {})
 report['airflowBinding'] = {key: {'meshHash': field['meshHash'], 'geometryId': field['geometryId']}
                             for key, field in evidence.get('airflow', {}).items()}
 for key, binding in report['airflowBinding'].items():

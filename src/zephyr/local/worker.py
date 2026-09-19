@@ -47,6 +47,7 @@ def execute(job_dir):
     import main as upstream
     from zephyr.local.geometry import rear_basis, propose
     from zephyr.local.sensitivity import evaluate_surface, ADAPTER_VERSION
+    from zephyr.local.forward import evaluate_forward, FORWARD_VERSION
     from zephyr.local.trust import calibrate_handle, decide_step
     from zephyr.local.intersections import audit_intersections
     from zephyr.local.conversion import mesh_hash, display_mapping, surface, ROTATION
@@ -75,12 +76,18 @@ def execute(job_dir):
             emit(phase, 'GPU forward + autograd batches', completed=index + 1, total=total)
     upstream.tqdm = progress  # Presentation hook only; pinned numerical code is unchanged.
     timings = {}
+    profiles = {}
     def evaluate(target, name):
         nonlocal phase
         phase = name
         t = time.perf_counter()
         emit(name, 'Building geometry stencils and CUDA signed-distance inputs')
-        results = evaluate_surface(domino, target, stream_velocity=38.889, air_density=1.205, stencil_size=7, verbose=False)
+        if name == 'repeat' or name.startswith('probe-'):
+            profiles[name] = {}
+            results = evaluate_forward(domino, target, profile=profiles[name],
+                progress=lambda completed, total: emit(name, 'GPU forward batches', completed=completed, total=total))
+        else:
+            results = evaluate_surface(domino, target, stream_velocity=38.889, air_density=1.205, stencil_size=7, verbose=False)
         torch.cuda.synchronize()
         for key, value in results.items():
             if not np.isfinite(value).all():
@@ -113,7 +120,8 @@ def execute(job_dir):
             'rotation': ROTATION.tolist(), 'upstreamOriginM': origin.tolist(), 'transform': '(upstream - origin) @ rotation.T'},
         'provenance': {'artifactVersion': 'domino-local-v1', 'modelVersion': 'DoMINO.0.501.mdlus',
             'sensitivityAdapter': ADAPTER_VERSION,
-            'localNumericsSha256': {name: _file_sha256(Path(__file__).with_name(name)) for name in ('worker.py', 'sensitivity.py', 'trust.py', 'geometry.py', 'intersections.py')},
+            'probeForwardAdapter': FORWARD_VERSION,
+            'localNumericsSha256': {name: _file_sha256(Path(__file__).with_name(name)) for name in ('worker.py', 'sensitivity.py', 'forward.py', 'trust.py', 'geometry.py', 'intersections.py')},
             'checkpointSha256': checks[0].actual_sha256, 'bundle': [c.to_dict() for c in checks], 'upstreamCommit': pin,
             'workflowFilesSha256': {str(p.relative_to(WORKFLOW)): _file_sha256(p) for p in sorted(WORKFLOW.rglob('*.py'))},
             'meshHash': mesh_hash(mesh), 'inputGeometrySha256': _file_sha256(input_path),'inputGeometryFormat':input_path.suffix,
@@ -128,7 +136,7 @@ def execute(job_dir):
         'constraints': {'maxDisplacementM': request['budgetMm'] / 1000, 'protectedRegion': 'Front 82% including cabin; underbody below z=0.05 m upstream'},
         'trust': {'decision': 'refuse', 'calibrated': False, 'predictionErrorPercent': None, 'reason': 'Analysis only; no candidate evaluated'},
         'validation': {'geometry': 'not-run', 'freshEvaluation': 'not-run', 'independentCfd': 'not-run', 'evidenceIds': [run_id + ':baseline'], 'checks': {}},
-        'timings': timings}
+        'timings': timings, 'surfaceProfiles': profiles}
     if request.get('intent'):
         payload['intent'] = request['intent']
     write_json(job_dir / 'baseline.json', payload)

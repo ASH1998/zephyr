@@ -22,12 +22,16 @@ def independent_batch_gradients(model):
         hook.remove()
 
 
-def evaluate_surface(domino, mesh, **kwargs):
+def prepare_surface(mesh):
     # Use the same geometry precision and freshly computed normals for baseline,
     # probes and candidate. Imported arrays otherwise survive a points edit.
     mesh.points = np.asarray(mesh.points, dtype=np.float64)
     for data in (mesh.cell_data, mesh.point_data):
         if 'Normals' in data:
             del data['Normals']
+
+
+def evaluate_surface(domino, mesh, **kwargs):
+    prepare_surface(mesh)
     with independent_batch_gradients(domino.model):
         return domino(mesh=mesh, **kwargs)
