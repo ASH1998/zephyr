@@ -60,9 +60,13 @@ are accepted. A second request receives HTTP 409 while the GPU job is active.
 - A fresh full-resolution GPU evaluation of the surviving candidate, with raw
   forces, actual mm displacement, predicted delta and measured prediction error.
 - Comparison controls, pressure and sensitivity heatmaps, actual displacement
-  map, true scale by default and a labelled ×24 display option. There is no
-  authored wake in a real run: this checkpoint does not provide a volume-flow
-  solution. Shape interpolation and magnification are display only.
+  map, true scale by default and a labelled ×24 display option. The default
+  Airflow view overlays labelled illustrative ribbons and tracer particles on
+  the actual geometry. The paths stay identical across candidate comparisons;
+  neither their shape nor animation speed represents a computed velocity field.
+  This checkpoint does not provide a volume-flow solution. A geometry-only
+  preview loads before inference, with field modes disabled until real results
+  arrive. Shape interpolation and magnification are display only.
 
 ## Scientific limits and refusal
 

@@ -7,7 +7,7 @@ import { fieldRange } from './data';
 import type { StoryState } from './run-story';
 import { previewWake } from './flow-preview';
 
-type SurfaceRun = Pick<SimulationRun, 'baseline' | 'source'> & { candidate: Surface | null };
+type SurfaceRun = Pick<SimulationRun, 'baseline'> & { source: SimulationRun['source'] | 'geometry-preview'; candidate: Surface | null };
 
 export class FlowScene {
   private scene = new THREE.Scene();
@@ -53,7 +53,7 @@ export class FlowScene {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping; this.renderer.toneMappingExposure = 1.0;
     const pmrem = new THREE.PMREMGenerator(this.renderer);
     const room = new RoomEnvironment(); this.scene.environment = pmrem.fromScene(room, .05).texture; room.dispose(); pmrem.dispose();
-    this.renderer.domElement.setAttribute('aria-label', run.source === 'illustrative' ? 'Rotatable passenger car with illustrative airflow and protected cabin. Use arrow keys to orbit; plus and minus to zoom.' : 'Actual DoMINO surface pressure and sensitivity on DrivAerML. Use arrow keys to orbit; plus and minus to zoom.');
+    this.renderer.domElement.setAttribute('aria-label', run.source === 'illustrative' ? 'Rotatable passenger car with illustrative airflow and protected cabin. Use arrow keys to orbit; plus and minus to zoom.' : 'DrivAerML geometry with illustrative airflow; pressure and sensitivity are available after inference. Use arrow keys to orbit; plus and minus to zoom.');
     this.renderer.domElement.tabIndex = 0;
     host.appendChild(this.renderer.domElement);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -95,9 +95,9 @@ export class FlowScene {
     const ctx = shadowCanvas.getContext('2d')!;
     const gradient = ctx.createRadialGradient(64, 64, 10, 64, 64, 64); gradient.addColorStop(0, '#000e'); gradient.addColorStop(.55, '#0009'); gradient.addColorStop(1, '#0000'); ctx.fillStyle = gradient; ctx.fillRect(0, 0, 128, 128);
     const shadow = new THREE.Mesh(new THREE.PlaneGeometry(6.7, 3.8), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(shadowCanvas), transparent: true, depthWrite: false })); shadow.rotation.x = -Math.PI / 2; shadow.position.y = .05; this.scene.add(shadow);
-    if (run.source === 'illustrative') this.addFlow();
+    this.addFlow();
     this.scene.add(this.flow, this.flowGhost, this.rearMarker); this.flowGhost.visible = false;
-    this.addSensitivity(); this.scene.add(this.arrows); this.arrows.visible = false;
+    if (run.source !== 'geometry-preview') this.addSensitivity(); this.scene.add(this.arrows); this.arrows.visible = false;
     this.updateSurface();
     this.addStoryOverlays();
     this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(host);
@@ -265,7 +265,7 @@ export class FlowScene {
     if (this.changeOverlay) this.changeOverlay.visible = compare;
     if (this.baselineGhost) this.baselineGhost.visible = compare;
     if (stage) {
-      this.flow.visible = demoFlow;
+      this.flow.visible = demoFlow || (this.run.source !== 'illustrative' && this.mode === 'airflow');
       const destination = stage === 'intent' ? new THREE.Vector3(-3.4, 3.1, 6.7) : new THREE.Vector3(3.6, 2.5, 5.7);
       this.controls.target.set(.15, .8, 0);
       if (this.reduced) this.camera.position.copy(destination); else this.cameraDestination = destination;
@@ -304,10 +304,10 @@ export class FlowScene {
     }
     if (this.mode === 'mesh') { this.wire.geometry.dispose(); this.wire.geometry = new THREE.WireframeGeometry(this.geometry); }
   }
-  setMode(mode: ViewMode) { this.mode = mode; this.wire.visible = mode === 'mesh'; this.arrows.visible = mode === 'sensitivity'; this.flow.visible = mode === 'airflow' && this.run.source === 'illustrative'; this.material.roughness = mode === 'airflow' ? .3 : .7; this.material.metalness = mode === 'airflow' ? .52 : .1; this.material.clearcoat = mode === 'airflow' ? .8 : 0; this.material.envMapIntensity = mode === 'airflow' ? 1 : .2; this.renderer.toneMappingExposure = mode === 'airflow' ? 1 : .7;
+  setMode(mode: ViewMode) { if(this.run.source === 'geometry-preview' && !['airflow','mesh'].includes(mode)) return; this.mode = mode; this.wire.visible = mode === 'mesh'; this.arrows.visible = mode === 'sensitivity'; this.flow.visible = mode === 'airflow'; this.material.roughness = mode === 'airflow' ? .3 : .7; this.material.metalness = mode === 'airflow' ? .52 : .1; this.material.clearcoat = mode === 'airflow' ? .8 : 0; this.material.envMapIntensity = mode === 'airflow' ? 1 : .2; this.renderer.toneMappingExposure = mode === 'airflow' ? 1 : .7;
     if (this.vehicle) { this.surfaceMesh.visible = mode !== 'airflow'; this.vehicle.exterior.forEach(p => p.mesh.visible = mode === 'airflow'); }
     this.updateSurface(); }
-  setBlend(value: number) { this.target = value; if (this.story === 'result') this.flowTarget = value; if (this.story === 'result' || this.story === 'candidate') this.rearMarker.visible = value > 0; if (this.reduced) { this.blend = value; this.updateSurface(); } }
+  setBlend(value: number) { this.target = value; if (this.story === 'result' && this.run.source === 'illustrative') this.flowTarget = value; if (this.story === 'result' || this.story === 'candidate') this.rearMarker.visible = value > 0; if (this.reduced) { this.blend = value; this.updateSurface(); } }
   setMagnified(on: boolean) { this.magnification = on ? 24 : 1; this.updateSurface(); }
   setPaused(on: boolean) { this.paused = on; }
   setRun(run: SurfaceRun) { this.run = run; this.updateSurface(); }
