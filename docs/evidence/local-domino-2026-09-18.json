@@ -1,0 +1,491 @@
+{
+  "schemaVersion": "zephyr.surface.v2",
+  "runId": "local-656d4eb6c81d4c4881d37e05bb3dd168",
+  "source": "live",
+  "createdAt": "2026-09-18T08:31:01.695783+00:00",
+  "status": "comparison",
+  "coordinates": {
+    "units": "m",
+    "up": "+Y",
+    "streamwise": "+X",
+    "handedness": "right",
+    "fieldAssociation": "vertex",
+    "rotation": [
+      [
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        -1.0,
+        0.0
+      ]
+    ],
+    "upstreamOriginM": [
+      1.586641937494278,
+      0.0,
+      -0.31964099407196045
+    ],
+    "transform": "(upstream - origin) @ rotation.T"
+  },
+  "provenance": {
+    "artifactVersion": "domino-local-v1",
+    "modelVersion": "DoMINO.0.501.mdlus",
+    "checkpointSha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+    "bundle": [
+      {
+        "path": "DoMINO.0.501.mdlus",
+        "purpose": "Self-describing model architecture and weights",
+        "exists": true,
+        "nonempty": true,
+        "expected_sha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+        "actual_sha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+        "checksum_matches": true
+      },
+      {
+        "path": "scaling_factors.pkl",
+        "purpose": "Training-time field scaling used to recover physical units",
+        "exists": true,
+        "nonempty": true,
+        "expected_sha256": "895b876ab7a2f32b4c714e4eafc7b2e7d94029e037bfc2950cf8c6cb2a818c2d",
+        "actual_sha256": "895b876ab7a2f32b4c714e4eafc7b2e7d94029e037bfc2950cf8c6cb2a818c2d",
+        "checksum_matches": true
+      },
+      {
+        "path": "config.yaml",
+        "purpose": "Training-domain bounding boxes required by inference",
+        "exists": true,
+        "nonempty": true,
+        "expected_sha256": "43a3e7360e319b239d3d946aa04e3ac310dde1b20f7eb71be38943dd3bb27202",
+        "actual_sha256": "43a3e7360e319b239d3d946aa04e3ac310dde1b20f7eb71be38943dd3bb27202",
+        "checksum_matches": true
+      }
+    ],
+    "upstreamCommit": "0612ec4ed54484a47bfa134eda7b3b012a607624",
+    "workflowFilesSha256": {
+      "design_datapipe.py": "d70263e45ee0b7538b88453c0279f6231fe70e7178f81543f8ebea3ad7e89e65",
+      "main.py": "923a6380da888323255e544496a4b812f58903bca4b82dd7970f4f5f10fb5cd3",
+      "utilities\\download.py": "abd842fc22bcaf9389768c6244092b65d2386a97844071376421f7c05697bcb9",
+      "utilities\\mesh_postprocessing.py": "b828be45964f273ac4236653b9a0131fcc5d6fc1945c0ce38c2593cb0bc62369"
+    },
+    "meshHash": "fdade0e1a06daca1a9f7ed32585bb49f8968353c71a2a773aa57ee4656344fce",
+    "inputStlSha256": "411e6651284a26fc94924106b833fd79febc6deba63922c929dd8acfc99720d2",
+    "evidenceUrls": [
+      "/api/runs/local-656d4eb6c81d4c4881d37e05bb3dd168/evidence"
+    ],
+    "solver": null,
+    "reduction": {
+      "method": "VTK DecimatePro; preserve topology; retained original vertices",
+      "sourceVertices": 376531,
+      "sourceTriangles": 753234,
+      "displayVertices": 110339,
+      "displayTriangles": 220850,
+      "maximumRetainedPointErrorM": 0.0,
+      "mapSha256": "858e844675eef1b49ca86717df9b449c064fc137630a87915b9b70ae0fee5331",
+      "limitation": "Display approximation. Small features/extrema can be omitted; forces use every original cell."
+    },
+    "fieldTransfer": "Pressure/shear: area-weighted adjacent cells -> original points -> retained vertices. Sensitivity: upstream 20-step smoothed point field.",
+    "sensitivityConvention": "Upstream d(-Fx)/dX at geometry cell centroids; displayed smoothed normal projection, N/m. Drag D=Fx; the sensitivity ascends -drag.",
+    "forceConvention": "Upstream sum A*(p*n_inward - wallShear), n_inward=-VTK cell normal. Raw signed Fx > 0 on this sample; displayed drag D=Fx. Full source mesh, not reduced display mesh.",
+    "fullResolutionRanges": {
+      "pressurePa": [
+        -3222.1666645298124,
+        1266.2891144502564
+      ],
+      "normalSensitivity": [
+        -5.67563187384402,
+        9.132152994253431
+      ]
+    },
+    "gpu": "NVIDIA GeForce RTX 4070 Ti SUPER",
+    "candidateMeshHash": "3708eafcf9ca215ac19aa87b3af129f1336c56352cb0af53b758fb29a5f1f050",
+    "candidateFullResolutionRanges": {
+      "pressurePa": [
+        -3222.410823406747,
+        1266.2670328735453
+      ],
+      "normalSensitivity": [
+        -5.674806799118955,
+        9.131054663189932
+      ]
+    },
+    "peakCudaAllocatedBytes": 3127602176
+  },
+  "conditions": {
+    "streamVelocityMps": [
+      38.889,
+      0,
+      0
+    ],
+    "densityKgM3": 1.205
+  },
+  "forces": {
+    "baselineN": [
+      621.695556640625,
+      877.1947021484375,
+      -71.85599517822266
+    ],
+    "candidateN": [
+      621.8065795898438,
+      877.1492309570312,
+      -72.08576202392578
+    ],
+    "baselineDragN": 621.695556640625,
+    "candidateDragN": 621.8065795898438,
+    "predictedDragN": 621.6603176675345
+  },
+  "constraints": {
+    "maxDisplacementM": 0.0036,
+    "protectedRegion": "Front 82% including cabin; underbody below z=0.05 m upstream"
+  },
+  "trust": {
+    "decision": "refuse",
+    "calibrated": false,
+    "predictionErrorPercent": 415.05727744590854,
+    "reason": "Geometry checks shrank 3.600 to 0.450 mm. Fresh surrogate drag worsened; step refused."
+  },
+  "validation": {
+    "geometry": "incomplete",
+    "freshEvaluation": "passed",
+    "independentCfd": "not-run",
+    "evidenceIds": [
+      "local-656d4eb6c81d4c4881d37e05bb3dd168:baseline",
+      "local-656d4eb6c81d4c4881d37e05bb3dd168:candidate"
+    ],
+    "checks": {
+      "topology": {
+        "status": "passed"
+      },
+      "finite": {
+        "status": "passed"
+      },
+      "protected": {
+        "status": "passed",
+        "vertices": 340330
+      },
+      "bounds": {
+        "status": "passed",
+        "maximumM": 0.00044999999999995044
+      },
+      "normals": {
+        "status": "passed",
+        "minimumCosine": 0.9934742963410756
+      },
+      "triangleArea": {
+        "status": "passed",
+        "minimumRatio": 0.9680056336928063,
+        "maximumRatio": 1.0401943995384308
+      },
+      "watertight": {
+        "status": "passed",
+        "baselineOpenEdges": 0,
+        "candidateOpenEdges": 0
+      },
+      "symmetricHandle": {
+        "status": "passed",
+        "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+      },
+      "transition": {
+        "status": "passed",
+        "detail": "Quintic C2 transition; exactly zero on protected boundary."
+      },
+      "selfIntersection": {
+        "status": "not-run",
+        "detail": "Full triangle intersection audit unavailable; candidate cannot be accepted."
+      }
+    }
+  },
+  "timings": {
+    "baselineSeconds": 61.61698559999968,
+    "evaluateSeconds": 64.18967040000098,
+    "totalSeconds": 144.44244050000088
+  },
+  "handle": {
+    "handle": "rear-width-quintic-v1",
+    "definition": {
+      "rearStartXMetres": 3.0918182337284086,
+      "heightStartMetres": 0.05,
+      "heightTransitionMetres": 0.25,
+      "lateralNormalizationMetres": 0.662125480734039
+    },
+    "amplitudeM": 0.00045,
+    "smoothedProjectionNPerM": 25.773165165156712,
+    "predictedDragDeltaN": -0.03523897309047598,
+    "checks": {
+      "topology": {
+        "status": "passed"
+      },
+      "finite": {
+        "status": "passed"
+      },
+      "protected": {
+        "status": "passed",
+        "vertices": 340330
+      },
+      "bounds": {
+        "status": "passed",
+        "maximumM": 0.00044999999999995044
+      },
+      "normals": {
+        "status": "passed",
+        "minimumCosine": 0.9934742963410756
+      },
+      "triangleArea": {
+        "status": "passed",
+        "minimumRatio": 0.9680056336928063,
+        "maximumRatio": 1.0401943995384308
+      },
+      "watertight": {
+        "status": "passed",
+        "baselineOpenEdges": 0,
+        "candidateOpenEdges": 0
+      },
+      "symmetricHandle": {
+        "status": "passed",
+        "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+      },
+      "transition": {
+        "status": "passed",
+        "detail": "Quintic C2 transition; exactly zero on protected boundary."
+      },
+      "selfIntersection": {
+        "status": "not-run",
+        "detail": "Full triangle intersection audit unavailable; candidate cannot be accepted."
+      }
+    }
+  },
+  "attempts": [
+    {
+      "handle": "rear-width-quintic-v1",
+      "definition": {
+        "rearStartXMetres": 3.0918182337284086,
+        "heightStartMetres": 0.05,
+        "heightTransitionMetres": 0.25,
+        "lateralNormalizationMetres": 0.662125480734039
+      },
+      "amplitudeM": 0.0036,
+      "smoothedProjectionNPerM": 25.773165165156712,
+      "predictedDragDeltaN": -0.28191178472384926,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 340330
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0036000000000000476
+        },
+        "normals": {
+          "status": "failed",
+          "minimumCosine": 0.624734221533397
+        },
+        "triangleArea": {
+          "status": "failed",
+          "minimumRatio": 0.8104474658384274,
+          "maximumRatio": 1.325578826048196
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        },
+        "symmetricHandle": {
+          "status": "passed",
+          "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+        },
+        "transition": {
+          "status": "passed",
+          "detail": "Quintic C2 transition; exactly zero on protected boundary."
+        },
+        "selfIntersection": {
+          "status": "not-run",
+          "detail": "Full triangle intersection audit unavailable; candidate cannot be accepted."
+        }
+      }
+    },
+    {
+      "handle": "rear-width-quintic-v1",
+      "definition": {
+        "rearStartXMetres": 3.0918182337284086,
+        "heightStartMetres": 0.05,
+        "heightTransitionMetres": 0.25,
+        "lateralNormalizationMetres": 0.662125480734039
+      },
+      "amplitudeM": 0.0018,
+      "smoothedProjectionNPerM": 25.773165165156712,
+      "predictedDragDeltaN": -0.14095589236192463,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 340330
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0018000000000000238
+        },
+        "normals": {
+          "status": "failed",
+          "minimumCosine": 0.8879065185011825
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.893315834148363,
+          "maximumRatio": 1.1617603897220934
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        },
+        "symmetricHandle": {
+          "status": "passed",
+          "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+        },
+        "transition": {
+          "status": "passed",
+          "detail": "Quintic C2 transition; exactly zero on protected boundary."
+        },
+        "selfIntersection": {
+          "status": "not-run",
+          "detail": "Full triangle intersection audit unavailable; candidate cannot be accepted."
+        }
+      }
+    },
+    {
+      "handle": "rear-width-quintic-v1",
+      "definition": {
+        "rearStartXMetres": 3.0918182337284086,
+        "heightStartMetres": 0.05,
+        "heightTransitionMetres": 0.25,
+        "lateralNormalizationMetres": 0.662125480734039
+      },
+      "amplitudeM": 0.0009,
+      "smoothedProjectionNPerM": 25.773165165156712,
+      "predictedDragDeltaN": -0.07047794618096499,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 340330
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0009000000000000119
+        },
+        "normals": {
+          "status": "failed",
+          "minimumCosine": 0.9726843602849363
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9393519654854718,
+          "maximumRatio": 1.0805648757040265
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        },
+        "symmetricHandle": {
+          "status": "passed",
+          "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+        },
+        "transition": {
+          "status": "passed",
+          "detail": "Quintic C2 transition; exactly zero on protected boundary."
+        },
+        "selfIntersection": {
+          "status": "not-run",
+          "detail": "Full triangle intersection audit unavailable; candidate cannot be accepted."
+        }
+      }
+    },
+    {
+      "handle": "rear-width-quintic-v1",
+      "definition": {
+        "rearStartXMetres": 3.0918182337284086,
+        "heightStartMetres": 0.05,
+        "heightTransitionMetres": 0.25,
+        "lateralNormalizationMetres": 0.662125480734039
+      },
+      "amplitudeM": 0.00045,
+      "smoothedProjectionNPerM": 25.773165165156712,
+      "predictedDragDeltaN": -0.03523897309047598,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 340330
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.00044999999999995044
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9934742963410756
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9680056336928063,
+          "maximumRatio": 1.0401943995384308
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        },
+        "symmetricHandle": {
+          "status": "passed",
+          "detail": "x,z unchanged; odd lateral displacement about y=0. Input asymmetry is preserved."
+        },
+        "transition": {
+          "status": "passed",
+          "detail": "Quintic C2 transition; exactly zero on protected boundary."
+        },
+        "selfIntersection": {
+          "status": "not-run",
+          "detail": "Full triangle intersection audit unavailable; candidate cannot be accepted."
+        }
+      }
+    }
+  ],
+  "artifacts": {
+    "baseline.vtk": {
+      "sha256": "5a6fccf0a613bd4d32e67241637ad13d20bdb7a819ab6e225976474505e8c576",
+      "bytes": 106956198
+    },
+    "evaluate.vtk": {
+      "sha256": "37996c82fb90a8e042aa2eae99b0a2ce03fb0ef2981e6adff71052312c9ccf1c",
+      "bytes": 111474571
+    }
+  }
+}
