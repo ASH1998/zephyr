@@ -24,11 +24,16 @@ def write_json(path, data):
 def execute(job_dir):
     started = time.perf_counter()
     request = json.loads((job_dir / 'request.json').read_text())
+    handle_id = request.get('intent', {}).get('graph', {}).get('handle', 'rear-width-quintic-v1')
     os.environ['WARP_CACHE_PATH'] = str(ROOT.parent / '.cache/warp')
     os.environ['LOCAL_CACHE'] = str(ROOT.parent / '.cache/physicsnemo')
     sys.path[:0] = [str(ROOT / 'scripts/windows_compat'), str(WORKFLOW)]
     emit('loading', 'Verifying pinned workflow and checkpoint bundle')
     from zephyr.artifacts import validate_bundle, bundle_ready, _file_sha256
+    # Freeze source identity before a long GPU evaluation; later local edits
+    # must not be attributed to code already loaded by this worker process.
+    numerics_sha256 = {name: _file_sha256(Path(__file__).with_name(name)) for name in
+        ('worker.py', 'sensitivity.py', 'forward.py', 'trust.py', 'geometry.py', 'intersections.py', 'compatibility.py')}
     import subprocess
     pin = json.loads((ROOT / 'config/upstream-lock.json').read_text())['physicsnemo_cfd']['commit']
     actual = subprocess.check_output(['git', '-C', str(WORKFLOW), 'rev-parse', 'HEAD'], text=True).strip()
@@ -80,6 +85,10 @@ def execute(job_dir):
     def evaluate(target, name):
         nonlocal phase
         phase = name
+        from zephyr.local.compatibility import check_surface_input
+        compatibility = check_surface_input(target, OmegaConf.to_container(training.data.bounding_box_surface), experimental=selected['experimental'])
+        if name == 'baseline':
+            profiles['modelCompatibility'] = compatibility
         t = time.perf_counter()
         emit(name, 'Building geometry stencils and CUDA signed-distance inputs')
         if name == 'repeat' or name.startswith('probe-'):
@@ -109,7 +118,7 @@ def execute(job_dir):
         raise ValueError('Sample force convention changed: expected positive upstream Fx')
     emit('converting', 'Reducing display geometry; preserving full-resolution force evidence')
     ids, triangles, reduction = display_mapping(mesh)
-    _, protected, _ = rear_basis(mesh.points)
+    _, protected, definition = rear_basis(mesh.points, handle_id)
     origin = np.array([(mesh.bounds[0] + mesh.bounds[1]) / 2, 0, mesh.bounds[4]])
     baseline, ranges = surface(mesh, ids, triangles, protected, origin)
     run_id = job_dir.name
@@ -121,7 +130,7 @@ def execute(job_dir):
         'provenance': {'artifactVersion': 'domino-local-v1', 'modelVersion': 'DoMINO.0.501.mdlus',
             'sensitivityAdapter': ADAPTER_VERSION,
             'probeForwardAdapter': FORWARD_VERSION,
-            'localNumericsSha256': {name: _file_sha256(Path(__file__).with_name(name)) for name in ('worker.py', 'sensitivity.py', 'forward.py', 'trust.py', 'geometry.py', 'intersections.py')},
+            'localNumericsSha256': numerics_sha256,
             'checkpointSha256': checks[0].actual_sha256, 'bundle': [c.to_dict() for c in checks], 'upstreamCommit': pin,
             'workflowFilesSha256': {str(p.relative_to(WORKFLOW)): _file_sha256(p) for p in sorted(WORKFLOW.rglob('*.py'))},
             'meshHash': mesh_hash(mesh), 'inputGeometrySha256': _file_sha256(input_path),'inputGeometryFormat':input_path.suffix,
@@ -133,7 +142,8 @@ def execute(job_dir):
         'conditions': {'streamVelocityMps': [38.889, 0, 0], 'densityKgM3': 1.205},
         'baseline': baseline, 'candidate': None,
         'forces': {'baselineN': (force @ ROTATION.T).tolist(), 'candidateN': None, 'baselineDragN': float(force[0]), 'candidateDragN': None, 'predictedDragN': None},
-        'constraints': {'maxDisplacementM': request['budgetMm'] / 1000, 'protectedRegion': 'Front 82% including cabin; underbody below z=0.05 m upstream'},
+        'constraints': {'maxDisplacementM': request['budgetMm'] / 1000, 'protectedRegion': definition.get('protection', 'Legacy rear tool: front 82% and lower surface fixed'), 'handle': handle_id, 'definition': definition},
+        'modelCompatibility': profiles['modelCompatibility'],
         'trust': {'decision': 'refuse', 'calibrated': False, 'predictionErrorPercent': None, 'reason': 'Analysis only; no candidate evaluated'},
         'validation': {'geometry': 'not-run', 'freshEvaluation': 'not-run', 'independentCfd': 'not-run', 'evidenceIds': [run_id + ':baseline'], 'checks': {}},
         'timings': timings, 'surfaceProfiles': profiles}
@@ -142,18 +152,18 @@ def execute(job_dir):
     write_json(job_dir / 'baseline.json', payload)
     emit('baseline-ready', 'Real baseline fields ready', artifact='baseline')
     if request['mode'] == 'iteration':
-        emit('calibration', 'Checking repeatability and two scales of positive/negative rear-width probes')
-        calibration = calibrate_handle(mesh, float(force[0]), request['budgetMm'] / 1000, evaluate)
+        emit('calibration', 'Checking repeatability and two scales of positive/negative ' + handle_id + ' probes')
+        calibration = calibrate_handle(mesh, float(force[0]), request['budgetMm'] / 1000, evaluate, handle_id)
         calibration.update(runId=run_id, meshHash=mesh_hash(mesh), checkpointSha256=checks[0].actual_sha256,
                            upstreamCommit=pin, sensitivityAdapter=ADAPTER_VERSION,
-                           conditions=payload['conditions'], handle='rear-width-quintic-v1')
+                           conditions=payload['conditions'], handle=handle_id)
         payload['calibration'] = calibration
         write_json(job_dir / 'calibration.json', calibration)
-        emit('candidate', 'Using the measured full-pipeline slope for a separate bounded rear-width trial')
+        emit('candidate', 'Testing the selected body region using its measured full-pipeline slope')
         attempts = []
         for factor in (1, .5, .25, .125, .0625):
             candidate, protected, handle = propose(mesh, request['budgetMm'] / 1000 * factor,
-                                                   slope_n_per_m=calibration.get('slopeNPerM'))
+                                                   slope_n_per_m=calibration.get('slopeNPerM'), handle=handle_id)
             attempts.append(handle)
             invalid = any(v['status'] == 'failed' for v in handle['checks'].values())
             if not invalid:

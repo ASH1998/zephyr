@@ -26,7 +26,7 @@ for name in ('baseline.vtk', 'evaluate.vtk'):
     assert _file_sha256(directory / name) == evidence['artifacts'][name]['sha256']
 assert mesh_hash(baseline) == evidence['provenance']['meshHash']
 assert mesh_hash(candidate) == evidence['provenance']['candidateMeshHash']
-_, protected, _ = rear_basis(baseline.points)
+_, protected, _ = rear_basis(baseline.points, evidence['handle']['handle'])
 checks = validate_geometry(baseline, candidate, protected, evidence['constraints']['maxDisplacementM'])
 assert all(c['status'] == 'passed' for c in checks.values()), checks
 audits = {'baseline': audit_intersections(baseline), 'candidate': audit_intersections(candidate)}

@@ -17,6 +17,7 @@ from uuid import uuid4
 from zephyr.copilot import Copilot, CopilotBusy, canonical_request
 from zephyr.token_factory import TokenFactoryError
 from zephyr.local.cars import CARS, IDS
+from zephyr.local.geometry import HANDLES, BODY_HANDLES, COMPARISONS
 
 ROOT = Path(__file__).resolve().parents[3]
 TERMINAL = {'complete', 'failed', 'cancelled'}
@@ -46,6 +47,24 @@ class BusyError(Exception):
     pass
 
 
+def preset_plan(data):
+    """Explicit region selection, no language call and no arbitrary brief interpretation."""
+    if not isinstance(data, dict) or set(data) != {'geometryId', 'budgetMm', 'handle'}:
+        raise ValueError('Choose a geometry, budget and body-region preset')
+    handle = data['handle']
+    if not isinstance(handle, str) or handle not in (*HANDLES, *COMPARISONS):
+        raise ValueError('Unknown body-region preset')
+    mode = 'exploration'
+    label = HANDLES.get(handle, 'Compare body regions' if handle == 'compare-body-regions' else 'Compare rear tapers')
+    request = canonical_request({'geometryId': data['geometryId'], 'budgetMm': data['budgetMm'],
+        'mode': mode, 'brief': f'Reduce drag using {label.lower()}. Keep the cabin unchanged.'})
+    plan = {'schemaVersion': 'zephyr.intent.v2', 'intentId': 'intent-' + uuid4().hex, 'request': request,
+        'graph': {'status': 'ready', 'handle': handle, 'message': label, 'effectiveBudgetMm': request['budgetMm'],
+            'cabinDisplacementMm': 0, 'topology': 'fixed', 'evidenceQuotes': [request['brief']]},
+        'provenance': {'model': 'deterministic-region-preset', 'seconds': 0, 'source': 'user-selected-preset'}}
+    return {**request, 'intent': plan}
+
+
 class Jobs:
     def __init__(self, root=None, command=None):
         self.root = root or ROOT / '.local/runs'
@@ -56,6 +75,8 @@ class Jobs:
         self.active = None
         self.process = None
         self.file_lock = None
+        from zephyr.local.studies import Studies
+        self.studies = Studies(self)
 
     def _acquire_gpu(self):
         from zephyr.local.locks import acquire_lock
@@ -64,11 +85,15 @@ class Jobs:
         except OSError as exc:
             raise BusyError('Another local service owns the GPU job lock') from exc
 
-    def start(self, request, *, intent=None):
+    def start(self, request, *, intent=None, study_id=None):
         request = validate_request(request, compiled=intent is not None)
+        if request['mode'] == 'exploration':
+            raise ValueError('Use the exploration endpoint for multi-candidate work')
         if intent is not None:
             request['intent'] = intent
         with self.lock:
+            if self.studies.current and study_id != self.studies.current:
+                raise BusyError('An exploration owns the GPU queue; wait or cancel it')
             if self.active is not None:
                 raise BusyError('One GPU job is already active; wait or cancel it')
             self._acquire_gpu()
@@ -80,7 +105,7 @@ class Jobs:
             except Exception:
                 self.file_lock.close(); self.file_lock = None
                 raise
-            job = {'runId': run_id, 'source': 'live', 'state': 'running', 'stage': 'queued', 'detail': 'Worker starting',
+            job = {'runId': run_id, 'geometryId': request['geometryId'], 'source': 'live', 'state': 'running', 'stage': 'queued', 'detail': 'Worker starting',
                 'sequence': 0, 'events': [], 'baselineReady': False, 'resultReady': False,
                 'createdAt': datetime.now(timezone.utc).isoformat()}
             self.jobs[run_id] = job
@@ -162,7 +187,7 @@ class Jobs:
                     if not isinstance(evidence, dict) or evidence.get('runId') != run_id or evidence.get('schemaVersion') != 'zephyr.surface.v2' or not (directory / 'result.json').is_file():
                         raise KeyError(run_id)
                     detail = evidence['trust']['reason']
-                    job = {'runId':run_id,'source':'live','state':'complete','stage':'complete','detail':detail,
+                    job = {'runId':run_id,'geometryId':evidence.get('geometryId'),'source':'live','state':'complete','stage':'complete','detail':detail,
                         'sequence':0,'events':[],'baselineReady':(directory/'baseline.json').is_file(),
                         'resultReady':True,'createdAt':evidence['createdAt'],'restored':True}
                     self._event(job, {'stage':'complete','detail':detail})
@@ -187,6 +212,8 @@ class Jobs:
             return self.snapshot(run_id)
 
     def close(self):
+        if self.studies.current:
+            self.studies.cancel(self.studies.current)
         with self.lock:
             active, process = self.active, self.process
         if active:
@@ -226,7 +253,17 @@ def handler_for(jobs, copilot=None):
                 return self.respond(200, {'service': 'zephyr-local', 'activeRunId': jobs.active, 'geometryId': 'drivaer-1', 'copilot': copilot.status() if copilot else {'enabled': False}})
             if path == '/api/geometries':
                 return self.respond(200, {'cars':CARS})
-            match = re.fullmatch(r'/api/runs/(local-[0-9a-f]{32})(?:/(baseline|result|evidence|explanation|summary))?', path)
+            if path == '/api/body-regions':
+                return self.respond(200, {'handles': [{'id': h, 'label': label, 'bodySearch': h in BODY_HANDLES} for h, label in HANDLES.items()],
+                    'comparisons': {k: list(v) for k, v in COMPARISONS.items()}, 'maximumBudgetMm': 4})
+            if path == '/api/runs':
+                from zephyr.local.studies import run_history
+                return self.respond(200, {'runs':run_history(jobs.root)})
+            study_match = re.fullmatch(r'/api/studies/(study-[0-9a-f]{32})',path)
+            if study_match:
+                try: return self.respond(200,jobs.studies.get(study_match[1]))
+                except KeyError: return self.respond(404,{'error':'Unknown exploration'})
+            match = re.fullmatch(r'/api/runs/(local-[0-9a-f]{32})(?:/(baseline|result|evidence|explanation|summary|candidate.zip))?', path)
             if not match:
                 return self.respond(404, {'error': 'Not found'})
             run_id, artifact = match.groups()
@@ -240,6 +277,14 @@ def handler_for(jobs, copilot=None):
                     from zephyr.run_answers import summarize_run
                     evidence = json.loads((jobs.root / run_id / 'evidence.json').read_text(encoding='utf-8'))
                     return self.respond(200, summarize_run(evidence))
+                if artifact == 'candidate.zip':
+                    from zephyr.local.exports import candidate_bundle
+                    try: body = candidate_bundle(jobs.root/run_id)
+                    except (ValueError,OSError): return self.respond(409,{'error':'No verified candidate export available'})
+                    self.send_response(200);self.send_header('Content-Type','application/zip')
+                    self.send_header('Content-Disposition',f'attachment; filename="{run_id}-candidate.zip"')
+                    self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body)
+                    return
                 if artifact == 'explanation':
                     explanation = copilot.explanations.get(run_id) if copilot else None
                     return self.respond(200, explanation) if explanation else self.respond(404, {'error': 'No explanation generated yet'})
@@ -259,10 +304,25 @@ def handler_for(jobs, copilot=None):
                 if not 0 < length <= 2048:
                     return self.respond(413, {'error': 'Request must be 1..2048 bytes'})
                 data = json.loads(self.rfile.read(length))
+                if self.path == '/api/preset-runs':
+                    authorized = preset_plan(data)
+                    if authorized['mode'] == 'exploration':
+                        return self.respond(202, jobs.studies.start(authorized))
+                    intent = authorized.pop('intent')
+                    return self.respond(202, jobs.start(authorized, intent=intent))
                 if self.path == '/api/intent':
                     if not copilot:
                         return self.respond(503, {'error': 'Start the API with --enable-llm to interpret briefs'})
                     return self.respond(200, copilot.compile(data))
+                if self.path == '/api/studies':
+                    if not copilot: return self.respond(503,{'error':'Enable the copilot to compile an exploration'})
+                    if not isinstance(data,dict): raise ValueError('Expected an exploration request')
+                    intent_id=data.pop('intentId',None)
+                    return self.respond(202,jobs.studies.start(copilot.authorize(intent_id,data)))
+                study_match=re.fullmatch(r'/api/studies/(study-[0-9a-f]{32})/cancel',self.path)
+                if study_match:
+                    if data!={}: raise ValueError('Cancellation body must be empty')
+                    return self.respond(200,jobs.studies.cancel(study_match[1]))
                 if self.path == '/api/runs':
                     # A baseline measures an allowlisted aircraft without any design intent.
                     # The ordinary validator still enforces exact fields and analysis-only mode.

@@ -15,7 +15,7 @@ POLICY = {'slopeRelativeTolerance': .20, 'centeringRelativeTolerance': .20, 'can
           'minimumSignalToNoise': 5., 'float32EpsilonMultiplier': 32.}
 
 
-def calibrate_handle(mesh, baseline_drag, budget_m, evaluate):
+def calibrate_handle(mesh, baseline_drag, budget_m, evaluate, handle='rear-width-quintic-v1'):
     """Evaluate +/-h, +/-h/2 and a baseline repeat before choosing the step."""
     h = min(budget_m / 2, .001)
     samples = []
@@ -25,7 +25,7 @@ def calibrate_handle(mesh, baseline_drag, budget_m, evaluate):
     for _ in range(7):
         safe = True
         for amplitude in (h, -h, h / 2, -h / 2):
-            trial, protected, _ = deform(mesh, amplitude, budget_m)
+            trial, protected, _ = deform(mesh, amplitude, budget_m, handle)
             checks = validate_geometry(mesh, trial, protected, budget_m)
             failed = {k: v for k, v in checks.items() if v['status'] != 'passed'}
             if failed:
@@ -40,7 +40,7 @@ def calibrate_handle(mesh, baseline_drag, budget_m, evaluate):
                 'samples': samples, 'radiusAttempts': radius_attempts}
     repeated = float(evaluate(mesh.copy(deep=True), 'repeat')[0])
     for amplitude in (h, -h, h / 2, -h / 2):
-        trial, protected, _ = deform(mesh, amplitude, budget_m)
+        trial, protected, _ = deform(mesh, amplitude, budget_m, handle)
         checks = validate_geometry(mesh, trial, protected, budget_m)
         if any(v['status'] != 'passed' for v in checks.values()):
             return {'status': 'failed', 'reason': 'A finite-difference probe failed geometry checks',

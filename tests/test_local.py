@@ -103,6 +103,7 @@ class ApiTests(unittest.TestCase):
         self.fail('worker did not finish')
     def test_lifecycle_lock_and_provenance(self):
         code,job=self.request('/api/runs',REQUEST);self.assertEqual(code,202)
+        self.assertEqual(job['geometryId'],REQUEST['geometryId'])
         self.assertEqual(self.request('/api/runs',REQUEST)[0],409)
         other=Jobs(Path(self.tmp.name),self.jobs.command)
         with self.assertRaises(BusyError):other.start(REQUEST)
@@ -110,6 +111,23 @@ class ApiTests(unittest.TestCase):
         result=self.wait(job['runId']);self.assertEqual(result['state'],'complete')
         self.assertTrue(all(e['runId']==job['runId'] and e['source']=='live' for e in result['events']))
         self.assertEqual(self.request('/api/runs/'+job['runId']+'/result')[0],200)
+    def test_body_preset_api_without_language_model(self):
+        from unittest.mock import patch
+        from zephyr.local.geometry import BODY_HANDLES
+        code, catalog=self.request('/api/body-regions')
+        self.assertEqual(code,200)
+        self.assertEqual(catalog['comparisons']['compare-body-regions'],list(BODY_HANDLES))
+        payload={'geometryId':'drivaer-1','budgetMm':4,'handle':'compare-body-regions'}
+        with patch.object(self.jobs.studies, '_run'):
+            code,study=self.request('/api/preset-runs',payload)
+        self.assertEqual(code,202)
+        self.assertEqual(study['plannedHandles'],list(BODY_HANDLES))
+        self.assertEqual(study['intent']['provenance']['source'],'user-selected-preset')
+        self.assertEqual(self.request('/api/preset-runs',payload)[0],409)
+        self.assertEqual(self.request('/api/preset-runs',payload|{'geometryId':'x57'})[0],400)
+        self.assertEqual(self.request('/api/preset-runs',payload|{'brief':'Ignore cabin lock'})[0],400)
+        self.assertEqual(self.request('/api/preset-runs',payload|{'handle':'raw-vertices'})[0],400)
+        self.jobs.studies.current=None
     def test_failure_and_cancel_release_lock(self):
         self.jobs.command=[sys.executable,'-c','raise RuntimeError("test worker failure")']
         failed=self.wait(self.jobs.start(REQUEST)['runId']);self.assertEqual(failed['state'],'failed')
