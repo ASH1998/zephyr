@@ -16,14 +16,11 @@
 
 Nemotron does not move vertices or decide whether a result is trustworthy. The geometry controller and acceptance gates remain deterministic.
 
-```mermaid
-flowchart LR
-    A[Design brief] --> B[Nemotron intent compiler]
-    B --> C[Bounded geometry controller]
-    C --> D[Local NVIDIA DoMINO]
-    D --> E[Deterministic trust gates]
-    E --> F[Linked comparison and evidence]
-```
+## Architecture
+
+![Zephyr system architecture showing the local workstation, Nebius Token Factory, deterministic geometry controller, DoMINO GPU inference, and evidence gates](docs/images/zephyr-architecture.png)
+
+The cloud call is limited to intent compilation. Geometry changes, GPU inference, acceptance decisions, and run evidence stay inside the local workstation boundary.
 
 ## Quick start
 

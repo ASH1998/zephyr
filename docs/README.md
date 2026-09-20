@@ -5,6 +5,7 @@ This index separates setup, product behavior, and evidence so the project can be
 ## Start here
 
 - [Clean installation](INSTALL.md) — prerequisites, environment setup, model assets, launch commands, verification, and troubleshooting.
+- [System architecture](ARCHITECTURE.md) — runtime components, data flow, and local/cloud trust boundaries.
 - [Real local DoMINO integration](LOCAL_DOMINO.md) — runtime architecture, safety boundaries, artifacts, and scientific limits.
 - [Cars, aircraft, and airflow](CARS_AND_AIRFLOW.md) — geometry sources, rendering, volume prediction, and the aircraft boundary.
 - [Nemotron interface](LLM_INTERFACE.md) — brief compilation, run Q&A, API behavior, and recorded smoke evidence.
