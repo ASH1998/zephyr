@@ -1,98 +1,76 @@
 # Zephyr
 
-**Shape the flow.**
+**Shape the flow.** Zephyr is an evidence-first aerodynamic design workspace that turns a plain-language vehicle brief into a bounded geometry study, runs NVIDIA DoMINO locally, and keeps the result tied to reproducible evidence.
 
-Zephyr helps engineers reshape vehicles for lower drag—with AI-guided changes and simulation-backed proof.
+![Zephyr widescreen workspace showing the NASA Global Hawk and illustrated wingtip vortices](docs/images/zephyr-global-hawk.png)
 
-The local application runs NVIDIA DoMINO surface and volume models, displays seven cars and two aircraft, and provides linked original/changed comparison, a brief copilot and result Q&A. Local acceptance and [runtime checks](docs/RUNTIME_CHECKS.md) record both passing and refused steps; independent physical validation remains pending. See the [current project plan](PROJECT_PLAN.md) and [progress tracker](progress.md) for evidence and next steps.
+*Current widescreen aircraft workspace. Aircraft flow is experimental; the orange vortices are an explanatory illustration, not a flight-performance result.*
 
-## Live local GPU application
+## What it does
 
-The default frontend now starts real DoMINO jobs on the local NVIDIA GPU and
-renders the returned surface fields. It can generate, shrink and freshly evaluate
-one bounded rear-width candidate; acceptance remains refused pending trust and
-intersection validation. See [local launch and limits](docs/LOCAL_DOMINO.md) and
-[browser smoke evidence](docs/LOCAL_DOMINO_SMOKE.md). The illustrative walkthrough
-remains available at `?demo=1`. The [main-interface copilot](docs/LLM_INTERFACE.md)
-uses the configured model to compile briefs and rank measured evidence; start
-the API with `--enable-llm` to opt in to these model calls.
+- Explore seven cars and two NASA aircraft in one linked 3D workspace.
+- Use `nvidia/Nemotron-3-Ultra-550b-a55b` through Nebius Token Factory to compile supported design intent and explain recorded evidence.
+- Keep geometry changes deterministic, fixed-topology, protected-region aware, and capped at 4 mm.
+- Run the open NVIDIA DoMINO `.mdlus` checkpoints on a local CUDA GPU for surface and volume predictions.
+- Compare original and candidate fields while preserving hashes, constraints, timings, and refusal reasons.
 
-## Day-0 capability probe
+Nemotron does not move vertices or decide whether a result is trustworthy. The geometry controller and acceptance gates remain deterministic.
 
-The initial scaffold checks, without starting GPU infrastructure:
-
-- whether Nebius credentials and an AI project ID are configured, without printing either value;
-- which models the authenticated Token Factory account actually exposes;
-- whether a chosen Nemotron model can return Zephyr's strict constraint schema;
-- whether the exact DoMINO checkpoint bundle is complete;
-- whether evidence can be written as a sanitized JSON report.
-
-The official Token Factory API is OpenAI-compatible at `https://api.tokenfactory.nebius.com/v1`. Model names are discovered live and are never guessed in code.
+```mermaid
+flowchart LR
+    A[Design brief] --> B[Nemotron intent compiler]
+    B --> C[Bounded geometry controller]
+    C --> D[Local NVIDIA DoMINO]
+    D --> E[Deterministic trust gates]
+    E --> F[Linked comparison and evidence]
+```
 
 ## Quick start
 
+The validated path is native Windows with an NVIDIA CUDA GPU, Python 3.12, Node.js 22, Git, PowerShell, and `uv`.
+
 ```powershell
-uv venv
-uv pip install -e .
+git clone https://github.com/ASH1998/zephyr.git
+cd zephyr
+.\scripts\setup-domino-windows.ps1
+npm --prefix frontend ci
 Copy-Item .env.example .env
 ```
 
-Load the environment variables using your preferred secret manager. Do not commit `.env`.
-
-Run the safe local probe:
+Start the backend and frontend in separate PowerShell terminals:
 
 ```powershell
-zephyr-day0
+& ..\.venv\Scripts\python.exe -m zephyr.local.server --enable-llm --port 8766
 ```
-
-Run the authenticated model catalog probe explicitly:
 
 ```powershell
-zephyr-day0 --live-models --output build/evidence/day0.json
+npm --prefix frontend run dev
 ```
 
-After selecting a real Nemotron model ID from that report, test structured constraint compilation:
+Open <http://127.0.0.1:5173>. Leave off `--enable-llm` for a fully local run with the explicit supported preset.
 
-```powershell
-zephyr-day0 --live-models --structured-model $env:ZEPHYR_NEMOTRON_MODEL --output build/evidence/day0.json
-```
+See the [clean installation guide](docs/INSTALL.md) for prerequisites, model assets, the complete vehicle catalog, verification, and troubleshooting.
 
-Run the test suite in the prepared local model environment:
+## Evidence status
 
-```powershell
-python -m unittest discover -s tests -v
-```
+- The native Windows DoMINO capability gate passes on the recorded test system.
+- The Nemotron runtime path is verified for live structured brief compilation and evidence-bound Q&A.
+- The latest recorded regression run reports 57 Python tests, 41 frontend tests, and the production build passing.
+- Accepted means **accepted for further evaluation**, not validated aerodynamics. Independent CFD, physical error bounds, and a transferable trust radius remain pending.
+- Aircraft use a car-trained model and support experimental baseline analysis only; they do not support shape iteration.
 
-## Repository shape
+The detailed status and limitations live in [progress.md](progress.md), [acceptance checks](docs/ACCEPTANCE_CHECKS.md), and [runtime checks](docs/RUNTIME_CHECKS.md).
 
-```text
-config/                    Expected artifact manifest
-docs/                      Gate procedures and evidence contract
-src/zephyr/                Probe and application code
-tests/                     Offline contract tests
-PROJECT_PLAN.md            Current product direction and milestones
-progress.md                Verified work, test evidence and next-task checklist
-```
+## Documentation
 
-## Source contracts
+Start at the [documentation index](docs/README.md). Key guides:
 
-- [Nebius Token Factory model-list API](https://docs.tokenfactory.nebius.com/api-reference/models/list-models)
-- [Nebius structured output](https://docs.tokenfactory.nebius.com/ai-models-inference/json)
-- [NVIDIA DoMINO sensitivity workflow](https://github.com/NVIDIA/physicsnemo-cfd/tree/main/workflows/domino_design_sensitivities)
-- [NVIDIA DrivAerML checkpoint bundle](https://huggingface.co/nvidia/domino_drivaerml/tree/main/domino_drivaerml_surface_checkpoint)
+- [Installation](docs/INSTALL.md)
+- [Local DoMINO runtime](docs/LOCAL_DOMINO.md)
+- [Cars, aircraft, and airflow](docs/CARS_AND_AIRFLOW.md)
+- [Nemotron interface](docs/LLM_INTERFACE.md)
+- [60-second demo](docs/DEMO_60_SECONDS.md)
 
-NVIDIA PhysicsNeMo-CFD is locked in `config/upstream-lock.json`; builds must use that commit rather than floating `main` until the lock is deliberately reviewed and updated.
+## License
 
-## Status
-
-The native-Windows DoMINO capability gate now passes on the development RTX
-4070 Ti SUPER. The pinned checkpoint completed surface inference, drag
-integration, autograd sensitivity, smoothing, and VTK export on NVIDIA's
-official DrivAer sample. See [docs/WINDOWS_DOMINO_GATE.md](docs/WINDOWS_DOMINO_GATE.md)
-and reproduce it with `scripts/setup-domino-windows.ps1` followed by
-`scripts/run-domino-windows.ps1`.
-
-No cloud GPU endpoint has been launched. Configured Token Factory model calls
-are available through the explicitly enabled local copilot.
-The successful sample is runtime evidence, not independent aerodynamic
-validation.
+Zephyr source code is available under the [Apache License 2.0](LICENSE). Third-party models, datasets, and visual assets retain their upstream licenses; see [vehicle credits](frontend/public/models/VEHICLE_CREDITS.md) and the pinned artifact manifests before redistribution.

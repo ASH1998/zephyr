@@ -1,5 +1,16 @@
 # Zephyr progress
 
+## 2026-09-20 — Nemotron runtime verified
+
+- Verified `nvidia/Nemotron-3-Ultra-550b-a55b` in the authenticated Nebius
+  Token Factory catalog and exercised live structured brief compilation and
+  evidence-bound run Q&A.
+- Sanitized runtime evidence is recorded in
+  [`docs/evidence/nemotron-final.json`](docs/evidence/nemotron-final.json).
+  Fifteen of sixteen exact evaluation checks passed; the remaining response was
+  evidence-grounded but missed one expected comparison label. This verifies the
+  runtime path without claiming a perfect evaluation score.
+
 ## 2026-09-20 — visible computation and idle GPU fix
 
 - Added a labeled illustrative activity scan, replaced by actual baseline fields
@@ -82,7 +93,7 @@ The archived plan is research history; the root plan controls current priorities
 |---|---|---|
 | D01 | Native Windows NVIDIA surface inference on local RTX 4070 Ti SUPER | `docs/WINDOWS_DOMINO_GATE.md`; `docs/evidence/local-domino-2026-09-18.json` |
 | D02 | Strict local job API, original/candidate artifacts, polling, cancellation, fixed topology and bounded rear taper | `src/zephyr/local/server.py`, `worker.py`, `tests/test_local.py` |
-| D03 | GLM brief compilation, server-owned intent binding, quote grounding and combined brief/slider ceiling | `src/zephyr/copilot.py`; `docs/LLM_INTERFACE.md` |
+| D03 | Nemotron brief compilation, server-owned intent binding, quote grounding and combined brief/slider ceiling | `src/zephyr/copilot.py`; `docs/LLM_INTERFACE.md` |
 | D04 | Readable result summary and evidence-bound Q&A with follow-ups | `frontend/src/run-assistant.ts`; `src/zephyr/run_answers.py`; corresponding tests |
 | D05 | Five-stage progress, actual batch counts, elapsed time, Change-view replay and labeled 120× enlargement | `frontend/src/run-progress.ts`, `live.ts`; frontend tests |
 | D06 | Seven cars and two aircraft, detailed GLBs, simplified inference geometry, credits and pinned sources | `src/zephyr/local/cars.py`; `frontend/public/models/VEHICLE_CREDITS.md` |
@@ -95,7 +106,7 @@ The archived plan is research history; the root plan controls current priorities
 | D13 | Linked Original / Changed comparison and presentation regression | Completed N01–N08 below; `docs/evidence/presentation-2026-09-19/` |
 | D14 | Batch-gradient correction, fresh normals and geometry-safe full-pipeline probes | `src/zephyr/local/sensitivity.py`, `trust.py`; `tests/test_acceptance.py` |
 | D15 | Exact-predicate intersection audit and scoped local acceptance | `src/zephyr/local/intersections.py`; final sedan/hatchback evidence in `docs/evidence/acceptance-2026-09-19/` |
-| D16 | 79 automated tests, production build, real acceptance/refusal and GLM explanation checks | Acceptance-hardening entry below; `docs/ACCEPTANCE_CHECKS.md` |
+| D16 | 79 automated tests, production build, real acceptance/refusal and model explanation checks | Acceptance-hardening entry below; `docs/ACCEPTANCE_CHECKS.md` |
 | D17 | Presentation and acceptance changes committed and pushed | `85f5ec51703898421f266bc55d45bdf15551cbd6`, `origin/main` |
 
 ## Recorded GPU evidence
@@ -153,7 +164,7 @@ for repeated UI development and reserve GPU runs for meaningful verification.
 | R01 | P0 / Measured; sensitivity limitation | Establish repeatability around the accepted sedan step: repeat the accepted case in a separate process, test a small predeclared set of smaller/larger budgets, and retain a refused control. Keep policy thresholds fixed. | Record every requested/effective step, predicted/fresh change, decision, source hash and duration. Explain any decision changes; one accepted case is not broad calibration. |
 | R02 | P0 / Implemented; force parity verified | Profile the 472 s sedan path and reduce unnecessary work. Investigate forward-only repeat/probe evaluations and reusable inputs where mathematically valid; preserve a fresh candidate evaluation. | Compare against the current raw-force and field evidence within explicit numerical tolerances; preserve geometry/acceptance decisions, cancellation and GPU leases. Report measured latency, not a promised speed target. |
 | R03 | P1 / Verified | Update the 60-second walkthrough to show the accepted sedan alongside the refused hatchback. Present long computations using clearly labeled replay. | Browser rehearsal with correct movement, prediction disagreement, real elapsed time, acceptance scope and run IDs; no implication of a live sub-minute sedan run. |
-| R04 | P2 / Deferred | Qualify Nemotron and prepare competition/public-demo requirements. Keep GLM for development until the planned explicit switch. | Verify the exact available model/endpoint, supported brief schemas, Q&A and latency; recheck official requirements before making eligibility or deployment claims. |
+| R04 | P2 / Nemotron verified; public demo pending | Keep the verified Nemotron runtime path and prepare competition/public-demo requirements. | The authenticated catalog, structured brief schemas and evidence-bound Q&A are verified in `docs/evidence/nemotron-final.json`; recheck deployment and judge-access requirements before making public-demo claims. |
 | R05 | Research / Pending | Compare the original and accepted candidate with independent CFD and quantify numerical uncertainty. | Establish whether the very small surrogate reduction is resolvable and whether its direction agrees with independent simulation before claiming physical improvement. |
 
 The reference evidence and policy were frozen before optimization. The production
@@ -163,12 +174,12 @@ every mesh evaluation remains fresh, with no cross-run evidence reuse. Baseline
 and candidate autograd remain unchanged. Full raw sensitivity parity has a
 documented failure; no tolerance or trust threshold was relaxed.
 
-The user authorized this local GPU work and demo update. GLM remains selected;
-model migration, paid cloud resources, deployment and independent CFD are deferred.
+The user authorized this local GPU work and demo update. Nemotron is verified and
+selected; paid cloud resources, deployment and independent CFD are deferred.
 
 ## Deferred and release gaps
 
-- Nemotron configuration switch and fresh runtime/schema/Q&A verification.
+- Public-demo packaging and clean-start rehearsal of the verified Nemotron path.
 - Official competition requirements/deadlines/runtime eligibility recheck.
 - Nebius GPU deployment, public judge demo, rate limits and clean-install rehearsal.
 - Raw partial sensitivity reproducibility: the unmodified repeat, optimized
@@ -196,7 +207,7 @@ limits visible without presenting research gates as implemented features.
   are authorized; do not launch paid cloud GPU resources.
 - Launch only if needed: `python -X utf8 -m zephyr.local.server --enable-llm --port 8766`
   from the actual repo; `npm.cmd --prefix frontend run dev` for Vite.
-- Never print `.env`. Keep GLM selected during this milestone. Use CUA for browser
+- Never print `.env`. Keep Nemotron selected during this milestone. Use CUA for browser
   inspection and a temporary tab to avoid disrupting the user's active page.
 - N01–N08 are complete. R01–R03 are the authorized runtime/repeatability milestone;
   preserve all outcomes and the raw sensitivity limitation in the handoff.
@@ -217,7 +228,7 @@ limits visible without presenting research gates as implemented features.
 
 ## Presentation milestone audit (2026-09-19)
 
-- N01: inspected the existing detailed hatchback artifact and API health (idle, GLM retained). Existing suite passed: 32 Python, 29 frontend; build 759.24 kB. Initial sandbox attempts failed with Windows file/process permission errors; the same commands passed with process access.
+- N01: inspected the existing detailed hatchback artifact and API health while idle. Existing suite passed: 32 Python, 29 frontend; build 759.24 kB. Initial sandbox attempts failed with Windows file/process permission errors; the same commands passed with process access.
 - All nine geometry choices reached airflow-ready in a temporary hidden CUA tab. X-57 illustration visibly has paired wingtip spirals; prediction switches to independent volume paths. Pause and camera reset work.
 - Reproducible code finding: the enlargement multiplier affected Pressure/Sensitivity/Mesh as well as Change; fixing it to apply only in Change. Candidate volume absence previously fell back to original geometry/flow; linked comparison will show an unavailable field instead.
 
@@ -249,7 +260,7 @@ limits visible without presenting research gates as implemented features.
 
 Run **`local-f76a1757dc7d4143abbbd8f69e53d5f3`**, Impreza hatchback.
 Brief: “Reduce drag with a small rear taper. Keep the cabin unchanged. Limit movement to 3 mm.”
-GLM remained `zai-org/GLM-5.3-Flash`; the 3.0 mm brief limit correctly overrode the 3.6 mm slider ceiling.
+The configured development model parsed the brief; the 3.0 mm brief limit correctly overrode the 3.6 mm slider ceiling. This historical run predates the verified Nemotron qualification above.
 
 - Original force: **474.9229126 N**; changed force: **473.4724731 N**.
 - Difference: **-1.4504395 N (-0.3054%)**, an estimate only.
@@ -305,10 +316,10 @@ this work used five separately recorded local GPU regression runs.
 - **43 Python + 36 frontend tests passed**; production build passed (770.43 kB /
   202.32 kB gzip), existing chunk warning only. Browser checked real acceptance,
   refusal, explicit synthetic acceptance fixture, updated comparison verdict,
-  and GLM's accepted-step answer with the physical-validation limitation.
+  and the model's accepted-step answer with the physical-validation limitation.
   No browser console errors/warnings in checked tabs. Temporary browser tab closed.
-- API 8766 restarted while idle with existing GLM-enabled flags to load updated
-  explanations; final health is idle, GLM unchanged, port 8765 untouched.
+- API 8766 restarted while idle with model calls enabled to load updated
+  explanations; final health is idle and port 8765 untouched.
   No deployment, commit or push. Prior edits and historical run artifacts remain.
 
 Full policy, development-run IDs, commands and limits: [ACCEPTANCE_CHECKS.md](docs/ACCEPTANCE_CHECKS.md).
@@ -351,7 +362,7 @@ Final compact verified artifacts and browser screenshots:
 - The 60-second script now shows accepted sedan and refused hatchback, with explicit
   recorded labels, original run timings, actual movement, enlargement and CFD limits.
 - Runtime code, scripts, evidence and docs are local, uncommitted changes after
-  `85f5ec5`. GLM remains configured. No cloud resource, model switch or CFD run.
+  `85f5ec5`. Nemotron is now verified and configured. No cloud resource or CFD run.
 
 Evidence: [RUNTIME_CHECKS.md](docs/RUNTIME_CHECKS.md),
 [matrix](docs/evidence/runtime-2026-09-19/matrix.json),
