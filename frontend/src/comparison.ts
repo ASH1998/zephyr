@@ -20,14 +20,14 @@ export function createComparison() {
   const open = document.createElement('button'); open.id = 'open-comparison'; open.textContent = 'Compare Original / Changed ↓'; open.hidden = true;
   document.querySelector('.result-controls')!.prepend(open);
   let scenes: FlowScene[] = [], epoch = 0, current: LiveRun | undefined, visual: VisualSpec | undefined;
-  let field = 'displacement', paused = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let field = 'displacement', paused = true;
   const magnify = root.querySelector<HTMLInputElement>('.pair-magnify')!;
   const label = (selector: string, text: string) => { root.querySelector(selector)!.textContent = text; };
   function dispose() { ++epoch; scenes.forEach(s => s.dispose()); scenes = []; root.hidden = true; open.disabled = false; }
   function update() {
     if (!current) return;
     const mode: ViewMode = field === 'illustration' ? 'airflow' : field as ViewMode;
-    scenes.forEach(s => { s.setMode(mode); s.setFlowStyle(field === 'illustration' ? 'illustration' : 'prediction'); s.setMagnified(magnify.checked, 120); });
+    scenes.forEach(s => { s.setMode(mode); s.setFlowStyle(field === 'illustration' ? 'illustration' : 'prediction'); s.setMagnified(magnify.checked, 120);s.setPaused(paused); });
     magnify.disabled = mode !== 'displacement';
     root.querySelectorAll<HTMLButtonElement>('[data-field]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.field === field)));
     label('.pair-pause', paused ? 'Resume comparison' : 'Pause comparison');

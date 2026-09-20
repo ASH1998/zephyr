@@ -9,6 +9,8 @@ import { FlowRibbons } from './flow-ribbons';
 import { illustrateFlow } from './flow-illustration';
 import type { Airflow } from './airflow';
 import { previewWake } from './flow-preview';
+import { framePolicy } from './render-policy';
+import { computeOverlay } from './compute-overlay';
 
 export type SurfaceRun = Pick<SimulationRun, 'baseline'> & { source: SimulationRun['source'] | 'geometry-preview'; candidate: Surface | null; airflow?:{baseline:Airflow;candidate?:Airflow} };
 
@@ -48,6 +50,13 @@ export class FlowScene {
   private visible = true;
   private frame = 0;
   private disposed = false;
+  private dirty = true;
+  private lastRender = -Infinity;
+  private renderCount = 0;
+  private computing = false;
+  private activityTime = 0;
+  private activityMesh?: THREE.Mesh<THREE.BufferGeometry,THREE.ShaderMaterial>;
+  private visibilityChanged = () => { if(document.hidden){cancelAnimationFrame(this.frame);this.frame=0;}else this.invalidate(); };
   private cabinTop = 1.4;
   private fitScale=1;
   private story?: StoryState;
@@ -57,13 +66,15 @@ export class FlowScene {
   private cameraDestination?: THREE.Vector3;
   private flowGhost = new THREE.Group();
   private rearMarker = new THREE.Group();
+  private changeCenter = new THREE.Vector3(1.75, .9, 1.05);
+  private changeLabelAnchor = new THREE.Vector3(2.15, 1.75, 1.05);
   private flowBlend = 0;
   private flowTarget = 0;
   constructor(private host: HTMLElement, private run: SurfaceRun, private vehicle?: VehicleAsset) {
     this.cabinTop = run.baseline.protectedMask.reduce((top, locked, i) => locked ? Math.max(top, run.baseline.positions[i * 3 + 1]) : top, .9);
     const xs=run.baseline.positions.filter((_,i)=>i%3===0);const range=fieldRange(xs);this.fitScale=vehicle?.aircraft? .78 : Math.max(1,(range[1]-range[0])/4.45,this.cabinTop/1.7);
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.7));
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.35));
     this.renderer.setClearColor(0x07111d, 0);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping; this.renderer.toneMappingExposure = 1.0;
     const pmrem = new THREE.PMREMGenerator(this.renderer);
@@ -72,7 +83,8 @@ export class FlowScene {
     this.renderer.domElement.tabIndex = 0;
     host.appendChild(this.renderer.domElement);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.addEventListener('change', () => this.syncCamera());
+    this.controls.addEventListener('change', () => {this.syncCamera();this.invalidate();});
+    this.controls.addEventListener('start', () => {this.cameraDestination=undefined;this.invalidate();});
     this.controls.enableDamping = !this.reduced; this.controls.enablePan = false;
     this.controls.minDistance = 5; this.controls.maxDistance = 16;
     this.controls.maxPolarAngle = Math.PI * .49; this.controls.minPolarAngle = .25;
@@ -97,6 +109,7 @@ export class FlowScene {
     this.geometry.setIndex(run.baseline.triangles); this.geometry.computeVertexNormals();
     this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(run.baseline.positions.length), 3));
     this.surfaceMesh = new THREE.Mesh(this.geometry, this.material); this.scene.add(this.surfaceMesh);
+    this.activityMesh=computeOverlay(this.geometry);this.scene.add(this.activityMesh);
     if (vehicle) { this.scene.add(vehicle.group); this.surfaceMesh.visible = false; }
     this.wire = new THREE.LineSegments(new THREE.WireframeGeometry(this.geometry), new THREE.LineBasicMaterial({ color: 0x6fdaeb, transparent: true, opacity: .27 }));
     this.wire.visible = false; this.scene.add(this.wire);
@@ -121,10 +134,11 @@ export class FlowScene {
     if (run.source !== 'geometry-preview') this.addSensitivity(); this.scene.add(this.arrows); this.arrows.visible = false;
     this.updateSurface();
     this.addStoryOverlays();
-    this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(host);
-    this.visibilityObserver = new IntersectionObserver(([entry]) => { this.visible = entry.isIntersecting; }); this.visibilityObserver.observe(host);
+    this.resizeObserver = new ResizeObserver(() => {this.resize();this.invalidate();}); this.resizeObserver.observe(host);
+    this.visibilityObserver = new IntersectionObserver(([entry]) => { this.visible = entry.isIntersecting;if(this.visible)this.invalidate();else{cancelAnimationFrame(this.frame);this.frame=0;} }); this.visibilityObserver.observe(host);
+    document.addEventListener('visibilitychange',this.visibilityChanged);
     if(run.airflow?.baseline)this.setAirflow(run.airflow.baseline);
-    this.resize(); this.animate();
+    this.resize(); this.invalidate();
   }
   setAirflow(value:Airflow) {
     if(this.computedAirflow?.meshHash===value.meshHash)return;
@@ -146,6 +160,8 @@ export class FlowScene {
     if(this.run.source!=='illustrative')this.flow.visible=false;
     const content = this.mode !== 'airflow' ? `${this.mode} field at ${this.mode === 'displacement' ? 'the labeled display enlargement' : 'true geometry scale'}` : style === 'illustration' ? 'illustrated original-shape airflow, not a computed field' : this.computedAirflow ? 'NVIDIA predicted velocity paths in slow motion' : 'unavailable NVIDIA airflow; no substitute field';
     this.renderer.domElement.setAttribute('aria-label', `${this.comparisonSide ?? (this.vehicle?.aircraft ? 'Aircraft' : 'Car')} shape: ${content}. Use arrow keys to orbit; plus and minus to zoom.`);
+    if(this.computing){this.flow.visible=false;if(this.illustratedFlow)this.illustratedFlow.visible=false;if(this.predictedFlow)this.predictedFlow.visible=false;this.renderer.domElement.setAttribute('aria-label',this.run.source==='geometry-preview'?'Calculation activity on the car: illustrative scanning colors, not measured pressure.':'Recorded baseline surface field with an illustrative calculation activity sweep.');}
+    this.invalidate();
   }
   private addWheels() {
     for (const x of [-1.47, 1.48]) for (const z of [-.88, .88]) {
@@ -292,11 +308,18 @@ export class FlowScene {
     this.lockOverlay = makeOverlay(locked, 0x71e4d4, .34);
     const baseline = new THREE.BufferGeometry(); baseline.setAttribute('position', new THREE.Float32BufferAttribute(b.positions, 3)); baseline.setIndex(changed);
     this.baselineGhost = new THREE.LineSegments(new THREE.EdgesGeometry(baseline, 32), new THREE.LineBasicMaterial({ color: 0x83eff4, transparent: true, opacity: .8, depthTest: false, depthWrite: false }));
-    this.rearMarker.add(this.line([new THREE.Vector3(1.75, .9, 1.05), new THREE.Vector3(2.15, 1.75, 1.05)], 0xf6ba66, .65));
+    if (this.run.source !== 'illustrative') {
+      this.changeCenter.set(0,0,0); let total=0;
+      c.displacementM.forEach((d,i)=>{if(d>max*.12){this.changeCenter.addScaledVector(new THREE.Vector3().fromArray(b.positions,i*3),d);total+=d;}});
+      if(total>0)this.changeCenter.divideScalar(total);
+      this.changeLabelAnchor.copy(this.changeCenter).add(new THREE.Vector3(.15,.7,.65));
+    }
+    this.rearMarker.add(this.line([this.changeCenter, this.changeLabelAnchor], 0xf6ba66, .65));
     this.rearMarker.visible = false;
     baseline.dispose(); this.baselineGhost.renderOrder = 3; this.baselineGhost.visible = false; this.scene.add(this.baselineGhost);
   }
   setStory(stage?: StoryState) {
+    this.invalidate();
     this.story = stage;
     if (this.lockOverlay) this.lockOverlay.visible = stage === 'intent' || stage === 'validate';
     const compare = stage === 'candidate' || stage === 'result';
@@ -310,12 +333,13 @@ export class FlowScene {
     if (this.baselineGhost) this.baselineGhost.visible = compare;
     if (stage) {
       this.flow.visible = demoFlow || (this.run.source !== 'illustrative' && this.mode === 'airflow');
-      const destination = stage === 'intent' ? new THREE.Vector3(-3.4, 3.1, 6.7) : new THREE.Vector3(3.6, 2.5, 5.7);
+      const destination = stage === 'intent' || (this.run.source !== 'illustrative' && this.changeCenter.x < -.3) ? new THREE.Vector3(-3.4, 3.1, 6.7) : new THREE.Vector3(3.6, 2.5, 5.7);
       destination.multiplyScalar(this.fitScale);this.controls.target.set(.15, .8, 0);
       if (this.reduced) this.camera.position.copy(destination); else this.cameraDestination = destination;
     }
   }
   private updateSurface() {
+    this.invalidate();
     const b = this.run.baseline, c = this.run.candidate ?? this.run.baseline;
     const p = this.geometry.getAttribute('position') as THREE.BufferAttribute;
     const colors = this.geometry.getAttribute('color') as THREE.BufferAttribute;
@@ -357,8 +381,10 @@ export class FlowScene {
   }
   setMode(mode: ViewMode) { if(this.run.source === 'geometry-preview' && !['airflow','mesh'].includes(mode)) return; this.mode = mode; this.wire.visible = mode === 'mesh'; this.arrows.visible = mode === 'sensitivity' && !this.comparisonSide; this.flow.visible = mode === 'airflow'; this.material.roughness = mode === 'airflow' ? .48 : .7; this.material.metalness = mode === 'airflow' ? .2 : .1; this.material.clearcoat = mode === 'airflow' ? .4 : 0; this.material.envMapIntensity = mode === 'airflow' ? 1 : .2; this.renderer.toneMappingExposure = mode === 'airflow' ? 1 : .7;
     if (this.vehicle) { this.surfaceMesh.visible = mode !== 'airflow'; this.vehicle.exterior.forEach(p => p.mesh.visible = mode === 'airflow'); }
+    if(this.computing){this.surfaceMesh.visible=true;this.vehicle?.exterior.forEach(p=>p.mesh.visible=false);}
+    if(this.activityMesh)this.activityMesh.material.uniforms.measured.value=this.run.source!=='geometry-preview'&&['pressure','sensitivity'].includes(mode)?1:0;
     this.setFlowStyle(this.flowStyle);this.updateSurface(); }
-  setBlend(value: number) { this.target = value; if(this.run.airflow){const field=value>=.5?this.run.airflow.candidate??this.run.airflow.baseline:this.run.airflow.baseline;this.setAirflow(field);} if (this.story === 'result' && this.run.source === 'illustrative') this.flowTarget = value; if (this.story === 'result' || this.story === 'candidate') this.rearMarker.visible = value > 0; if (this.reduced) { this.blend = value; this.updateSurface(); } }
+  setBlend(value: number) { if(this.target!==value)this.invalidate();this.target = value; if(this.run.airflow){const field=value>=.5?this.run.airflow.candidate??this.run.airflow.baseline:this.run.airflow.baseline;this.setAirflow(field);} if (this.story === 'result' && this.run.source === 'illustrative') this.flowTarget = value; if (this.story === 'result' || this.story === 'candidate') this.rearMarker.visible = value > 0; if (this.reduced) { this.blend = value; this.updateSurface(); } }
   setMagnified(on: boolean, factor = 24) { this.magnification = on ? factor : 1; this.updateSurface(); }
   setComparisonSide(side: 'original' | 'changed', clock: (now: number) => number) {
     this.comparisonSide = side; this.externalClock = clock; this.resize(); this.controls.enableDamping = false;
@@ -375,26 +401,41 @@ export class FlowScene {
     other.camera.position.copy(this.camera.position); other.controls.target.copy(this.controls.target);
     other.camera.quaternion.copy(this.camera.quaternion); other.controls.update(); other.syncingCamera = false;
   }
-  setPaused(on: boolean) { this.paused = on; }
+  setPaused(on: boolean) { if(this.paused!==on){this.paused=on;this.invalidate();} }
+  setComputation(stage?:string) {
+    const on=!!stage, changed=on!==this.computing;this.computing=on;
+    if(this.activityMesh){this.activityMesh.visible=on;this.activityMesh.material.uniforms.phase.value=stage?[...stage].reduce((n,c)=>n+c.charCodeAt(0),0)%17:0;}
+    if(changed)this.setMode(this.mode);
+    this.invalidate();
+  }
+  private invalidate() {
+    this.dirty=true;
+    if(!this.disposed&&!this.frame&&this.visible&&!document.hidden)this.frame=requestAnimationFrame(this.animate);
+  }
   setRun(run: SurfaceRun) { this.run = run; this.updateSurface(); }
   resetCamera() { this.cameraDestination = undefined; this.camera.position.set(...(this.comparisonSide?[4.8*this.fitScale,2.6*this.fitScale,5.2*this.fitScale] as [number,number,number]:this.vehicle?.aircraft?[-3.6,3.1,3.7] as [number,number,number]:[-5.5*this.fitScale,2.45*this.fitScale,5.5*this.fitScale] as [number,number,number])); this.controls.target.set(this.vehicle?.aircraft?.4:0,this.vehicle?.aircraft ? .35 : .85,0); this.controls.update(); }
   private resize() { const { width, height } = this.host.getBoundingClientRect(); this.camera.aspect = width / Math.max(1, height); this.camera.zoom = Math.min(this.comparisonSide ? 1.45 : 1.28, this.camera.aspect * .93); this.camera.updateProjectionMatrix(); this.renderer.setSize(width, height); }
   private animate = (frameTime = performance.now()) => {
+    this.frame=0;
     if (this.disposed) return;
-    this.frame = requestAnimationFrame(this.animate);
-    const now = performance.now(); const dt = Math.min((now - this.lastTime) / 1000, .04); this.lastTime = now;
-    if (!this.visible) return;
+    const flowMoving=!this.paused&&this.mode==='airflow'&&!this.computing;
+    const moving=flowMoving || (this.computing&&!this.reduced) || !!this.cameraDestination || Math.abs(this.blend-this.target)>.0005 || (this.run.source==='illustrative'&&Math.abs(this.flowBlend-this.flowTarget)>.001);
+    const plan=framePolicy({visible:this.visible,hidden:document.hidden,dirty:this.dirty,moving,busy:this.computing,now:frameTime,last:this.lastRender});
+    if(!plan.draw){if(plan.again)this.frame=requestAnimationFrame(this.animate);return;}
+    this.dirty=false;this.lastRender=frameTime;
+    const dt=Math.min((frameTime-this.lastTime)/1000,.05);this.lastTime=frameTime;
+    if(this.computing&&this.activityMesh){if(!this.reduced)this.activityTime+=dt;this.activityMesh.material.uniforms.clock.value=this.activityTime;}
     if (this.cameraDestination) {
       this.camera.position.lerp(this.cameraDestination, Math.min(1, dt * 3.5));
       if (this.camera.position.distanceTo(this.cameraDestination) < .015) this.cameraDestination = undefined;
     }
     if (this.changeOverlay) (this.changeOverlay.material as THREE.MeshBasicMaterial).opacity = .72 * this.blend;
-    if (this.externalClock) this.elapsed = this.externalClock(frameTime);
-    else if (!this.paused) this.elapsed += dt;
+    if (flowMoving&&this.externalClock) this.elapsed = this.externalClock(frameTime);
+    else if (flowMoving) this.elapsed += dt;
     this.flowBlend = this.reduced ? this.flowTarget : THREE.MathUtils.lerp(this.flowBlend, this.flowTarget, Math.min(1, dt * .9));
     this.flowMaterials.forEach(m => { m.uniforms.time.value = this.elapsed; m.uniforms.morph.value = this.flowBlend; });
-    this.illustratedFlow?.tick(this.elapsed);this.predictedFlow?.tick(this.elapsed,this.computedAirflow?.playbackTimeScale??1);
-    if (this.flowParticles) {
+    if(this.mode==='airflow'&&!this.computing){this.illustratedFlow?.tick(this.elapsed);this.predictedFlow?.tick(this.elapsed,this.computedAirflow?.playbackTimeScale??1);}
+    if (this.flowParticles && this.mode==='airflow'&&!this.computing) {
       const positions = this.flowParticles.geometry.getAttribute('position') as THREE.BufferAttribute;
       const point = new THREE.Vector3();
       const tracersPerCurve = positions.count / this.flowCurves.length;
@@ -416,14 +457,17 @@ export class FlowScene {
     if (label) { const anchor = new THREE.Vector3(.15, this.cabinTop + .38, .15).project(this.camera); label.style.left = `${(anchor.x * .5 + .5) * this.host.clientWidth + this.host.offsetLeft}px`; label.style.top = `${(-anchor.y * .5 + .5) * this.host.clientHeight + this.host.offsetTop - 45}px`; }
     const rearLabel = this.host.parentElement?.querySelector<HTMLElement>('.rear-callout');
     if (rearLabel && this.rearMarker.visible) {
-      const anchor = new THREE.Vector3(2.15, 1.75, 1.05).project(this.camera);
+      const anchor = this.changeLabelAnchor.clone().project(this.camera);
       rearLabel.style.left = `${Math.max(8, Math.min(this.host.clientWidth - rearLabel.offsetWidth - 8, (anchor.x * .5 + .5) * this.host.clientWidth + this.host.offsetLeft))}px`;
       rearLabel.style.top = `${(-anchor.y * .5 + .5) * this.host.clientHeight + this.host.offsetTop - 40}px`;
     }
     if (Math.abs(this.blend - this.target) > .0005) { this.blend += (this.target - this.blend) * Math.min(1, dt * (this.story === 'candidate' ? 1.4 : 7)); this.updateSurface(); }
     if (!this.comparisonSide) this.controls.update(); this.renderer.render(this.scene, this.camera);
+    this.renderer.domElement.dataset.renderCount=String(++this.renderCount);
+    this.renderer.domElement.dataset.renderState=this.computing?'computing':flowMoving?'animating':'on-demand';
+    if(plan.again&&!this.frame)this.frame=requestAnimationFrame(this.animate);
   };
-  dispose() { if (this.linkedScene) this.linkedScene.linkedScene = undefined; this.linkedScene = undefined; this.disposed = true; cancelAnimationFrame(this.frame); this.resizeObserver.disconnect(); this.visibilityObserver.disconnect(); this.controls.dispose(); this.scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.Line || o instanceof THREE.Points) { o.geometry.dispose(); const mats = Array.isArray(o.material) ? o.material : [o.material]; mats.forEach(m => {Object.values(m).forEach(value=>{if(value instanceof THREE.Texture)value.dispose();});m.dispose();}); } }); this.scene.environment?.dispose(); this.renderer.dispose(); this.renderer.forceContextLoss(); this.renderer.domElement.remove(); }
+  dispose() { if (this.linkedScene) this.linkedScene.linkedScene = undefined; this.linkedScene = undefined; this.disposed = true; cancelAnimationFrame(this.frame);document.removeEventListener('visibilitychange',this.visibilityChanged); this.resizeObserver.disconnect(); this.visibilityObserver.disconnect(); this.controls.dispose(); this.scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.Line || o instanceof THREE.Points) { o.geometry.dispose(); const mats = Array.isArray(o.material) ? o.material : [o.material]; mats.forEach(m => {Object.values(m).forEach(value=>{if(value instanceof THREE.Texture)value.dispose();});m.dispose();}); } }); this.scene.environment?.dispose(); this.renderer.dispose(); this.renderer.forceContextLoss(); this.renderer.domElement.remove(); }
 }
 
 

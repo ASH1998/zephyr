@@ -3,23 +3,23 @@ export function stageProgress(stage:string,completed?:number,total?:number,detai
   const stages:Record<string,[number,string,string]>={
     queued:[1,'Preparing the test','Starting the local worker.'],
     loading:[1,'Preparing the test','Loading the model and checking the original shape.'],
-    baseline:[2,'Testing the original shape','The GPU is calculating pressure and resistance. The geometry stays still during this step.'],
-    smoothing:[3,'Choosing a small change','Using the first calculation to choose a change at the rear.'],
+    baseline:[2,'Testing the original shape','The GPU is calculating pressure and resistance. The moving scan illustrates activity; measured fields appear when ready.'],
+    smoothing:[3,'Choosing a shape change','Preparing the calculated sensitivity field.'],
     converting:[2,'Preparing the calculated view','Turning the completed calculation into colors you can inspect.'],
     'baseline-ready':[3,'Original-shape result ready','The first calculation is finished. Preparing the next stage of the test.'],
-    candidate:[3,'Making a small rear-body change','Moving only the permitted rear area. The passenger cabin stays fixed.'],
+    candidate:[3,'Changing the selected body region','Moving the selected region within its limit. The cabin stays fixed.'],
     calibration:[3,'Checking the local prediction','Testing smaller changes in both directions before choosing a separate candidate.'],
     repeat:[3,'Repeating the original calculation','Measuring numerical repeatability. This does not validate physical accuracy.'],
-    'probe-plus-h':[3,'Testing a small inward change','Measuring how the full calculation responds to the rear handle.'],
-    'probe-minus-h':[3,'Testing a small outward change','Checking the opposite direction with fresh geometry inputs.'],
-    'probe-plus-half':[3,'Checking a smaller inward change','Testing whether the local slope agrees at half the movement.'],
-    'probe-minus-half':[3,'Checking a smaller outward change','Finishing the local slope check before testing the candidate.'],
+    'probe-plus-h':[3,'Testing the positive direction','Measuring how the full calculation responds to the selected region.'],
+    'probe-minus-h':[3,'Testing the opposite direction','Checking the opposite direction with fresh geometry inputs.'],
+    'probe-plus-half':[3,'Checking a smaller positive change','Testing whether the local slope agrees at half the movement.'],
+    'probe-minus-half':[3,'Checking a smaller negative change','Finishing the local slope check before testing the candidate.'],
     validate:[3,'Checking the changed shape','Checking the movement limit and the surface. The trial may need to become smaller.'],
     evaluate:[4,'Testing the changed car','The GPU is doing a second calculation. The result will tell us whether this change helped.'],
     volume:[4,'Calculating the air around this shape','NVIDIA’s volume model predicts air direction and speed around the shape.'],
     streamlines:[4,'Drawing the predicted airflow','Tracing paths through the calculated velocity field.'],
     'volume-failed':[4,'Airflow calculation unavailable','Surface results remain available.'],
-    complete:[5,'Comparing the two results','The test has finished. Read what changed and whether it helped below.'],
+    complete:[5,'Calculation finished','Inference has stopped. Viewer animation is separate and can be resumed on demand.'],
     publishing:[5,'Preparing the comparison','Calculations finished. Waiting for the complete result and its evidence to be published.'],
     failed:[0,'The calculation stopped','No improvement can be concluded from a failed calculation.'],
     cancelling:[0,'Stopping the calculation','Waiting for the GPU worker to stop.'],
@@ -50,7 +50,7 @@ export function createRunProgress(host:HTMLElement) {
       const e=job.events[job.events.length-1] as JobEvent|undefined;
       const p=stageProgress(progressStage(job),e?.completed,e?.total,e?.detail);
       if(job.state==='complete'&&analysisOnly){p.step=0;p.title='Baseline analysis complete';p.detail='One original shape was evaluated. No candidate or comparison was created.';}
-      card.querySelector('strong')!.textContent=(p.step?`Step ${p.step} of 5 · `:'')+p.title;
+      card.querySelector('strong')!.textContent=(p.step&&active?`Step ${p.step} of 5 · `:'')+p.title;
       card.querySelector('.progress-detail')!.textContent=p.detail;
       card.querySelector('.progress-number')!.textContent=p.percent===null?({complete:'Finished',failed:'Stopped',cancelled:'Cancelled',cancelling:'Stopping…',running:'Working…'}[job.state]??'Working…'):`${p.percent}% of this calculation`;
       const bar=card.querySelector('progress')!;bar.hidden=!active;if(p.percent===null)bar.removeAttribute('value');else bar.value=p.percent;
