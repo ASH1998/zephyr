@@ -1,9 +1,10 @@
 import { createRunAssistant } from './run-assistant.ts';
 import { api } from './live-data.ts';
+import {bodyRegions, comparisonTools} from './body-regions.ts';
 
-export interface IntentRequest { geometryId: string; budgetMm: number; brief: string; mode: 'analysis'|'iteration' }
+export interface IntentRequest { geometryId: string; budgetMm: number; brief: string; mode: 'analysis'|'iteration'|'exploration' }
 export interface IntentPlan {
-  schemaVersion: 'zephyr.intent.v1'; intentId: string; request: IntentRequest;
+  schemaVersion: 'zephyr.intent.v1'|'zephyr.intent.v2'; intentId: string; request: IntentRequest;
   graph: { status:'ready'|'clarify'|'refuse'; message:string; effectiveBudgetMm:number; evidenceQuotes:string[]; handle:string; cabinDisplacementMm:number; topology:string };
   provenance: { model:string; seconds:number; usage?:{total_tokens?:number} };
 }
@@ -11,9 +12,9 @@ export function sameRequest(a:IntentRequest,b:IntentRequest) {
   return a.geometryId===b.geometryId && a.mode===b.mode && a.budgetMm===b.budgetMm && a.brief.trim()===b.brief.trim();
 }
 export function validatePlan(value:IntentPlan,request:IntentRequest):IntentPlan {
-  if(value?.schemaVersion!=='zephyr.intent.v1' || !/^intent-[a-f0-9]{32}$/.test(value.intentId) || !value.request || !sameRequest(value.request,request))throw new Error('Interpretation does not match this brief. Please retry.');
+  if(!['zephyr.intent.v1','zephyr.intent.v2'].includes(value?.schemaVersion) || !/^intent-[a-f0-9]{32}$/.test(value.intentId) || !value.request || !sameRequest(value.request,request))throw new Error('Interpretation does not match this brief. Please retry.');
   const g=value.graph;
-  if(!g || !['ready','clarify','refuse'].includes(g.status) || !g.message || !Number.isFinite(g.effectiveBudgetMm) || g.effectiveBudgetMm<=0 || g.effectiveBudgetMm>request.budgetMm || g.effectiveBudgetMm>4 || g.cabinDisplacementMm!==0 || g.topology!=='fixed' || (g.status==='ready' && g.handle!=='rear-width-quintic-v1') || !Array.isArray(g.evidenceQuotes) || !g.evidenceQuotes.length || g.evidenceQuotes.some(q=>typeof q!=='string'||!q.trim()||!request.brief.includes(q)) || !value.provenance?.model)throw new Error('Invalid interpretation constraints. No run started.');
+  if(!g || !['ready','clarify','refuse'].includes(g.status) || !g.message || !Number.isFinite(g.effectiveBudgetMm) || g.effectiveBudgetMm<=0 || g.effectiveBudgetMm>request.budgetMm || g.effectiveBudgetMm>4 || g.cabinDisplacementMm!==0 || g.topology!=='fixed' || (g.status==='ready' && ![...bodyRegions.map(r=>r[0]),...(request.mode==='exploration'?comparisonTools:[])].includes(g.handle)) || !Array.isArray(g.evidenceQuotes) || !g.evidenceQuotes.length || g.evidenceQuotes.some(q=>typeof q!=='string'||!q.trim()||!request.brief.includes(q)) || !value.provenance?.model)throw new Error('Invalid interpretation constraints. No run started.');
   return value;
 }
 export interface Explanation {runId:string;source:'llm-ranked-evidence';provenance:{model:string};facts:{id:string;text:string;evidenceId:string}[];evidenceUrl:string;decision:string}
@@ -42,7 +43,7 @@ export function createCopilot(getRequest:()=>IntentRequest,lock:(busy:boolean)=>
       $('.copilot-state').textContent=value.graph.status==='ready'?'Ready':value.graph.status==='clarify'?'Clarify':'Refused';
       $('.copilot-message').textContent=value.graph.message;
       $('details').hidden=false;
-      $('.copilot-constraints').textContent=`${value.graph.effectiveBudgetMm.toFixed(2)} mm maximum · cabin fixed at 0 mm · fixed topology · bounded rear taper`;
+      $('.copilot-constraints').textContent=`${value.graph.effectiveBudgetMm.toFixed(2)} mm maximum · cabin fixed at 0 mm · ${bodyRegions.find(r=>r[0]===value.graph.handle)?.[1]??value.graph.handle}`;
       $('.copilot-quotes').textContent=value.graph.evidenceQuotes.map(q=>`“${q}”`).join(' · ');
       $('.copilot-meta').textContent=`${value.provenance.model} · ${value.provenance.seconds.toFixed(1)} s${value.provenance.usage?.total_tokens?` · ${value.provenance.usage.total_tokens} tokens`:''}`;
   }

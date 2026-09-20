@@ -3,6 +3,7 @@ import type { Airflow } from './airflow.ts';
 import type { IntentPlan } from './copilot';
 import type { Surface, Vec3 } from './data.ts';
 export interface LiveRun {
+  handle?: {handle:string;label?:string};
   geometryId?:string;car?:{id:string;label:string;experimental:boolean};airflow?:{baseline:Airflow;candidate?:Airflow};airflowStatus?:string;airflowError?:string;
   intent?: IntentPlan;
   schemaVersion: 'zephyr.surface.v2'; runId: string; source: 'live' | 'recorded'; createdAt: string; status: 'analysis' | 'comparison';
@@ -18,7 +19,7 @@ export interface LiveRun {
   timings: Record<string, number>;
 }
 export interface JobEvent { runId: string; source: 'live'; sequence: number; stage: string; detail: string; completed?: number; total?: number }
-export interface Job { createdAt?:string; runId: string; source: 'live'; state: 'running' | 'cancelling' | 'cancelled' | 'failed' | 'complete'; stage: string; detail: string; sequence: number; events: JobEvent[]; baselineReady: boolean; resultReady: boolean }
+export interface Job { geometryId?:string; createdAt?:string; runId: string; source: 'live'; state: 'running' | 'cancelling' | 'cancelled' | 'failed' | 'complete'; stage: string; detail: string; sequence: number; events: JobEvent[]; baselineReady: boolean; resultReady: boolean }
 const fail = (s: string): never => { throw new Error(`Live data rejected: ${s}`); };
 const finite = (a: unknown, n?: number): a is number[] => Array.isArray(a) && (n === undefined || a.length === n) && a.every(Number.isFinite);
 export function validateLiveRun(input: unknown, runId?: string): LiveRun {
