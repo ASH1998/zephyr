@@ -1,5 +1,37 @@
 # Zephyr progress
 
+## 2026-09-20 — visible computation and idle GPU fix
+
+- Added a labeled illustrative activity scan, replaced by actual baseline fields
+  with a light sweep once available; studies now drive the main viewer's progress.
+- Completed views pause, static frames render on demand, hidden views stop, and
+  active flow/scan frame rates are capped. Inference completion and viewer playback
+  are labeled separately. Nemotron stays enabled.
+- Verified two real GPU jobs, reload recovery, zero idle redraws and linked camera
+  updates. 57 Python + 41 frontend tests and production build pass.
+- [Measured behavior and limits](docs/VIEWER_PERFORMANCE.md).
+
+## 2026-09-20 — body-region expansion
+
+- Added nose width, hood contour, side shoulders and rear-deck height alongside
+  the existing rear tools; five-region comparisons start from the same original.
+- Explicit region presets work without the language model. Compiler schema and
+  frontend validation support all tools; aircraft shape editing remains blocked.
+- Protected spatial envelopes replace the front-82% lock for the four new tools.
+  The 4 mm limit and numerical/geometry acceptance gates remain unchanged.
+- Fresh GPU surface and volume checks are recorded in the
+  [production matrix](docs/evidence/body-regions-2026-09-20/production.json).
+  Six cases completed with geometry checks passing; none passed every acceptance
+  gate. Sedan hood: -1.605 N (-0.258%), refused on probe centering. Final-runtime
+  hood repeat completed in 41.3 s with exactly matching candidate force and verified
+  current worker hash; all seven stored candidates passed independent artifact audits.
+- Browser QA verified front-facing hood changes, region-specific labels,
+  aircraft exclusion and return to car controls. 57 Python and 37 frontend
+  tests pass; production build passes (existing large-bundle warning).
+- [Feature contract and limitations](docs/BODY_REGIONS.md).
+
+## Previous snapshot
+
 Last updated: 2026-09-19. Product plan: [PROJECT_PLAN.md](PROJECT_PLAN.md).
 Implementation baseline: [`85f5ec5`](https://github.com/ASH1998/zephyr/commit/85f5ec51703898421f266bc55d45bdf15551cbd6), committed and pushed to `origin/main`.
 Current phase: R01–R03 measurements and demo update completed. Force/pressure/shear

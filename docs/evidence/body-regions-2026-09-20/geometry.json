@@ -1,0 +1,1170 @@
+{
+  "geometrySourceSha256": "e6627f8b41b6fbbe7e3fbc99d02643a43085ebf51de5ca689215447f9ef416ef",
+  "scope": "Preliminary geometry checks only; exact intersections and fresh GPU inference are separate.",
+  "cases": [
+    {
+      "geometry": "drivaer-1",
+      "handle": "nose-width-v1",
+      "signedBudgetMm": -4,
+      "editableVertices": 12142,
+      "totalVertices": 376531,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 364389
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "failed",
+          "minimumCosine": 0.982157503421738
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.8519755898576752,
+          "maximumRatio": 1.0272219554709972
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.7651960253715515,
+            -1.0102499723434448,
+            -0.31964099407196045
+          ],
+          [
+            3.9384799003601074,
+            1.0102499723434448,
+            1.1951099634170532
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "y",
+        "editableVertices": 12142,
+        "totalVertices": 376531,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "drivaer-1",
+      "handle": "nose-width-v1",
+      "signedBudgetMm": 4,
+      "editableVertices": 12142,
+      "totalVertices": 376531,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 364389
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9906466015480746
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.97288417666308,
+          "maximumRatio": 1.1742071696820362
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.7651960253715515,
+            -1.0102499723434448,
+            -0.31964099407196045
+          ],
+          [
+            3.9384799003601074,
+            1.0102499723434448,
+            1.1951099634170532
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "y",
+        "editableVertices": 12142,
+        "totalVertices": 376531,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "drivaer-1",
+      "handle": "hood-height-v1",
+      "signedBudgetMm": -4,
+      "editableVertices": 12142,
+      "totalVertices": 376531,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 364389
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9969724615648536
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.93093447053954,
+          "maximumRatio": 1.0504968749335641
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.7651960253715515,
+            -1.0102499723434448,
+            -0.31964099407196045
+          ],
+          [
+            3.9384799003601074,
+            1.0102499723434448,
+            1.1951099634170532
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "z",
+        "editableVertices": 12142,
+        "totalVertices": 376531,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "drivaer-1",
+      "handle": "hood-height-v1",
+      "signedBudgetMm": 4,
+      "editableVertices": 12142,
+      "totalVertices": 376531,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 364389
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9977276030380094
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9534834016245337,
+          "maximumRatio": 1.0743238200051641
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.7651960253715515,
+            -1.0102499723434448,
+            -0.31964099407196045
+          ],
+          [
+            3.9384799003601074,
+            1.0102499723434448,
+            1.1951099634170532
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "z",
+        "editableVertices": 12142,
+        "totalVertices": 376531,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "drivaer-1",
+      "handle": "side-shoulder-v1",
+      "signedBudgetMm": -4,
+      "editableVertices": 26130,
+      "totalVertices": 376531,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 350401
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.994222467665406
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9665363884827078,
+          "maximumRatio": 1.1610053874074717
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.7651960253715515,
+            -1.0102499723434448,
+            -0.31964099407196045
+          ],
+          [
+            3.9384799003601074,
+            1.0102499723434448,
+            1.1951099634170532
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "y",
+        "editableVertices": 26130,
+        "totalVertices": 376531,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "drivaer-1",
+      "handle": "side-shoulder-v1",
+      "signedBudgetMm": 4,
+      "editableVertices": 26130,
+      "totalVertices": 376531,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 350401
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "failed",
+          "minimumCosine": 0.9893165135383336
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.8548338154679266,
+          "maximumRatio": 1.0336419113957667
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.7651960253715515,
+            -1.0102499723434448,
+            -0.31964099407196045
+          ],
+          [
+            3.9384799003601074,
+            1.0102499723434448,
+            1.1951099634170532
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "y",
+        "editableVertices": 26130,
+        "totalVertices": 376531,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "drivaer-1",
+      "handle": "deck-height-v1",
+      "signedBudgetMm": -4,
+      "editableVertices": 14877,
+      "totalVertices": 376531,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 361654
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9985541418181838
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9020883433273724,
+          "maximumRatio": 1.0743801820852337
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.7651960253715515,
+            -1.0102499723434448,
+            -0.31964099407196045
+          ],
+          [
+            3.9384799003601074,
+            1.0102499723434448,
+            1.1951099634170532
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "z",
+        "editableVertices": 14877,
+        "totalVertices": 376531,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "drivaer-1",
+      "handle": "deck-height-v1",
+      "signedBudgetMm": 4,
+      "editableVertices": 14877,
+      "totalVertices": 376531,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 361654
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9988250881375124
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9276505826337568,
+          "maximumRatio": 1.0988771943841946
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.7651960253715515,
+            -1.0102499723434448,
+            -0.31964099407196045
+          ],
+          [
+            3.9384799003601074,
+            1.0102499723434448,
+            1.1951099634170532
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "z",
+        "editableVertices": 14877,
+        "totalVertices": 376531,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "drivaer-1",
+      "handle": "rear-width-upper-v1",
+      "signedBudgetMm": -4,
+      "editableVertices": 7105,
+      "totalVertices": 376531,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 369426
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9978911585697577
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9556553022954546,
+          "maximumRatio": 1.0247463690035794
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "rearStartXMetres": 3.0918182337284086,
+        "heightStartMetres": 0.05,
+        "heightTransitionMetres": 0.25,
+        "lateralNormalizationMetres": 0.4949220028486284
+      }
+    },
+    {
+      "geometry": "drivaer-1",
+      "handle": "rear-width-upper-v1",
+      "signedBudgetMm": 4,
+      "editableVertices": 7105,
+      "totalVertices": 376531,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 369426
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9980410537101423
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9759127456862529,
+          "maximumRatio": 1.0475544159259953
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "rearStartXMetres": 3.0918182337284086,
+        "heightStartMetres": 0.05,
+        "heightTransitionMetres": 0.25,
+        "lateralNormalizationMetres": 0.4949220028486284
+      }
+    },
+    {
+      "geometry": "hatchback",
+      "handle": "nose-width-v1",
+      "signedBudgetMm": -4,
+      "editableVertices": 1920,
+      "totalVertices": 17995,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 16075
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9996351155394395
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9640435887852434,
+          "maximumRatio": 1.0601679363434784
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.8,
+            -0.991150289773941,
+            -0.32
+          ],
+          [
+            3.635326099395752,
+            0.991150289773941,
+            1.2894388514757156
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "y",
+        "editableVertices": 1920,
+        "totalVertices": 17995,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "hatchback",
+      "handle": "nose-width-v1",
+      "signedBudgetMm": 4,
+      "editableVertices": 1920,
+      "totalVertices": 17995,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 16075
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9996549719407769
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9401308084058886,
+          "maximumRatio": 1.036315112389085
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.8,
+            -0.991150289773941,
+            -0.32
+          ],
+          [
+            3.635326099395752,
+            0.991150289773941,
+            1.2894388514757156
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "y",
+        "editableVertices": 1920,
+        "totalVertices": 17995,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "hatchback",
+      "handle": "hood-height-v1",
+      "signedBudgetMm": -4,
+      "editableVertices": 1920,
+      "totalVertices": 17995,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 16075
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9946928015493324
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9498891709097541,
+          "maximumRatio": 1.1802771571046289
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.8,
+            -0.991150289773941,
+            -0.32
+          ],
+          [
+            3.635326099395752,
+            0.991150289773941,
+            1.2894388514757156
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "z",
+        "editableVertices": 1920,
+        "totalVertices": 17995,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "hatchback",
+      "handle": "hood-height-v1",
+      "signedBudgetMm": 4,
+      "editableVertices": 1920,
+      "totalVertices": 17995,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 16075
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "failed",
+          "minimumCosine": 0.9893644156527124
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.8348660967859731,
+          "maximumRatio": 1.0505517865542169
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.8,
+            -0.991150289773941,
+            -0.32
+          ],
+          [
+            3.635326099395752,
+            0.991150289773941,
+            1.2894388514757156
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "z",
+        "editableVertices": 1920,
+        "totalVertices": 17995,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "hatchback",
+      "handle": "side-shoulder-v1",
+      "signedBudgetMm": -4,
+      "editableVertices": 3495,
+      "totalVertices": 17995,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 14500
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9969459076632072
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9515117987377155,
+          "maximumRatio": 1.135117731594371
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.8,
+            -0.991150289773941,
+            -0.32
+          ],
+          [
+            3.635326099395752,
+            0.991150289773941,
+            1.2894388514757156
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "y",
+        "editableVertices": 3495,
+        "totalVertices": 17995,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "hatchback",
+      "handle": "side-shoulder-v1",
+      "signedBudgetMm": 4,
+      "editableVertices": 3495,
+      "totalVertices": 17995,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 14500
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9962968732115602
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.869696957308497,
+          "maximumRatio": 1.0485030009413006
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.8,
+            -0.991150289773941,
+            -0.32
+          ],
+          [
+            3.635326099395752,
+            0.991150289773941,
+            1.2894388514757156
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "y",
+        "editableVertices": 3495,
+        "totalVertices": 17995,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "hatchback",
+      "handle": "deck-height-v1",
+      "signedBudgetMm": -4,
+      "editableVertices": 2084,
+      "totalVertices": 17995,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 15911
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9996706261499236
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9373445704832005,
+          "maximumRatio": 1.0176411432335806
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.8,
+            -0.991150289773941,
+            -0.32
+          ],
+          [
+            3.635326099395752,
+            0.991150289773941,
+            1.2894388514757156
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "z",
+        "editableVertices": 2084,
+        "totalVertices": 17995,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "hatchback",
+      "handle": "deck-height-v1",
+      "signedBudgetMm": 4,
+      "editableVertices": 2084,
+      "totalVertices": 17995,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 15911
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9997217337856303
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9823812903177351,
+          "maximumRatio": 1.062946237343108
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "version": "body-envelopes-v1",
+        "boundsM": [
+          [
+            -0.8,
+            -0.991150289773941,
+            -0.32
+          ],
+          [
+            3.635326099395752,
+            0.991150289773941,
+            1.2894388514757156
+          ]
+        ],
+        "lowerFixedHeightFraction": 0.46,
+        "cabinXFraction": [
+          0.25,
+          0.8
+        ],
+        "cabinMinHeightFraction": 0.6,
+        "axis": "z",
+        "editableVertices": 2084,
+        "totalVertices": 17995,
+        "protection": "Central upper cabin envelope and lower wheel/ground envelope fixed; smooth transitions."
+      }
+    },
+    {
+      "geometry": "hatchback",
+      "handle": "rear-width-upper-v1",
+      "signedBudgetMm": -4,
+      "editableVertices": 1689,
+      "totalVertices": 17995,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 16306
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9977596130579179
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9898577200526723,
+          "maximumRatio": 1.0814199588688043
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "rearStartXMetres": 2.8369674015045163,
+        "heightStartMetres": 0.05,
+        "heightTransitionMetres": 0.25,
+        "lateralNormalizationMetres": 0.5657475168631556
+      }
+    },
+    {
+      "geometry": "hatchback",
+      "handle": "rear-width-upper-v1",
+      "signedBudgetMm": 4,
+      "editableVertices": 1689,
+      "totalVertices": 17995,
+      "checks": {
+        "topology": {
+          "status": "passed"
+        },
+        "finite": {
+          "status": "passed"
+        },
+        "protected": {
+          "status": "passed",
+          "vertices": 16306
+        },
+        "bounds": {
+          "status": "passed",
+          "maximumM": 0.0040000000000000036
+        },
+        "normals": {
+          "status": "passed",
+          "minimumCosine": 0.9969288655374635
+        },
+        "triangleArea": {
+          "status": "passed",
+          "minimumRatio": 0.9238400773854833,
+          "maximumRatio": 1.0101877692957388
+        },
+        "watertight": {
+          "status": "passed",
+          "baselineOpenEdges": 0,
+          "candidateOpenEdges": 0
+        }
+      },
+      "definition": {
+        "rearStartXMetres": 2.8369674015045163,
+        "heightStartMetres": 0.05,
+        "heightTransitionMetres": 0.25,
+        "lateralNormalizationMetres": 0.5657475168631556
+      }
+    }
+  ]
+}

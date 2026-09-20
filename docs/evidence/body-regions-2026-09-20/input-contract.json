@@ -1,0 +1,1778 @@
+{
+  "trainingConfigSha256": "43a3e7360e319b239d3d946aa04e3ac310dde1b20f7eb71be38943dd3bb27202",
+  "scope": "Static input contract only, not geometry acceptance, model inference or accuracy.",
+  "cases": [
+    {
+      "geometryId": "drivaer-1",
+      "inputSha256": "411e6651284a26fc94924106b833fd79febc6deba63922c929dd8acfc99720d2",
+      "baseline": {
+        "status": "input-checked",
+        "withinTrainingBounds": true,
+        "surfaceBoundsM": {
+          "min": [
+            -1.5,
+            -1.4,
+            -0.32
+          ],
+          "max": [
+            5.0,
+            1.4,
+            1.4
+          ]
+        },
+        "units": "m",
+        "axes": "upstream X streamwise, Z up",
+        "topology": "fixed triangular watertight",
+        "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+      },
+      "candidates": [
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        }
+      ]
+    },
+    {
+      "geometryId": "hatchback",
+      "inputSha256": "88f3352f7678def57e4999371d06d67f967ccc1ec6646a490b8dd5112b327103",
+      "baseline": {
+        "status": "input-checked",
+        "withinTrainingBounds": true,
+        "surfaceBoundsM": {
+          "min": [
+            -1.5,
+            -1.4,
+            -0.32
+          ],
+          "max": [
+            5.0,
+            1.4,
+            1.4
+          ]
+        },
+        "units": "m",
+        "axes": "upstream X streamwise, Z up",
+        "topology": "fixed triangular watertight",
+        "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+      },
+      "candidates": [
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        }
+      ]
+    },
+    {
+      "geometryId": "suv",
+      "inputSha256": "ac0310c16496656af15ba9f2e3587ecf02b9dee3d686fa8e094144a0030340c0",
+      "baseline": {
+        "status": "experimental-outside-training-bounds",
+        "withinTrainingBounds": false,
+        "surfaceBoundsM": {
+          "min": [
+            -1.5,
+            -1.4,
+            -0.32
+          ],
+          "max": [
+            5.0,
+            1.4,
+            1.4
+          ]
+        },
+        "units": "m",
+        "axes": "upstream X streamwise, Z up",
+        "topology": "fixed triangular watertight",
+        "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+      },
+      "candidates": [
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": -4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": 4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": -4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": 4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": -4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": 4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": -4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": 4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": -4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": 4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        }
+      ]
+    },
+    {
+      "geometryId": "wagon",
+      "inputSha256": "11b00913e762f2738c270ceff97dd3be0340880326cc56aa31852929ba49144a",
+      "baseline": {
+        "status": "input-checked",
+        "withinTrainingBounds": true,
+        "surfaceBoundsM": {
+          "min": [
+            -1.5,
+            -1.4,
+            -0.32
+          ],
+          "max": [
+            5.0,
+            1.4,
+            1.4
+          ]
+        },
+        "units": "m",
+        "axes": "upstream X streamwise, Z up",
+        "topology": "fixed triangular watertight",
+        "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+      },
+      "candidates": [
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        }
+      ]
+    },
+    {
+      "geometryId": "coupe",
+      "inputSha256": "be45185a794630bf49523736dfd4911f3ac82b79b6ba4c713137637bcf350ca3",
+      "baseline": {
+        "status": "input-checked",
+        "withinTrainingBounds": true,
+        "surfaceBoundsM": {
+          "min": [
+            -1.5,
+            -1.4,
+            -0.32
+          ],
+          "max": [
+            5.0,
+            1.4,
+            1.4
+          ]
+        },
+        "units": "m",
+        "axes": "upstream X streamwise, Z up",
+        "topology": "fixed triangular watertight",
+        "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+      },
+      "candidates": [
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        }
+      ]
+    },
+    {
+      "geometryId": "sports",
+      "inputSha256": "69c7638f699af2f86a6331f17f9988d6e5776c5f21ec50d88904a0c2dd4ef4ea",
+      "baseline": {
+        "status": "input-checked",
+        "withinTrainingBounds": true,
+        "surfaceBoundsM": {
+          "min": [
+            -1.5,
+            -1.4,
+            -0.32
+          ],
+          "max": [
+            5.0,
+            1.4,
+            1.4
+          ]
+        },
+        "units": "m",
+        "axes": "upstream X streamwise, Z up",
+        "topology": "fixed triangular watertight",
+        "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+      },
+      "candidates": [
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": -4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": 4,
+          "status": "input-checked",
+          "withinTrainingBounds": true,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        }
+      ]
+    },
+    {
+      "geometryId": "van",
+      "inputSha256": "b933f8cf1b43d4b8950df7cfe2fb4f0f139e7eb095db948e55e7ded6bb1ef2e9",
+      "baseline": {
+        "status": "experimental-outside-training-bounds",
+        "withinTrainingBounds": false,
+        "surfaceBoundsM": {
+          "min": [
+            -1.5,
+            -1.4,
+            -0.32
+          ],
+          "max": [
+            5.0,
+            1.4,
+            1.4
+          ]
+        },
+        "units": "m",
+        "axes": "upstream X streamwise, Z up",
+        "topology": "fixed triangular watertight",
+        "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+      },
+      "candidates": [
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": -4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "nose-width-v1",
+          "amplitudeMm": 4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": -4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "hood-height-v1",
+          "amplitudeMm": 4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": -4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "side-shoulder-v1",
+          "amplitudeMm": 4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": -4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "deck-height-v1",
+          "amplitudeMm": 4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": -4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        },
+        {
+          "handle": "rear-width-upper-v1",
+          "amplitudeMm": 4,
+          "status": "experimental-outside-training-bounds",
+          "withinTrainingBounds": false,
+          "surfaceBoundsM": {
+            "min": [
+              -1.5,
+              -1.4,
+              -0.32
+            ],
+            "max": [
+              5.0,
+              1.4,
+              1.4
+            ]
+          },
+          "units": "m",
+          "axes": "upstream X streamwise, Z up",
+          "topology": "fixed triangular watertight",
+          "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+        }
+      ]
+    },
+    {
+      "geometryId": "x57",
+      "inputSha256": "d5f7196f7fd36d67c850f5c3a42e31acb34ebeef7e1a1178326714f3388da723",
+      "baseline": {
+        "status": "experimental-outside-training-bounds",
+        "withinTrainingBounds": false,
+        "surfaceBoundsM": {
+          "min": [
+            -1.5,
+            -1.4,
+            -0.32
+          ],
+          "max": [
+            5.0,
+            1.4,
+            1.4
+          ]
+        },
+        "units": "m",
+        "axes": "upstream X streamwise, Z up",
+        "topology": "fixed triangular watertight",
+        "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+      },
+      "candidates": []
+    },
+    {
+      "geometryId": "global-hawk",
+      "inputSha256": "070fad0655ee264e3d1581b02fd976512ccf50f824cb5b2bd3ddb8a5024fde4f",
+      "baseline": {
+        "status": "experimental-outside-training-bounds",
+        "withinTrainingBounds": false,
+        "surfaceBoundsM": {
+          "min": [
+            -1.5,
+            -1.4,
+            -0.32
+          ],
+          "max": [
+            5.0,
+            1.4,
+            1.4
+          ]
+        },
+        "units": "m",
+        "axes": "upstream X streamwise, Z up",
+        "topology": "fixed triangular watertight",
+        "scope": "Input and runtime compatibility only; predictive accuracy requires independent validation."
+      },
+      "candidates": []
+    }
+  ]
+}

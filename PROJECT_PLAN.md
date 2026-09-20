@@ -1,5 +1,10 @@
 # Zephyr — current project plan
 
+2026-09-20 implementation update: [multi-region body exploration](docs/BODY_REGIONS.md)
+adds nose, hood, side and rear-deck tools, a five-region comparison, explicit
+presets, region-aware presentation and checkpoint input checks. This supersedes
+the rear-only editing description below; historical validation limits remain.
+
 Updated: 2026-09-19. Committed implementation baseline: `85f5ec5` on `main`.
 Status: before-and-after demo and local acceptance checks completed; independent physical validation remains pending.
 Tracking: [progress.md](progress.md). Earlier research and its source list are retained in
