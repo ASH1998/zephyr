@@ -30,7 +30,8 @@ def run_facts(e):
     maximum=checks.get('bounds', {}).get('maximumM')
     if maximum is not None:
         mm=maximum*1000
-        add('movement', f'The biggest actual movement was {mm:.3f} mm, at the rear of the car. At normal scale, a movement this small is easy to miss. Orange in the Change view marks movement; it is not heat.', ['/validation/checks/bounds','/constraints'])
+        region=e.get('handle',{}).get('label','selected body region')
+        add('movement', f'The biggest actual movement was {mm:.3f} mm, using {region}. At normal scale, a movement this small is easy to miss. Orange in the Change view marks movement; it is not heat.', ['/validation/checks/bounds','/constraints','/handle'])
     if checks.get('protected', {}).get('status')=='passed':
         add('cabin', 'The protected part of the car, including the passenger cabin, stayed exactly in place.', ['/validation/checks/protected'])
     intent=e.get('intent', {})
@@ -54,7 +55,16 @@ def run_facts(e):
     elif t.get('calibrationScope')=='local-surrogate-handle-only':
         add('confidence', 'The small-probe prediction agreed with a separate fresh candidate evaluation for this run. This checks local numerical behavior; it does not measure physical model accuracy or establish a reusable trust radius.', ['/trust','/calibration'])
     if t.get('predictionErrorN') is not None:
-        add('prediction', f"The predicted change and freshly calculated change differed by {t['predictionErrorN']:.3f} N. This is an error in the predicted change, not a percentage accuracy score for the aerodynamic model.", ['/trust','/forces'])
+        predicted,actual,percentage=t.get('predictedDragDeltaN'),t.get('actualDragDeltaN'),t.get('predictionErrorPercent')
+        text=f"The predicted change and freshly calculated change differed by {t['predictionErrorN']:.3f} N. "
+        if predicted is not None and actual is not None:
+            text+=f"Small test changes predicted {predicted:+.5f} N; a separate calculation of the final shape found {actual:+.5f} N. "
+        if percentage is not None:
+            text+=f"Disagreement is {percentage:.2f}%: the absolute difference divided by the size of the predicted change, times 100. "
+        else:
+            text+='The predicted change is too small to report a reliable disagreement percentage. '
+        text+='This compares two model estimates. It is not real-world model accuracy or the percentage improvement in the car.'
+        add('prediction', text, ['/trust','/forces'])
     if checks.get('selfIntersection',{}).get('status')!='passed':
         text = 'The triangle audit found surface intersections. The geometry check failed.' if checks.get('selfIntersection',{}).get('status')=='failed' else 'A complete check that the surface does not fold through itself is still missing. Passing the other shape checks is not enough to approve a design.'
         add('geometry_check', text, ['/validation/checks'])
@@ -72,12 +82,22 @@ def run_facts(e):
         add('airflow','This older run has no recorded volume calculation. The viewer may load a saved NVIDIA volume result for its original car; check the airflow label. Any illustrative preview is labelled explicitly.',source='application')
     add('pressure', 'Pressure means how strongly air presses on the surface. In Pressure view, warmer colors mean higher predicted pressure and cooler colors mean lower pressure. They are not temperature or a good/bad score.', source='application')
     add('sensitivity', 'Sensitivity highlights where the model thinks a small shape change could affect air resistance. It is a suggestion to test, not proof that a change will help.', source='application')
-    add('magnify', 'Choose Show me the change to replay the rear-body movement, enlarged 120 times for visibility. This exaggerates the shape only on screen; the GPU tested the real movement. Turn off Enlarge movement to see the actual size. The comparison slider shows original on the left and changed on the right.', source='application')
-    add('search', 'The current app checks small positive and negative rear-body probes, then evaluates one separate bounded candidate. It does not search many different body designs. Repeating the same brief and budget can repeat the same result.', source='application')
+    add('magnify', 'Choose Show me the change to replay movement in the selected body region, enlarged 120 times for visibility. This exaggerates the shape only on screen; the GPU tested the real movement. Turn off Enlarge movement to see the actual size. Open Compare Original / Changed to inspect the linked views at the same scale.', source='application')
+    add('search', 'A single iteration tests positive and negative probes, then a separate candidate. Explore the body compares nose width, hood contour, side shoulders, rear-deck height and upper rear taper from the same original. Each has fresh probes and checks. The cabin and lower wheel/ground envelope remain fixed. Refused candidates stay visible. Repeating the same inputs can repeat the same result.', source='application')
     add('cars', 'Choose from the DrivAer sedan and six generic demo bodies: hatchback, SUV, wagon, coupe, sports car, and van. Each has its own saved NVIDIA airflow result and can run a fresh calculation. The six demo styles are outside the sedan training examples; treat their predictions as experimental. Uploads are not connected yet.', source='application')
     add('scans', 'A scan can be the starting shape, but it is not ready to simulate just because it looks like a car. We need real dimensions, a complete surface, repaired gaps, and the underside and wheel details. Upload and scan preparation are not implemented in this build.', source='application')
     add('units', 'Drag is the air resistance opposing motion. Newtons, shown as N, measure force. Millimetres, shown as mm, measure how far the shape moved. Lower predicted drag is the aim; a large-looking colored area does not imply a large movement.', source='application')
+    add('range_limits', 'This run cannot calculate battery range or fuel savings. It has no vehicle energy model, driving cycle, powertrain efficiency or independent confirmation of the aerodynamic change.', source='application')
     add('assistant', 'The text assistant reads your brief and chooses relevant explanations from the recorded facts. It does not move mesh points, change safety limits, run a new test through chat, or approve the design.', source='application')
+    if candidate is None:
+        next_step='Run a bounded shape test to obtain an original/changed comparison.'
+    elif t['decision']=='accept':
+        next_step='Keep this candidate for independent CFD comparison. The local checks passed, but this run does not establish fuel savings, battery range or manufacturing readiness.'
+    elif e.get('car',{}).get('experimental'):
+        next_step='Use the supported DrivAer sedan to test the workflow. This demonstration shape is outside the model’s supported domain; a lower predicted force cannot make it validated.'
+    else:
+        next_step='Keep the original shape. Inspect the failed checks before trying another bounded body region. A smaller movement is not guaranteed to pass: very small changes can be lost in numerical noise.'
+    add('next',next_step,['/trust','/validation','/forces'])
     return facts
 
 
@@ -89,6 +109,18 @@ def summarize_run(e):
     elif candidate>f['baselineDragN']:headline='This change did not help'
     elif candidate==f['baselineDragN']:headline='No improvement found'
     else:headline='Lower predicted resistance; step not accepted' if e['trust'].get('policyVersion') else 'Lower predicted resistance; checks still pending'
-    ids=['decision','comparison','movement','cabin','physics']
+    ids=['comparison','decision','movement','cabin','next','physics']
+    metrics=[]
+    def metric(label,value): metrics.append({'label':label,'value':value})
+    metric('Original drag',f"{f['baselineDragN']:.5f} N")
+    if candidate is not None:
+        delta=candidate-f['baselineDragN']
+        metric('Changed drag',f'{candidate:.5f} N')
+        metric('Change in drag',f'{delta:+.5f} N'+(f" ({delta/f['baselineDragN']*100:+.4f}%)" if f['baselineDragN'] else ''))
+    if e['trust'].get('predictionErrorPercent') is not None:
+        metric('Prediction disagreement',f"{e['trust']['predictionErrorPercent']:.2f}%")
+    metric('Independent CFD',e['validation']['independentCfd'])
     return {'runId':e['runId'],'headline':headline,'decision':e['trust']['decision'],
-            'facts':[facts[i] for i in ids if i in facts], 'evidenceUrl':'/api/runs/'+e['runId']+'/evidence'}
+            'facts':[facts[i] for i in ids if i in facts], 'metrics':metrics,
+            'technicalFacts':[facts[i] for i in ['prediction','confidence','geometry_check','time','sensitivity'] if i in facts],
+            'evidenceUrl':'/api/runs/'+e['runId']+'/evidence'}

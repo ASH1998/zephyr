@@ -7,6 +7,13 @@ from zephyr.config import ConfigurationError, load_env_file, load_llm_config
 
 
 class ConfigTests(unittest.TestCase):
+    def test_alternate_endpoint_is_selected_by_configured_identity(self):
+        values={'ZEPHYR_NEMOTRON_MODEL':'primary','ZEPHYR_ACTIVE_MODEL':'primary',
+                'ZEPHYR_TOKEN_FACTORY_BASE_URL':'https://primary.invalid/v1/',
+                'ZEPHYR_TOKEN_FACTORY_BASE_URL_V2':'https://alternate.invalid/v1/'}
+        self.assertEqual(load_llm_config(values).base_url,'https://primary.invalid/v1')
+        self.assertEqual(load_llm_config(values|{'ZEPHYR_ACTIVE_MODEL':'development'}).base_url,'https://alternate.invalid/v1')
+        self.assertEqual(load_llm_config(values|{'ZEPHYR_ACTIVE_MODEL':'development','ZEPHYR_TOKEN_FACTORY_BASE_URL_V2':''}).base_url,'https://primary.invalid/v1')
     def test_active_model_can_change_without_changing_endpoint_or_key(self) -> None:
         common = {
             "NEBIUS_API_KEY": "secret",

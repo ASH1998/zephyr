@@ -1,6 +1,6 @@
 import { api } from './live-data.ts';
 export interface AnswerFact {id:string;text:string;source:'run'|'application';pointers:string[]}
-interface Summary {runId:string;headline:string;decision:string;facts:AnswerFact[];evidenceUrl:string}
+interface Summary {runId:string;headline:string;decision:string;facts:AnswerFact[];metrics?:{label:string;value:string}[];technicalFacts?:AnswerFact[];evidenceUrl:string}
 export interface RunAnswer {answerId:string;runId:string;question:string;parentAnswerId:string|null;answerable:boolean;facts:AnswerFact[];fallback:string|null;provenance:{model:string};evidenceUrl:string}
 function validFacts(facts:AnswerFact[]) {return Array.isArray(facts)&&facts.every(f=>typeof f.id==='string'&&typeof f.text==='string'&&['run','application'].includes(f.source)&&Array.isArray(f.pointers)&&f.pointers.every(p=>typeof p==='string'&&p.startsWith('/')));}
 export function validateAnswer(a:RunAnswer,runId:string,question:string,parent:string|null) {
@@ -9,7 +9,7 @@ export function validateAnswer(a:RunAnswer,runId:string,question:string,parent:s
 }
 export function createRunAssistant() {
   const root=document.createElement('section');root.className='run-assistant';root.hidden=true;root.setAttribute('aria-label','Understand this result');
-  root.innerHTML=`<p class="eyebrow">YOUR RESULT, EXPLAINED</p><h3></h3><div class="result-summary"></div><details class="result-sources"><summary>View the recorded numbers</summary><div class="detail-facts"></div><a target="_blank" rel="noopener">Open this run’s evidence ↗</a><p>These numbers belong to the displayed run. Questions do not start a new GPU calculation.</p></details><div class="run-chat"><h4>Ask about this result</h4><p class="chat-help">Ask in your own words. Follow-up questions stay with this run.</p><div class="question-suggestions"></div><div class="chat-transcript" role="log" aria-label="Questions about this run"></div><form><label for="run-question">Your question</label><textarea id="run-question" rows="2" maxlength="500" placeholder="What does this result mean?"></textarea><button type="submit" class="ask-button">Ask Zephyr ↗</button></form><p class="chat-status" role="status"></p></div><button type="button" class="edit-next">Edit brief / run again ↓</button>`;
+  root.innerHTML=`<p class="eyebrow">YOUR RESULT, EXPLAINED</p><h3></h3><div class="result-summary"></div><details class="result-sources"><summary>Technical details and recorded numbers</summary><div class="detail-facts"></div><a target="_blank" rel="noopener">Open this run’s evidence ↗</a><p>These numbers belong to the displayed run. Questions do not start a new GPU calculation.</p></details><div class="run-chat"><h4>Ask about this result</h4><p class="chat-help">Ask in your own words. Follow-up questions stay with this run.</p><div class="question-suggestions"></div><div class="chat-transcript" role="log" aria-label="Questions about this run"></div><form><label for="run-question">Your question</label><textarea id="run-question" rows="2" maxlength="500" placeholder="What does this result mean?"></textarea><button type="submit" class="ask-button">Ask Zephyr ↗</button></form><p class="chat-status" role="status"></p></div><button type="button" class="edit-next">Edit brief / run again ↓</button>`;
   document.querySelector('.vehicle-picker')!.after(root);
   const heading=root.querySelector('h3')!,summary=root.querySelector('.result-summary')!,transcript=root.querySelector('.chat-transcript')!,input=root.querySelector<HTMLTextAreaElement>('textarea')!,submit=root.querySelector<HTMLButtonElement>('[type=submit]')!,status=root.querySelector('.chat-status')!,suggestions=root.querySelector('.question-suggestions')!;
   let currentRun:string|undefined,parent:string|null=null,enabled=false,busy=false,generation=0,loaded=false;
@@ -48,7 +48,10 @@ export function createRunAssistant() {
         if(epoch!==generation||currentRun!==runId)return;
         if(data?.runId!==runId||typeof data.headline!=='string'||!validFacts(data.facts)||data.evidenceUrl!==`/api/runs/${runId}/evidence`)throw new Error('Summary does not match this run');
         heading.textContent=data.headline.replace('Original car tested','Original shape tested');summary.replaceChildren();root.querySelector('.detail-facts')!.replaceChildren();
-        for(const fact of data.facts){const p=document.createElement('p');p.className=`summary-${fact.id}`;p.textContent=fact.text;(fact.id==='decision'||fact.id==='movement'||fact.id==='cabin'?summary:root.querySelector('.detail-facts')!).append(p);}
+        for(const fact of data.facts){const p=document.createElement('p');p.className=`summary-${fact.id}`;p.textContent=fact.text;summary.append(p);}
+        const detail=root.querySelector('.detail-facts')!;
+        if(data.metrics){const dl=document.createElement('dl');for(const metric of data.metrics){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=metric.label;dd.textContent=metric.value;dl.append(dt,dd);}detail.append(dl);}
+        for(const fact of data.technicalFacts??[]){const p=document.createElement('p');p.textContent=fact.text;detail.append(p);}
         const decisionQuestion=data.decision==='accept'?'Why did the local check pass?':'Why was it rejected?';
         const decisionButton=suggestions.querySelector<HTMLButtonElement>('button')!;decisionButton.textContent=decisionQuestion;decisionButton.onclick=()=>void ask(decisionQuestion);
         root.querySelector<HTMLAnchorElement>('.result-sources a')!.href=data.evidenceUrl;loaded=true;

@@ -76,6 +76,10 @@ def load_llm_config(
     values = os.environ if environ is None else environ
     base_url = values.get("ZEPHYR_TOKEN_FACTORY_BASE_URL", DEFAULT_BASE_URL).strip()
     model = values.get("ZEPHYR_ACTIVE_MODEL", "").strip()
+    primary_model = values.get("ZEPHYR_NEMOTRON_MODEL", "").strip()
+    alternate_url = values.get("ZEPHYR_TOKEN_FACTORY_BASE_URL_V2", "").strip()
+    if primary_model and model != primary_model and alternate_url:
+        base_url = alternate_url
     api_key = values.get("NEBIUS_API_KEY", "").strip()
     project_id = values.get("NEBIUS_AI_PROJECT_ID", "").strip()
     if not base_url:
