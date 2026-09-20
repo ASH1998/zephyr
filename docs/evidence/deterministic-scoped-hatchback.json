@@ -1,0 +1,82 @@
+{
+  "geometry": "hatchback",
+  "upstreamCommit": "0612ec4ed54484a47bfa134eda7b3b012a607624",
+  "checkpointSha256": "ad45e9477a7c0336c07a039ba70db7ddc9a2254d4ff94104d9c297ae7d7b662b",
+  "installedModelSha256": "b36df3198ddf45a4062b6cc8574f736f855f782ba926b6b75cfe67a11a5f6d76",
+  "localNumericsSha256": {
+    "sensitivity.py": "8cdfdca0829998bd5da9bb9103fb80ce87165efb529b88560f29ed7cc8a9948d",
+    "forward.py": "c2b845fe4199f49c8e3c5b42139654b9352f031017aa04f5d63af6d6e6fc2128",
+    "trust.py": "76ce030feed09162fc11d3233283d19160e36d8149f1ece6ea4cf6e116f040cf"
+  },
+  "evaluations": {
+    "autograd": {
+      "wallSeconds": 2.899298300006194,
+      "forceN": [
+        474.92291259765625,
+        76.211181640625,
+        478.8136901855469
+      ]
+    },
+    "deterministic": {
+      "wallSeconds": 1.9120722000006936,
+      "forceN": [
+        474.92291259765625,
+        76.211181640625,
+        478.8136901855469
+      ],
+      "parity": {
+        "geometry_coordinates": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "pred_surf_pressure": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "pred_surf_wall_shear_stress": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "aerodynamic_force": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "geometry_sensitivity": {
+          "passed": false,
+          "maxAbsoluteDifference": 3.241002559661865e-05
+        }
+      }
+    },
+    "deterministic-repeat": {
+      "wallSeconds": 1.853402399996412,
+      "forceN": [
+        474.92291259765625,
+        76.211181640625,
+        478.8136901855469
+      ],
+      "parity": {
+        "geometry_coordinates": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "pred_surf_pressure": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "pred_surf_wall_shear_stress": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "aerodynamic_force": {
+          "passed": true,
+          "maxAbsoluteDifference": 0.0
+        },
+        "geometry_sensitivity": {
+          "passed": false,
+          "maxAbsoluteDifference": 2.16066837310791e-05
+        }
+      }
+    }
+  },
+  "passed": false
+}
