@@ -2,6 +2,7 @@ import { FlowScene } from './scene';
 import { loadDetailedVehicle, disposeVehicle } from './detailed-vehicle';
 import type { VisualSpec } from './detailed-vehicle';
 import type { LiveRun } from './live-data';
+import { maximumMovementMm } from './live-data';
 import type { ViewMode } from './data';
 import { fieldRange } from './data';
 import { comparisonVerdict, playbackClock } from './comparison-data';
@@ -32,7 +33,7 @@ export function createComparison() {
     root.querySelectorAll<HTMLButtonElement>('[data-field]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.field === field)));
     label('.pair-pause', paused ? 'Resume comparison' : 'Pause comparison');
     root.querySelector('.pair-pause')!.setAttribute('aria-pressed', String(paused));
-    const mm = fieldRange(current.candidate!.displacementM)[1] * 1000;
+    const mm = maximumMovementMm(current);
     label('.pair-movement', `${mm.toFixed(2)} mm actual maximum`);
     let legend = '';
     if (mode === 'displacement') legend = `Actual movement: 0–${mm.toFixed(2)} mm · ${magnify.checked ? 'shape movement enlarged ×120 for visibility' : 'true-size geometry'} · gray cabin stays fixed.`;
@@ -81,6 +82,6 @@ export function createComparison() {
   window.addEventListener('pagehide', dispose, {once:true});
   return {
     clear() { dispose(); current = undefined; open.hidden = true; },
-    set(run: LiveRun, spec?: VisualSpec) { if (current?.runId === run.runId) return; dispose(); current = run; visual = spec; open.hidden = false; }
+    set(run: LiveRun, spec?: VisualSpec) { if (current?.runId === run.runId) return; dispose(); if(run.research || run.syntheticDent || current?.research || current?.syntheticDent)magnify.checked = !(run.research||run.syntheticDent); current = run; visual = spec; open.hidden = false; }
   };
 }

@@ -11,7 +11,7 @@ import { createCopilot } from './copilot';
 import { FlowScene } from './scene';
 import { fieldRange } from './data';
 import type { ViewMode } from './data';
-import { api, nextEvents, validateLiveRun, trustPresentation } from './live-data';
+import { api, nextEvents, validateLiveRun, trustPresentation, maximumMovementMm } from './live-data';
 import type { Job, JobEvent, LiveRun } from './live-data';
 import {activityCaption,computationActive} from './render-policy';
 
@@ -81,7 +81,7 @@ export async function startLive() {
     text('#result-scale',view==='displacement'&&magnify.checked?'Movement enlarged ×120 · actual mm shown':'True-scale shape · field in actual units');
     if(!run){text('#legend','DrivAerML geometry preview · run inference for measured surface fields');return;}
     const range=fieldRange(value==='sensitivity'?run.baseline.normalSensitivity:run.baseline.pressurePa), candidateRange=run.candidate?fieldRange(run.candidate.pressurePa):range;const lo=value==='pressure'?Math.min(range[0],candidateRange[0]):range[0],hi=value==='pressure'?Math.max(range[1],candidateRange[1]):range[1];
-    const mm=run.candidate?fieldRange(run.candidate.displacementM)[1]*1000:0;
+    const mm=maximumMovementMm(run);
     const label=value==='pressure'?`Pressure · ${lo.toFixed(0)} to ${hi.toFixed(0)} Pa`:value==='sensitivity'?`Baseline normal sensitivity · ${lo.toFixed(2)} to ${hi.toFixed(2)} N/m · signed asinh color scale`:value==='displacement'?`Actual displacement · 0–${mm.toFixed(2)} mm`:`${(run.baseline.positions.length/3).toLocaleString()} display vertices · reduced mesh`;
     $('#legend').replaceChildren();const scale=document.createElement('span');scale.className=`color-scale ${value}`;$('#legend').append(scale,label+' · live surrogate');
   }
@@ -92,7 +92,7 @@ export async function startLive() {
   const stopReplay=()=>{cancelAnimationFrame(replayFrame);replayFrame=0;replay.disabled=false;};
   replay.onclick=()=>{
     if(!run?.candidate)return;
-    stopReplay();mode('displacement');magnify.checked=true;magnify.onchange?.call(magnify,new Event('change'));
+    stopReplay();mode('displacement');magnify.checked=!(run.research||run.syntheticDent);magnify.onchange?.call(magnify,new Event('change'));
     if(matchMedia('(prefers-reduced-motion: reduce)').matches){blend(100);return;}
     replay.disabled=true;const started=performance.now();
     const animate=(now:number)=>{const t=Math.min(1,(now-started)/3500);blend(Math.round((.5-.5*Math.cos(t*Math.PI*3))*100));if(t<1)replayFrame=requestAnimationFrame(animate);else stopReplay();};
@@ -108,13 +108,15 @@ export async function startLive() {
     if(view==='airflow')text('#result-scale',cars.find(c=>c.id===selectedId)?.category==='aircraft'?'Scaled aircraft · 3.3 m wingspan':'Actual-size car · enlargement applies in Change view');
     const field=run?.airflow?(+compare.value>=50&&run.airflow.candidate?run.airflow.candidate:run.airflow.baseline):cachedFlow;
     flowChoice.querySelectorAll<HTMLButtonElement>('button').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.flowStyle===flowStyle));b.disabled=b.dataset.flowStyle==='prediction'&&!field;});
-    if(flowStyle==='illustration'){text('.flow-label',cars.find(c=>c.id===selectedId)?.category==='aircraft'?'ORANGE SPIRALS: WINGTIP VORTICES':'BLUE: AROUND THE BODY  ·  ORANGE: WAKE BEHIND');text('#legend',cars.find(c=>c.id===selectedId)?.category==='aircraft'?'Illustration · two air spirals turn in opposite directions behind the wings':run?.candidate?'Original-shape flow illustration · not a prediction of improvement':'Flow illustration · shape-following trails, not calculated air speeds');return;}
+    if(flowStyle==='illustration'){text('.flow-label',cars.find(c=>c.id===selectedId)?.category==='aircraft'?'ORANGE SPIRALS: WINGTIP VORTICES':'BLUE: AROUND THE BODY  ·  ORANGE: WAKE BEHIND');text('#legend',cars.find(c=>c.id===selectedId)?.category==='aircraft'?'Illustration · two air spirals turn in opposite directions behind the wings':run?.candidate?'Original-shape flow illustration':'Flow illustration · shape-following trails, not calculated air speeds');return;}
     if(field){const original=run?.candidate&&!run.airflow?.candidate;const label=cars.find(c=>c.id===selectedId)?.category==='aircraft'?'EXPERIMENTAL AIRCRAFT FLOW':run?.airflow?(original?'ORIGINAL-CAR AIRFLOW':'NVIDIA PREDICTED AIRFLOW'):'SAVED NVIDIA AIRFLOW';text('.flow-label','→ '+label);text('#legend',`${label.toLowerCase()} · blue = slower, orange = faster · 0–60+ m/s · slow motion`);}
     else{text('.flow-label','→ ILLUSTRATIVE AIRFLOW');text('#legend','Illustrative preview · model-driven airflow is not available for this shape yet');}
   }
   function describeCar(){const car=cars.find(c=>c.id===selectedId);const plane=car?.category==='aircraft';$('#app').classList.toggle('aircraft-workspace',plane);$('.intro').innerHTML=plane?'<p class="eyebrow">AIRCRAFT EXPLORER</p><h1>Follow the air.<br>Across the wings.<br><em>Around the tail.</em></h1><p class="subcopy">NASA aircraft models · experimental airflow.<br>Drag to rotate. Scroll to get closer.</p>':carIntro;analyze.textContent=plane?'Run experimental baseline analysis':'Run baseline analysis only';button.textContent=plane?'Shape editing is available for cars':'Run bounded iteration ↗';lockControls(active);carInfo.textContent=car?car.description+(car.experimental?' · detailed model · experimental airflow':''):'';text('footer > span:first-child',car?.label.toUpperCase()??selectedId.toUpperCase());}
   async function loadCar(id:string){
     const car=cars.find(c=>c.id===id);if(!car||active)return;
+    if(run?.research||run?.syntheticDent)magnify.checked=true;
+    text('.metrics .within','/ 4 mm');
     stopReplay();pair.clear();computingStage=undefined;activity.hidden=true;recordedReplay=false;history.replaceState(null,'',location.pathname);const epoch=++previewEpoch;selectedId=id;sessionStorage.setItem('zephyr-car',id);sessionStorage.removeItem('zephyr-active-run');jobId=undefined;run=undefined;cachedFlow=undefined;baselineLoaded=resultLoaded=explanationRequested=restoredIntent=false;copilot.reset();scene?.dispose();scene=undefined;
     $('.run-progress-card').hidden=true;$('.viewport').classList.remove('story-active');for(const name of ['#run-story','.comparison','.result-controls','#story-result','.rear-callout'])$(name).hidden=true;
     for(const name of ['.baseline-value','#candidate-force','#delta','#displacement'])text(name,'—');text('#trust-state','Not evaluated');text('.proof-value','Not run');text('.metrics .metric:last-child p','No surface or shape test for this selection yet');text('#trust-detail','Run a test to compare shapes');text('.metric-main p','Airflow preview loaded separately · no drag test yet');text('#run-id','NO RUN YET');$<HTMLButtonElement>('#export').disabled=true;document.querySelector<HTMLElement>('#candidate-export')?.setAttribute('hidden','');
@@ -127,6 +129,7 @@ export async function startLive() {
     }catch(error){if(epoch===previewEpoch){status('Preview unavailable',error instanceof Error?error.message:String(error));mode('airflow');}}
   }
   async function install(payload:LiveRun) {
+    if(run?.runId!==payload.runId && (payload.research || payload.syntheticDent || run?.research || run?.syntheticDent))magnify.checked=!(payload.research||payload.syntheticDent);
     ++previewEpoch;cachedFlow=undefined;selectedId=payload.geometryId??payload.intent?.request.geometryId??'drivaer-1';vehicleSelect.value=selectedId;describeCar();
     if(payload.intent && !restoredIntent){copilot.restore(payload.intent);restoredIntent=true;}
     run=payload;const epoch=previewEpoch;const car=cars.find(c=>c.id===selectedId);const preview=car?await fetch(car.preview).then(r=>r.json()):undefined;const asset=preview?.visual && preview.meshHash===payload.provenance.meshHash?await loadDetailedVehicle(preview.visual,payload.baseline):undefined;if(epoch!==previewEpoch){if(asset)disposeVehicle(asset);return;}visualSpec=asset?preview.visual:undefined;scene?.dispose();scene=new FlowScene($('#scene'),run,asset);updateMotion();for(const key of ['pressure','sensitivity','displacement'])$(`[data-mode="${key}"]`).removeAttribute('disabled');scene.setMagnified(magnify.checked,120);mode(view);blend(0);
@@ -136,10 +139,11 @@ export async function startLive() {
     const delta=run.forces.candidateDragN===null?null:(run.forces.candidateDragN-run.forces.baselineDragN)/run.forces.baselineDragN*100;
     text('#delta',delta===null?'Baseline only':`${delta>0?'+':''}${delta.toFixed(3)}%`);$('#delta').classList.toggle('worse',delta!==null&&delta>=0);
     text('.metric-main p',run.candidate?'Fresh baseline vs candidate · surrogate, not CFD':'Actual baseline · candidate has not been evaluated');
-    const mm=run.candidate?fieldRange(run.candidate.displacementM)[1]*1000:0;
+    const mm=maximumMovementMm(run);
+    text('.metrics .within',`/ ${(run.constraints.maxDisplacementM*1000).toFixed(0)} mm`);
     text('#displacement',run.candidate?`${mm.toFixed(2)} mm`:'No candidate');text('#scale-caption',run.candidate?`Actual maximum: ${mm.toFixed(2)} mm · cabin 0.00 mm`:'Analysis only');text('#run-id',run.runId);
     const trust=trustPresentation(run);text('#trust-state',trust.state);text('#trust-detail',trust.detail);
-    text('.proof-value','CFD pending');text('.metrics .metric:last-child p',`Geometry: ${run.validation.geometry} · fresh evaluation: ${run.validation.freshEvaluation}`);
+    text('.proof-value',run.research&&run.validation.independentCfd==='compared'?'CFD compared':run.research&&run.validation.independentCfd==='inconclusive'?'CFD inconclusive':'CFD pending');text('.metrics .metric:last-child p',`Geometry: ${run.validation.geometry} · fresh evaluation: ${run.validation.freshEvaluation}`);
     for(const s of ['.comparison','.result-controls','#story-result'])$(s).hidden=!run.candidate;
     if(run.candidate){text('#result-label',run.trust.decision==='accept'?'LOCAL SURROGATE CHECK PASSED · CFD PENDING':'FRESH SURROGATE COMPARISON · NOT ACCEPTED');text('#result-before',`${run.forces.baselineDragN.toFixed(2)} N`);text('#result-after',`${run.forces.candidateDragN!.toFixed(2)} N`);text('#result-delta',`${delta!>0?'+':''}${delta!.toFixed(3)}%`);$('#result-delta').classList.toggle('worse',delta!>=0);text('#result-scale',magnify.checked?'Movement enlarged ×120 · actual mm shown':'True-scale shape · field in actual mm');text('#rear-displacement',`${mm.toFixed(2)} mm actual movement`);if(view!=='airflow')mode('displacement');blend(100);}
     $('#provenance').replaceChildren();

@@ -9,6 +9,17 @@ from zephyr.copilot import Copilot
 from zephyr.run_answers import run_facts, summarize_run
 E={'runId':'local-'+'a'*32,'forces':{'baselineDragN':621.7,'candidateDragN':621.8},'constraints':{'maxDisplacementM':.002},'validation':{'independentCfd':'not-run','checks':{'bounds':{'maximumM':.0005},'protected':{'status':'passed'}}},'trust':{'decision':'refuse','calibrated':False}}
 class AnswersTests(unittest.TestCase):
+ def test_research_explanations_match_true_scale_forward_search(self):
+  e=copy.deepcopy(E);e['research']={'numericalResearchPassed':False};e['timings']={'totalSeconds':500}
+  research=run_facts(e);legacy=run_facts(E)
+  self.assertIn('true scale',research['magnify']['text'])
+  self.assertNotIn('120 times',research['magnify']['text'])
+  self.assertIn('120 times',legacy['magnify']['text'])
+  self.assertIn('TPE',research['search']['text'])
+  self.assertIn('probes',legacy['search']['text'])
+  self.assertIn('500.0 seconds',research['time']['text'])
+  self.assertIn('timings are separate',research['time']['text'])
+  self.assertIn('independent comparison',research['next']['text'])
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.client=Mock();self.client.complete_json.return_value=({'answerable':True,'factIds':['movement']},{'model':'test'})
   self.c=Copilot(Path(self.tmp.name),LlmConfig('https://example.invalid','test','never-persist-key','project'),self.client)

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateLiveRun, nextEvents, trustPresentation } from '../src/live-data.ts';
+import { validateLiveRun, nextEvents, trustPresentation, maximumMovementMm } from '../src/live-data.ts';
 import type { LiveRun, Job } from '../src/live-data.ts';
 function fixture(): LiveRun {
   const surface={positions:[0,0,0,1,0,0,0,1,0],triangles:[0,1,2],pressurePa:[10,20,30],wallShearPa:Array(9).fill(0),sensitivity:Array(9).fill(0),normalSensitivity:[-1,0,1],protectedMask:[1,0,1],displacementM:[0,0,0]};
@@ -27,7 +27,40 @@ test('real contract rejects wrong run, provenance, nonfinite fields and wrong co
 test('candidate must preserve protected vertices topology and displacement evidence',()=>{
   for(const mutate of [(r:LiveRun)=>{r.candidate!.positions[0]+=.001;},(r:LiveRun)=>{r.candidate!.triangles[0]=1;},(r:LiveRun)=>{r.candidate!.displacementM[1]=.004;},(r:LiveRun)=>{r.validation.freshEvaluation='not-run';}]){const r=comparison();mutate(r);assert.throws(()=>validateLiveRun(r));}
 });
+
+test('larger research replays require complete sedan evidence and never grant acceptance',()=>{
+  const r=comparison();r.source='recorded';r.geometryId='drivaer-1';r.constraints.maxDisplacementM=.060;
+  r.candidate!.positions[3]=1.03;r.candidate!.displacementM[1]=.03;r.forces.predictedDragN=null;
+  r.trust.engineeringValidated=false;
+  r.research={policyVersion:'sedan-forward-study-v1',planSha256:'a'.repeat(64),candidateRecordSha256:'b'.repeat(64),searchComplete:true,confirmationCount:3,numericalResearchPassed:false,trainingDistributionVerified:false};
+  r.validation.checks=Object.fromEntries(['topology','finite','protected','bounds','normals','triangleArea','edgeLength','aspectGrowth','watertight','legalEnvelope','checkpointBounds','selfIntersection'].map(k=>[k,{status:'passed'}]));
+  assert.equal(validateLiveRun(r).candidate!.displacementM[1],.03);
+  const paused=structuredClone(r);Object.assign(paused.research!,{provisional:true,searchComplete:false,confirmationCount:0,selectionSha256:'c'.repeat(64),phaseCounts:{lhs:100,tpe:90,random:0,confirm:0}});
+  assert.equal(validateLiveRun(paused).research!.searchComplete,false);
+  for(const mutate of [(x:LiveRun)=>{x.research!.numericalResearchPassed=true;},(x:LiveRun)=>{delete x.research!.selectionSha256;},(x:LiveRun)=>{x.research!.phaseCounts!.tpe=-1;},(x:LiveRun)=>{x.research!.searchComplete=true;}]){const bad=structuredClone(paused);mutate(bad);assert.throws(()=>validateLiveRun(bad));}
+  for(const mutate of [(x:LiveRun)=>{x.source='live';},(x:LiveRun)=>{x.geometryId='x57';},(x:LiveRun)=>{x.research!.confirmationCount=2;},(x:LiveRun)=>{x.trust.decision='accept';},(x:LiveRun)=>{x.validation.checks.selfIntersection.status='not-run';},(x:LiveRun)=>{delete x.research;}]){
+    const bad=structuredClone(r);mutate(bad);assert.throws(()=>validateLiveRun(bad));
+  }
+});
 test('polling event identities and ordering are guarded and duplicates ignored',()=>{
   const j={runId:'a',source:'live',state:'running',stage:'baseline',detail:'',sequence:2,baselineReady:false,resultReady:false,events:[{runId:'a',source:'live',sequence:1,stage:'baseline',detail:'',completed:1,total:92},{runId:'a',source:'live',sequence:2,stage:'baseline',detail:'',completed:2,total:92}]} as Job;
   assert.equal(nextEvents(j,'a',1).length,1);assert.equal(nextEvents(j,'a',2).length,0);assert.throws(()=>nextEvents(j,'b',0));j.events[1].runId='b';assert.throws(()=>nextEvents(j,'a',0));j.events[1].runId='a';j.events[1].sequence=1;assert.throws(()=>nextEvents(j,'a',0));
+});
+
+test('maximum movement uses full resolution evidence when display reduction omits the deepest vertex',()=>{
+  const r=comparison();r.constraints.maxDisplacementM=.012;
+  r.validation.checks.bounds={status:'passed',maximumM:.011302};
+  assert.equal(maximumMovementMm(r),11.302);
+  r.validation.checks.bounds.maximumM=NaN;assert.equal(maximumMovementMm(r),2);
+  r.validation.checks.bounds.maximumM=.02;assert.equal(maximumMovementMm(r),2);
+});
+
+test('synthetic dent is recorded, geometry-screened and cannot imply structural acceptance',()=>{
+  const r=comparison();r.source='recorded';r.geometryId='drivaer-1';r.constraints.maxDisplacementM=.012;
+  r.forces.predictedDragN=null;r.trust.engineeringValidated=false;
+  r.syntheticDent={schemaVersion:'zephyr.synthetic-dent.v1',scenarioSha256:'c'.repeat(64),preset:{name:'synthetic-hood-dent-v1',depthMm:12,scope:'Synthetic geometry only'},trainingDistributionVerified:false,structuralAssessment:false,roadworthinessAssessment:false};
+  r.validation.checks=Object.fromEntries(['topology','finite','protected','bounds','normals','triangleArea','edgeLength','aspectGrowth','watertight','legalEnvelope','checkpointBounds','selfIntersection'].map(k=>[k,{status:'passed'}]));
+  assert.equal(validateLiveRun(r).syntheticDent!.preset.depthMm,12);
+  assert.match(trustPresentation(r).headline,/Synthetic dent/);
+  for(const mutate of [(x:LiveRun)=>{x.source='live';},(x:LiveRun)=>{x.geometryId='x57';},(x:LiveRun)=>{x.syntheticDent!.scenarioSha256='';},(x:LiveRun)=>{x.trust.decision='accept';},(x:LiveRun)=>{x.validation.checks.selfIntersection.status='not-run';},(x:LiveRun)=>{x.constraints.maxDisplacementM=.013;},(x:LiveRun)=>{delete x.syntheticDent;}]){const bad=structuredClone(r);mutate(bad);assert.throws(()=>validateLiveRun(bad));}
 });

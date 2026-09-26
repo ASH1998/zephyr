@@ -24,14 +24,15 @@ def run_facts(e):
         elif delta==0:
             decision='The model found no reduction in air resistance. This step was not accepted.'
         else:
-            decision='The model predicted less air resistance, but the design was not accepted. ' + t.get('reason', 'The required validation checks are incomplete.')
+            decision='The model predicted less air resistance, but the design was not accepted. ' + t.get('reason', 'The required validation checks are incomplete.').split(' Research gates:')[0]
         add('decision', decision, ['/trust','/forces','/validation'])
     checks=v.get('checks', {})
     maximum=checks.get('bounds', {}).get('maximumM')
     if maximum is not None:
         mm=maximum*1000
         region=e.get('handle',{}).get('label','selected body region')
-        add('movement', f'The biggest actual movement was {mm:.3f} mm, using {region}. At normal scale, a movement this small is easy to miss. Orange in the Change view marks movement; it is not heat.', ['/validation/checks/bounds','/constraints','/handle'])
+        scale_note = 'The research replay opens at true scale.' if e.get('research') else 'At normal scale, a movement this small is easy to miss.'
+        add('movement', f'The biggest actual movement was {mm:.3f} mm, using {region}. {scale_note} Orange in the Change view marks movement; it is not heat.', ['/validation/checks/bounds','/constraints','/handle'])
     if checks.get('protected', {}).get('status')=='passed':
         add('cabin', 'The protected part of the car, including the passenger cabin, stayed exactly in place.', ['/validation/checks/protected'])
     intent=e.get('intent', {})
@@ -41,16 +42,21 @@ def run_facts(e):
         text=f'This run allowed at most {effective*1000:.3f} mm of movement.'
         if slider is not None and slider>effective*1000:
             text+=f' The slider allowed {slider:.3f} mm, but the brief set a stricter limit. The smaller limit won.'
-        if maximum is not None and maximum<effective-1e-10:
+        if maximum is not None and maximum<effective-1e-10 and not e.get('research'):
             text+=' Shape checks required a smaller trial before the GPU tested it.'
         add('budget', text, ['/constraints','/intent','/validation/checks/bounds'])
     times=e.get('timings', {})
     if times:
-        text=f"The local run took {times.get('totalSeconds',0):.1f} seconds including preparation and checks."
+        text=(f"Generating this recorded replay's fields took {times.get('totalSeconds',0):.1f} seconds. Search and independent CFD timings are separate."
+              if e.get('research') else f"The local run took {times.get('totalSeconds',0):.1f} seconds including preparation and checks.")
         if 'baselineSeconds' in times:text+=f" The original-car calculation took {times['baselineSeconds']:.1f} seconds."
         if 'evaluateSeconds' in times:text+=f" Testing the changed car took {times['evaluateSeconds']:.1f} seconds."
         add('time', text, ['/timings'])
-    if not t.get('calibrated'):
+    if e.get('research'):
+        numerical = 'passed' if e['research']['numericalResearchPassed'] else 'did not pass'
+        detail = ('The search was stopped early by the user. This is a provisional demonstration; matched controls and finalist repeats are incomplete. ' if e['research'].get('provisional') else f'The equal-budget forward-search numerical gates {numerical}. ')
+        add('confidence', detail + 'Training-distribution mapping remains unverified. Numerical repeatability does not establish physical accuracy.', ['/research', '/trust'])
+    elif not t.get('calibrated'):
         add('confidence', 'We have not yet established how reliably the model predicts the effect of these small shape changes. A tiny numerical improvement is not enough to claim a better real car.', ['/trust'])
     elif t.get('calibrationScope')=='local-surrogate-handle-only':
         add('confidence', 'The small-probe prediction agreed with a separate fresh candidate evaluation for this run. This checks local numerical behavior; it does not measure physical model accuracy or establish a reusable trust radius.', ['/trust','/calibration'])
@@ -82,8 +88,17 @@ def run_facts(e):
         add('airflow','This older run has no recorded volume calculation. The viewer may load a saved NVIDIA volume result for its original car; check the airflow label. Any illustrative preview is labelled explicitly.',source='application')
     add('pressure', 'Pressure means how strongly air presses on the surface. In Pressure view, warmer colors mean higher predicted pressure and cooler colors mean lower pressure. They are not temperature or a good/bad score.', source='application')
     add('sensitivity', 'Sensitivity highlights where the model thinks a small shape change could affect air resistance. It is a suggestion to test, not proof that a change will help.', source='application')
-    add('magnify', 'Choose Show me the change to replay movement in the selected body region, enlarged 120 times for visibility. This exaggerates the shape only on screen; the GPU tested the real movement. Turn off Enlarge movement to see the actual size. Open Compare Original / Changed to inspect the linked views at the same scale.', source='application')
-    add('search', 'A single iteration tests positive and negative probes, then a separate candidate. Explore the body compares nose width, hood contour, side shoulders, rear-deck height and upper rear taper from the same original. Each has fresh probes and checks. The cabin and lower wheel/ground envelope remain fixed. Refused candidates stay visible. Repeating the same inputs can repeat the same result.', source='application')
+    if e.get('research'):
+        add('magnify', 'This research replay opens at true scale. Show me the change replays the actual movement unless you explicitly enable Enlarge movement. Compare Original / Changed opens linked views of the two shapes. Any enabled enlargement affects display only.', ['/research'], source='application')
+        if e['research'].get('provisional'):
+            counts = e['research']['phaseCounts']
+            search_text = f"The user stopped the search after {counts['lhs']} legal Latin-hypercube samples and {counts['tpe']} TPE evaluations. There are {counts['random']} random controls and {counts['confirm']} finalist repeats. The selected saved candidate received fresh display-field evaluation. This does not complete the planned experiment."
+        else:
+            search_text = 'This recorded study used 100 legal Latin-hypercube samples followed by 100 TPE optimization evaluations, against 200 independent random legal controls. The top three distinct optimized shapes received three fresh repeats each.'
+        add('search', search_text + ' Sensitivity explains the model response; it did not control shape steps. Geometry refusals remain in the study evidence.', ['/research', '/researchSummary'])
+    else:
+        add('magnify', 'Choose Show me the change to replay movement in the selected body region, enlarged 120 times for visibility. This exaggerates the shape only on screen; the GPU tested the real movement. Turn off Enlarge movement to see the actual size. Open Compare Original / Changed to inspect the linked views at the same scale.', source='application')
+        add('search', 'A single iteration tests positive and negative probes, then a separate candidate. Explore the body compares nose width, hood contour, side shoulders, rear-deck height and upper rear taper from the same original. Each has fresh probes and checks. The cabin and lower wheel/ground envelope remain fixed. Refused candidates stay visible. Repeating the same inputs can repeat the same result.', source='application')
     add('cars', 'Choose from the DrivAer sedan and six generic demo bodies: hatchback, SUV, wagon, coupe, sports car, and van. Each has its own saved NVIDIA airflow result and can run a fresh calculation. The six demo styles are outside the sedan training examples; treat their predictions as experimental. Uploads are not connected yet.', source='application')
     add('scans', 'A scan can be the starting shape, but it is not ready to simulate just because it looks like a car. We need real dimensions, a complete surface, repaired gaps, and the underside and wheel details. Upload and scan preparation are not implemented in this build.', source='application')
     add('units', 'Drag is the air resistance opposing motion. Newtons, shown as N, measure force. Millimetres, shown as mm, measure how far the shape moved. Lower predicted drag is the aim; a large-looking colored area does not imply a large movement.', source='application')
@@ -91,6 +106,8 @@ def run_facts(e):
     add('assistant', 'The text assistant reads your brief and chooses relevant explanations from the recorded facts. It does not move mesh points, change safety limits, run a new test through chat, or approve the design.', source='application')
     if candidate is None:
         next_step='Run a bounded shape test to obtain an original/changed comparison.'
+    elif e.get('research'):
+        next_step=('Use this provisional candidate for the demonstration. The user stopped optimization; no further search is scheduled. Keep the original as the reference. The predicted reduction is not a validated physical improvement.' if e['research'].get('provisional') else 'Keep the original as the reference. Review the matched random controls, repeats, training-distribution limits and independent comparison in the linked research evidence before interpreting the proposed shape as a physical improvement.')
     elif t['decision']=='accept':
         next_step='Keep this candidate for independent CFD comparison. The local checks passed, but this run does not establish fuel savings, battery range or manufacturing readiness.'
     elif e.get('car',{}).get('experimental'):
