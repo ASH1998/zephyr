@@ -1,5 +1,5 @@
 import type { Job, LiveRun } from './live-data';
-import { maximumMovementMm } from './live-data.ts';
+import { maximumMovementMm, isDemoComparison } from './live-data.ts';
 
 export function canCompare(run: LiveRun | undefined, state: Job['state']) {
   return state === 'complete' && run?.status === 'comparison' && !!run.candidate &&
@@ -14,6 +14,7 @@ export function comparisonVerdict(run: LiveRun) {
   const movement = maximumMovementMm(run);
   const result = difference === 0 ? 'Estimated resistance is unchanged.' :
     `Estimated resistance ${difference < 0 ? 'decreased' : 'increased'} by ${Math.abs(difference).toFixed(2)} N${percent === null ? '' : ` (${percent.toFixed(3)}%)`}.`;
+  if(isDemoComparison(run))return `${result} Actual maximum movement: ${movement.toFixed(2)} mm. Cabin unchanged.`;
   return `${run.syntheticDent?'Synthetic hood dent. ':''}${result} Actual maximum movement: ${movement.toFixed(2)} mm. Cabin unchanged. ${run.trust.decision === 'accept' ? 'Accepted for further evaluation only. Engineering validation pending.' : 'Engineering acceptance: refused.'} ${run.trust.reason.split(' Research gates:')[0]} Surrogate estimate; independent CFD: ${run.validation.independentCfd}.`;
 }
 

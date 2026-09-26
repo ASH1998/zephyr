@@ -8,6 +8,16 @@ function fixture(): LiveRun {
 }
 function comparison(){const r=fixture();r.candidate=structuredClone(r.baseline);r.candidate.positions[3]+=.002;r.candidate.displacementM[1]=.002;r.status='comparison';r.forces.candidateN=[601,0,0];r.forces.candidateDragN=601;r.forces.predictedDragN=599;r.validation.freshEvaluation='passed';return r;}
 test('analysis is valid with no invented candidate or candidate force',()=>{assert.equal(validateLiveRun(fixture()).candidate,null);const r=fixture();r.forces.candidateDragN=599;assert.throws(()=>validateLiveRun(r),/invent/);});
+test('short sedan comparison stays inspectable without claiming skipped calibration passed',()=>{
+  const r=comparison();r.geometryId='drivaer-1';r.executionProfile='sedan-demo-v1';r.validation.geometry='passed';
+  r.calibration={status:'not-run'};Object.assign(r.trust,{policyVersion:'sedan-demo-v1',engineeringValidated:false});
+  assert.equal(trustPresentation(validateLiveRun(r)).state,'Comparison complete');
+  assert.equal(trustPresentation(r).headline,'This change did not help.');
+  r.trust.decision='accept';assert.throws(()=>validateLiveRun(r),/demo comparison/);r.trust.decision='refuse';
+  r.calibration.status='passed';assert.throws(()=>validateLiveRun(r),/demo comparison/);r.calibration.status='not-run';
+  r.geometryId='x57';assert.throws(()=>validateLiveRun(r),/demo comparison/);r.geometryId='drivaer-1';
+  r.validation.geometry='failed';assert.equal(trustPresentation(validateLiveRun(r)).state,'Not accepted');
+});
 test('fresh worsening comparison remains visible with refusal',()=>{const r=comparison();assert.equal(validateLiveRun(r).forces.candidateDragN,601);r.trust.decision='accept';assert.throws(()=>validateLiveRun(r),/unearned/);});
 test('local acceptance needs fresh improvement, scoped calibration and completed geometry checks',()=>{
   const r=comparison();r.geometryId='drivaer-1';r.forces.candidateN![0]=599;r.forces.candidateDragN=599;r.validation.geometry='passed';r.validation.checks=Object.fromEntries(['topology','finite','protected','bounds','normals','triangleArea','watertight','symmetricHandle','transition','selfIntersection'].map(k=>[k,{status:'passed'}]));

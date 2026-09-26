@@ -126,6 +126,12 @@ def run_facts(e):
             add('movement', f'The synthetic hood dent moved the surface inward by at most {maximum*1000:.3f} mm. The viewer opens at true scale. The colored patch shows geometric displacement, not measured damage severity.', ['/validation/checks/bounds','/syntheticDent'])
         if candidate is not None:
             add('comparison', f'The model predicts {baseline:.2f} N for the original car and {candidate:.2f} N for the synthetically dented car: {candidate-baseline:+.3f} N ({(candidate-baseline)/baseline*100:+.3f}%). This is predicted aerodynamic change, not a damage or safety score.', ['/forces','/syntheticDent'])
+    if e.get('executionProfile') == 'sedan-demo-v1' and candidate is not None:
+        add('search', 'One change was chosen from the original sensitivity field. The original and changed shapes each received fresh surface and airflow calculations. Repeat and directional-probe calculations were omitted.', ['/executionProfile','/calibration','/handle'])
+        add('confidence', 'Local calibration was not run. The displayed forces are fresh model predictions for the two shapes.', ['/calibration','/forces'])
+        if v.get('geometry') == 'passed':
+            add('decision', 'The original and changed shapes have been compared. ' + ('The changed shape has lower predicted resistance.' if candidate < baseline else 'The changed shape did not reduce predicted resistance.'), ['/forces','/validation'])
+            add('next', 'Inspect Original / Changed to compare movement, pressure and airflow.', ['/forces','/validation'])
     return facts
 
 
@@ -134,6 +140,7 @@ def summarize_run(e):
     f=e['forces']; candidate=f.get('candidateDragN')
     if e.get('syntheticDent'): headline='Synthetic dent: aerodynamic comparison'
     elif candidate is None: headline='Original car tested'
+    elif e.get('executionProfile')=='sedan-demo-v1' and e['validation'].get('geometry')=='passed':headline='Lower predicted resistance' if candidate<f['baselineDragN'] else 'No reduction in predicted resistance'
     elif e['trust']['decision']=='accept':headline='Tested step accepted'
     elif candidate>f['baselineDragN']:headline='This change did not help'
     elif candidate==f['baselineDragN']:headline='No improvement found'
@@ -150,6 +157,7 @@ def summarize_run(e):
         metric('Prediction disagreement',f"{e['trust']['predictionErrorPercent']:.2f}%")
     metric('Independent CFD',e['validation']['independentCfd'])
     return {'runId':e['runId'],'headline':headline,'decision':e['trust']['decision'],
+            'comparisonOnly':e.get('executionProfile')=='sedan-demo-v1' and e['validation'].get('geometry')=='passed',
             'facts':[facts[i] for i in ids if i in facts], 'metrics':metrics,
             'technicalFacts':[facts[i] for i in ['prediction','confidence','geometry_check','time','sensitivity'] if i in facts],
             'evidenceUrl':'/api/runs/'+e['runId']+'/evidence'}

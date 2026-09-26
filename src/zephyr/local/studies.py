@@ -69,6 +69,8 @@ class Studies:
                     row.update(forces=e['forces'], trust=e['trust'], validation=e['validation'],
                                movementMm=e['validation']['checks'].get('bounds',{}).get('maximumM',0)*1000,
                                seconds=e['timings']['totalSeconds'], meshHash=e['provenance']['meshHash'])
+                    if e.get('executionProfile'):
+                        row['executionProfile'] = e['executionProfile']
                 else: row['detail'] = job['detail']
                 study['currentRunId'] = None; self.save(study)
                 # The monitor publishes terminal state before releasing its lease.
@@ -77,6 +79,9 @@ class Studies:
             eligible = [r for r in study['runs'] if r.get('trust',{}).get('decision') == 'accept']
             study['recommendedRunId'] = min(eligible,key=lambda r:r['forces']['candidateDragN'])['runId'] if eligible else None
             study['conclusion'] = 'Candidate for independent validation; physical improvement unproven.' if eligible else 'No candidate passed all local checks. Keep the original.'
+            if self.jobs.fast_demo and authorized['geometryId'] == 'drivaer-1':
+                completed = sum(r['state'] == 'complete' for r in study['runs'])
+                study['conclusion'] = f"{'Comparison cancelled' if self.cancelled.is_set() else 'Comparison finished'}. {completed} of {len(study['plannedHandles'])} regions completed; inspect their results below."
         except Exception as exc:
             study['state'] = 'failed'; study['error'] = type(exc).__name__+': '+str(exc)
         finally:
@@ -107,6 +112,7 @@ def run_history(root):
             if e.get('runId') != path.parent.name or not (path.parent/'result.json').is_file(): continue
             rows.append({'runId':e['runId'],'geometryId':e['geometryId'],'createdAt':e['createdAt'],
                          'handle':e.get('handle',{}).get('handle'), 'forces':e['forces'],'decision':e['trust']['decision'],
-                         'movementMm':e['validation']['checks'].get('bounds',{}).get('maximumM',0)*1000})
+                         'movementMm':e['validation']['checks'].get('bounds',{}).get('maximumM',0)*1000,
+                         'comparisonOnly':e.get('executionProfile')=='sedan-demo-v1' and e['validation'].get('geometry')=='passed'})
         except (OSError,ValueError,KeyError,TypeError): continue
     return rows

@@ -1,6 +1,6 @@
 import { api } from './live-data.ts';
 export interface AnswerFact {id:string;text:string;source:'run'|'application';pointers:string[]}
-interface Summary {runId:string;headline:string;decision:string;facts:AnswerFact[];metrics?:{label:string;value:string}[];technicalFacts?:AnswerFact[];evidenceUrl:string}
+interface Summary {runId:string;headline:string;decision:string;comparisonOnly?:boolean;facts:AnswerFact[];metrics?:{label:string;value:string}[];technicalFacts?:AnswerFact[];evidenceUrl:string}
 export interface RunAnswer {answerId:string;runId:string;question:string;parentAnswerId:string|null;answerable:boolean;facts:AnswerFact[];fallback:string|null;provenance:{model:string};evidenceUrl:string}
 function validFacts(facts:AnswerFact[]) {return Array.isArray(facts)&&facts.every(f=>typeof f.id==='string'&&typeof f.text==='string'&&['run','application'].includes(f.source)&&Array.isArray(f.pointers)&&f.pointers.every(p=>typeof p==='string'&&p.startsWith('/')));}
 export function validateAnswer(a:RunAnswer,runId:string,question:string,parent:string|null) {
@@ -52,7 +52,7 @@ export function createRunAssistant() {
         const detail=root.querySelector('.detail-facts')!;
         if(data.metrics){const dl=document.createElement('dl');for(const metric of data.metrics){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=metric.label;dd.textContent=metric.value;dl.append(dt,dd);}detail.append(dl);}
         for(const fact of data.technicalFacts??[]){const p=document.createElement('p');p.textContent=fact.text;detail.append(p);}
-        const decisionQuestion=data.decision==='accept'?'Why did the local check pass?':'Why was it rejected?';
+        const decisionQuestion=data.comparisonOnly?'What changed in this comparison?':data.decision==='accept'?'Why did the local check pass?':'Why was it rejected?';
         const decisionButton=suggestions.querySelector<HTMLButtonElement>('button')!;decisionButton.textContent=decisionQuestion;decisionButton.onclick=()=>void ask(decisionQuestion);
         root.querySelector<HTMLAnchorElement>('.result-sources a')!.href=data.evidenceUrl;loaded=true;
         status.textContent=enabled?'Answers use this run’s evidence and the app’s current capabilities.':'Questions need the API’s --enable-llm option.';

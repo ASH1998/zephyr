@@ -66,7 +66,8 @@ def preset_plan(data):
 
 
 class Jobs:
-    def __init__(self, root=None, command=None):
+    def __init__(self, root=None, command=None, *, fast_demo=False):
+        self.fast_demo = fast_demo
         self.root = root or ROOT / '.local/runs'
         self.root.mkdir(parents=True, exist_ok=True)
         self.command = command or [sys.executable, '-u', '-m', 'zephyr.local.worker']
@@ -91,6 +92,9 @@ class Jobs:
             raise ValueError('Use the exploration endpoint for multi-candidate work')
         if intent is not None:
             request['intent'] = intent
+        if self.fast_demo and request['geometryId'] == 'drivaer-1' and request['mode'] == 'iteration':
+            from zephyr.local.demo import PROFILE
+            request['executionProfile'] = PROFILE
         with self.lock:
             if self.studies.current and study_id != self.studies.current:
                 raise BusyError('An exploration owns the GPU queue; wait or cancel it')
@@ -250,7 +254,7 @@ def handler_for(jobs, copilot=None):
             if not self.allowed(): return
             path = urlsplit(self.path).path
             if path == '/api/health':
-                return self.respond(200, {'service': 'zephyr-local', 'activeRunId': jobs.active, 'geometryId': 'drivaer-1', 'copilot': copilot.status() if copilot else {'enabled': False}})
+                return self.respond(200, {'service': 'zephyr-local', 'activeRunId': jobs.active, 'geometryId': 'drivaer-1', 'fastDemo': jobs.fast_demo, 'copilot': copilot.status() if copilot else {'enabled': False}})
             if path == '/api/geometries':
                 return self.respond(200, {'cars':CARS})
             if path == '/api/body-regions':
@@ -367,6 +371,7 @@ def handler_for(jobs, copilot=None):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=8766)
+    parser.add_argument('--fast-demo', action='store_true', help='Sedan: one sensitivity-directed candidate, without repeat/directional probes')
     parser.add_argument('--enable-llm', action='store_true', help='Opt in to paid model calls for brief interpretation and evidence explanation')
     args = parser.parse_args()
     copilot = None
@@ -375,7 +380,7 @@ def main():
         values = os.environ.copy()
         load_env_file(ROOT / '.env', environ=values)
         copilot = Copilot(ROOT / '.local/copilot', load_llm_config(values, require_credentials=True))
-    jobs = Jobs()
+    jobs = Jobs(fast_demo=args.fast_demo)
     server = ThreadingHTTPServer(('127.0.0.1', args.port), handler_for(jobs, copilot))
     print(f'Zephyr local DoMINO API: http://127.0.0.1:{args.port}', flush=True)
     try:

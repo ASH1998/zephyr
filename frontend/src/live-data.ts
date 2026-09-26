@@ -3,6 +3,7 @@ import type { Airflow } from './airflow.ts';
 import type { IntentPlan } from './copilot';
 import type { Surface, Vec3 } from './data.ts';
 export interface LiveRun {
+  executionProfile?: 'sedan-demo-v1';
   syntheticDent?: {schemaVersion:'zephyr.synthetic-dent.v1';scenarioSha256:string;preset:{name:string;depthMm:number;scope:string};trainingDistributionVerified:false;structuralAssessment:false;roadworthinessAssessment:false};
   research?: {policyVersion:'sedan-forward-study-v1';planSha256:string;candidateRecordSha256:string;searchComplete:boolean;confirmationCount:number;numericalResearchPassed:boolean;trainingDistributionVerified:boolean;provisional?:boolean;selectionSha256?:string;phaseCounts?:Record<string,number>};
   handle?: {handle:string;label?:string};
@@ -33,6 +34,9 @@ export function validateLiveRun(input: unknown, runId?: string): LiveRun {
   if (!r.provenance.evidenceUrls?.length || !r.provenance.forceConvention || !r.provenance.fieldTransfer || !r.provenance.sensitivityConvention || !r.validation?.evidenceIds?.length) fail('field/force evidence');
   const research=!!r.research;
   const dent=!!r.syntheticDent;
+  if(r.executionProfile!==undefined && (r.executionProfile!=='sedan-demo-v1' || research || dent || r.geometryId!=='drivaer-1' ||
+    r.trust?.decision!=='refuse' || r.trust.calibrated!==false || (r.candidate &&
+    (r.calibration?.status!=='not-run' || r.trust.policyVersion!=='sedan-demo-v1' || r.trust.engineeringValidated!==false)))) fail('invalid demo comparison');
   if(dent && (research || r.syntheticDent!.schemaVersion!=='zephyr.synthetic-dent.v1' ||
     !/^[a-f0-9]{64}$/.test(r.syntheticDent!.scenarioSha256) || r.syntheticDent!.preset?.name!=='synthetic-hood-dent-v1' ||
     r.syntheticDent!.preset.depthMm!==12 || !r.syntheticDent!.preset.scope || r.source!=='recorded' || r.geometryId!=='drivaer-1' ||
@@ -84,6 +88,9 @@ export function maximumMovementMm(run:LiveRun) {
 }
 export function trustPresentation(run:LiveRun) {
   const t=run.trust;
+  if(isDemoComparison(run))return {state:'Comparison complete',detail:t.reason,
+    headline:run.forces.candidateDragN!<run.forces.baselineDragN?'Lower predicted resistance.':run.forces.candidateDragN!>run.forces.baselineDragN?'This change did not help.':'Predicted resistance unchanged.',
+    candidateLabel:'Evaluated candidate'};
   const state=!run.candidate?'Analysis only':t.decision==='accept'?'Local check passed':t.decision==='shrink'?'Smaller step needed':'Not accepted';
   const detail=run.research||run.syntheticDent?t.reason.split(' Research gates:')[0]:t.predictionErrorN!==undefined?`Prediction difference ${t.predictionErrorN.toFixed(3)} N${t.predictionErrorPercent===null?' · relative change unresolved':` · ${t.predictionErrorPercent.toFixed(1)}% of predicted change`}. Local surrogate check only.`:
     t.predictionErrorPercent===null?'No validated local prediction':`Legacy change-relative error ${t.predictionErrorPercent.toFixed(1)}% · uncalibrated`;
@@ -92,6 +99,7 @@ export function trustPresentation(run:LiveRun) {
   const candidateLabel=t.decision==='accept'?'Evaluated candidate · local check passed':'Evaluated candidate · not accepted';
   return {state,detail,headline,candidateLabel};
 }
+export function isDemoComparison(run:LiveRun){return run.executionProfile==='sedan-demo-v1' && !!run.candidate && run.validation.geometry==='passed';}
 export function nextEvents(job: Job, runId: string, sequence: number): JobEvent[] {
   if (job.runId !== runId || job.source !== 'live' || !Array.isArray(job.events)) fail('job identity');
   let last = 0;
