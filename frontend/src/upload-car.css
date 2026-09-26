@@ -9,3 +9,4 @@
 @media(max-width:600px){.upload-car{padding:16px}.upload-preview{height:240px}.upload-car h2{font-size:24px}.upload-options button{flex:1 1 40%}}
 
 .import-next{display:block;width:100%;padding:13px 16px;margin:14px 0;border:1px solid #86bda8;border-radius:5px;background:#bde5d6;color:#142c32;font-weight:600;cursor:pointer}.import-next[hidden]{display:none}.import-next:disabled{opacity:.5;cursor:default}
+.live-workspace .add-car{display:block;width:100%;margin:0 0 14px;padding:10px 14px;border:1px solid #4c827d;border-radius:5px;background:#15333c;color:#c9eee1;font-size:13px;text-align:left;cursor:pointer}.live-workspace .add-car:disabled{opacity:.5;cursor:default}

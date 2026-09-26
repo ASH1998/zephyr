@@ -23,6 +23,7 @@ export async function startLive() {
   type Car={category:'car'|'aircraft';id:string;label:string;description:string;experimental:boolean;preview:string;airflow:string;support?:'shape-tests'|'baseline-only';supportReason?:string};
   let cars:Car[]=[],selectedId='drivaer-1',previewEpoch=0,cachedFlow:Airflow|undefined;
   const vehicleSelect=$<HTMLSelectElement>('#vehicle');const carIntro=$('.intro').innerHTML;
+  const addCar=document.createElement('button');addCar.type='button';addCar.className='add-car';addCar.textContent='Bring your own car';addCar.disabled=true;
   const carInfo=document.createElement('p');carInfo.className='car-description';vehicleSelect.parentElement!.after(carInfo);const aircraftNote=document.createElement('p');aircraftNote.className='aircraft-note';aircraftNote.textContent='Orange spirals start at the wing tips and turn in opposite directions. Rotate the aircraft to follow them behind the wings. Use Flow illustration to see air bend around the shape, or NVIDIA prediction to inspect the calculated paths. This is an experimental visual preview, not a flight-performance test.';carInfo.after(aircraftNote);
   const pair = createComparison();
   let visualSpec: VisualSpec | undefined;
@@ -69,8 +70,9 @@ export async function startLive() {
 
   const brief=$<HTMLTextAreaElement>('#brief');
   const getRequest=(mode:'analysis'|'iteration'='iteration',budgetMm=+budget.value)=>({geometryId:selectedId,budgetMm,brief:cars.find(c=>c.id===selectedId)?.category==='aircraft'?'Reduce drag. Keep the cabin unchanged.':brief.value,mode});
-  function lockControls(busy:boolean){const car=cars.find(c=>c.id===selectedId),plane=car?.category==='aircraft'||car?.support==='baseline-only';analyze.disabled=vehicleSelect.disabled=busy;button.disabled=budget.disabled=brief.disabled=busy||plane;copilot.setBusy(busy||plane);if(typeof exploration!=='undefined')exploration.setBusy(busy||plane);importNext.hidden=!selectedId.startsWith('upload-')||!run||!!run.candidate;importNext.disabled=busy||plane;importNext.textContent=plane?'Shape tests unavailable for this geometry':'Test a bounded shape change';}
+  function lockControls(busy:boolean){const car=cars.find(c=>c.id===selectedId),plane=car?.category==='aircraft'||car?.support==='baseline-only';analyze.disabled=vehicleSelect.disabled=addCar.disabled=busy;addCar.title=busy?'Available when the current calculation finishes':'Upload another mesh or photo';button.disabled=budget.disabled=brief.disabled=busy||plane;copilot.setBusy(busy||plane);if(typeof exploration!=='undefined')exploration.setBusy(busy||plane);importNext.hidden=!selectedId.startsWith('upload-')||!run||!!run.candidate;importNext.disabled=busy||plane;importNext.textContent=plane?'Shape tests unavailable for this geometry':'Test a bounded shape change';}
   const copilot=createCopilot(()=>getRequest(),busy=>{active=busy;lockControls(busy);});
+  vehicleSelect.parentElement!.after(addCar);
   $('.run-assistant .result-summary').after(importNext);
   const exploration=createExploration(()=>getRequest(),copilot.prepare,busy=>{active=busy;lockControls(busy);},followStudyRun);
   function mode(value:ViewMode) {
@@ -245,9 +247,10 @@ export async function startLive() {
   $('#export').onclick=()=>{if(!run)return;const url=URL.createObjectURL(new Blob([JSON.stringify(run)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`${run.runId}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
   window.addEventListener('pagehide',()=>scene?.dispose(),{once:true});
   let photoImportEnabled=false;
-  async function refreshCatalog(){const catalog=await api<{cars:Car[];photoImportEnabled?:boolean}>('/api/geometries');cars=catalog.cars;photoImportEnabled=!!catalog.photoImportEnabled;vehicleSelect.replaceChildren();for(const [category,label] of [['car','Cars'],['aircraft','Aircraft']]){const group=document.createElement('optgroup');group.label=label;group.append(...cars.filter(car=>car.category===category).map(car=>new Option(car.label,car.id)));vehicleSelect.append(group);}vehicleSelect.append(new Option('＋ Bring your own car…','bring-your-own'));vehicleSelect.disabled=false;}
+  async function refreshCatalog(){const catalog=await api<{cars:Car[];photoImportEnabled?:boolean}>('/api/geometries');cars=catalog.cars;photoImportEnabled=!!catalog.photoImportEnabled;vehicleSelect.replaceChildren();for(const [category,label] of [['car','Cars'],['aircraft','Aircraft']]){const group=document.createElement('optgroup');group.label=label;group.append(...cars.filter(car=>car.category===category).map(car=>new Option(car.label,car.id)));vehicleSelect.append(group);}vehicleSelect.append(new Option('＋ Bring your own car…','bring-your-own'));vehicleSelect.disabled=addCar.disabled=false;addCar.textContent=cars.some(car=>car.id.startsWith('upload-'))?'＋ Add another car':'＋ Bring your own car';}
   try{await refreshCatalog();}catch{status('Car catalog unavailable','Check that the updated local API is running.');return;}
   const upload=createCarUpload(async(id,job)=>{await refreshCatalog();vehicleSelect.value=id;await loadCar(id);jobId=job.runId;sequence=0;baselineLoaded=resultLoaded=false;active=!['complete','failed','cancelled'].includes(job.state);lockControls(active);cancel.hidden=!active;sessionStorage.setItem('zephyr-active-run',jobId);status('Your car · experimental','Baseline drag and airflow are being calculated under the local GPU lock.');void poll();},photoImportEnabled);
+  addCar.onclick=()=>upload.open();
   window.addEventListener('pagehide',()=>upload.dispose(),{once:true});
   vehicleSelect.onchange=()=>{if(vehicleSelect.value==='bring-your-own'){vehicleSelect.value=selectedId;upload.open();}else void loadCar(vehicleSelect.value);};
   const requestedReplay=new URLSearchParams(location.search).get('replay');

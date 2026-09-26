@@ -68,7 +68,7 @@ export function createCarUpload(opened:(id:string,job:Job)=>Promise<void>, photo
     const response=await fetch('/api/uploads',{method:'POST',headers:{'Content-Type':'application/octet-stream','X-Filename':`car.${value.name.split('.').pop()?.toLowerCase()}`,...(knownLength?{'X-Car-Length':knownLength}:{})},body:value});
     const result=await response.json();if(!response.ok)throw new Error(result.error??'Upload failed');install(result);
   });}
-  file.onchange=()=>{if(file.files?.[0])void upload(file.files[0]);};
+  file.onchange=()=>{const selected=file.files?.[0];file.value='';if(selected)void upload(selected);};
   const drop=el('.upload-drop');drop.ondragover=e=>{e.preventDefault();};drop.ondrop=e=>{e.preventDefault();if(e.dataTransfer?.files[0]&&!busy)void upload(e.dataTransfer.files[0]);};
   function changed(){dirty=true;controls();el('[data-status]').textContent=`Pending rotation: ${rotation.join(' / ')}°. Front/back: ${flip?'flipped':'original'}. Apply to preview before confirming.`;}
   dialog.querySelectorAll<HTMLButtonElement>('[data-rotate]').forEach(b=>b.onclick=()=>{const axis=Number(b.dataset.rotate);rotation[axis]=(rotation[axis]+90)%360;changed();});
@@ -80,7 +80,7 @@ export function createCarUpload(opened:(id:string,job:Job)=>Promise<void>, photo
     const o=current.report.orientation;
     const value=await api<Imported>(`/api/uploads/${current.id}/confirm`,{rotation:o.rotation,flipFront:o.flipFront,lengthM:o.lengthM});
     if(!value.job)throw new Error('Baseline job was not returned');await opened(value.id,value.job);dialog.close();
-    current=undefined;file.value='';el('[data-review]').hidden=true;el('[data-status]').textContent='Choose a file to begin.';
+    current=undefined;file.value='';el<HTMLInputElement>('[data-initial-length]').value='';el('[data-review]').hidden=true;el('[data-status]').textContent='Choose a file to begin.';
   });
   el('[data-close]').onclick=()=>dialog.close();dialog.oncancel=e=>{if(busy)e.preventDefault();};dialog.onclose=()=>{dispose?.();dispose=undefined;};
   return {open(){dialog.showModal();if(current)draw();},dispose(){dispose?.();dialog.remove();}};
