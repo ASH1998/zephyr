@@ -184,7 +184,8 @@ export async function startLive() {
     if(computingStage&&!run)text('#legend','Illustrative compute activity · colors are not pressure or evidence of improvement');
     placeRunTools();
   }
-  function followStudyRun(id:string){
+  function followStudyRun(id:string,context:string){
+    runProgress.setStudyContext(context);
     if(id===jobId)return;
     stopReplay();pair.clear();copilot.reset();active=true;recordedReplay=false;jobId=id;sequence=0;run=undefined;
     baselineLoaded=resultLoaded=explanationRequested=restoredIntent=false;computingStage='queued';

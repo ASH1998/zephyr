@@ -38,21 +38,22 @@ export function createRunProgress(host:HTMLElement) {
   const card=document.createElement('section');card.className='run-progress-card';card.hidden=true;card.setAttribute('aria-label','GPU calculation progress');
   card.innerHTML='<div class="progress-heading"><strong></strong><span class="elapsed"></span></div><p class="progress-detail"></p><div class="progress-number" aria-live="polite"></div><progress max="100"></progress><details><summary>Technical progress</summary><span></span></details>';
   host.append(card);
-  let started=Date.now(),active=false,lastId:string|undefined;
+  let started=Date.now(),active=false,lastId:string|undefined,studyContext='';
   const elapsed=card.querySelector('.elapsed')!;
   const format=(seconds:number)=>`${Math.floor(seconds/60)}m ${Math.floor(seconds%60)}s elapsed`;
   const timer=window.setInterval(()=>{if(active)elapsed.textContent=format(Math.max(0,(Date.now()-started)/1000));},1000);
   window.addEventListener('pagehide',()=>clearInterval(timer),{once:true});
   return {
+    setStudyContext(context:string){studyContext=context;},
     update(job:Job,totalSeconds?:number,analysisOnly=false){
       if(lastId!==job.runId){lastId=job.runId;const date=Date.parse(job.createdAt??'');started=Number.isFinite(date)?date:Date.now();}
       active=!['complete','failed','cancelled'].includes(job.state);card.hidden=false;card.classList.toggle('finished',job.state==='complete');
       const e=job.events[job.events.length-1] as JobEvent|undefined;
       const p=stageProgress(progressStage(job),e?.completed,e?.total,e?.detail);
       if(job.state==='complete'&&analysisOnly){p.step=0;p.title='Baseline analysis complete';p.detail='One original shape was evaluated. No candidate or comparison was created.';}
-      card.querySelector('strong')!.textContent=(p.step&&active?`Step ${p.step} of 5 · `:'')+p.title;
+      card.querySelector('strong')!.textContent=(studyContext&&active?`${studyContext} · `:'')+(p.step&&active?`${studyContext?'Phase':'Step'} ${p.step} of 5 · `:'')+p.title;
       card.querySelector('.progress-detail')!.textContent=p.detail;
-      card.querySelector('.progress-number')!.textContent=p.percent===null?({complete:'Finished',failed:'Stopped',cancelled:'Cancelled',cancelling:'Stopping…',running:'Working…'}[job.state]??'Working…'):`${p.percent}% of this calculation`;
+      card.querySelector('.progress-number')!.textContent=p.percent===null?({complete:'Finished',failed:'Stopped',cancelled:'Cancelled',cancelling:'Stopping…',running:'Working…'}[job.state]??'Working…'):`${p.percent}% of ${studyContext?'this GPU pass (resets for each pass)':'this calculation'}`;
       const bar=card.querySelector('progress')!;bar.hidden=!active;if(p.percent===null)bar.removeAttribute('value');else bar.value=p.percent;
       card.querySelector('details span')!.textContent=e?.completed===undefined?job.detail:`${e.completed} of ${e.total} GPU batches · ${job.detail}`;
       elapsed.textContent=totalSeconds!==undefined&&!active?format(totalSeconds):format(Math.max(0,(Date.now()-started)/1000));
