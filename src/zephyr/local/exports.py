@@ -34,4 +34,8 @@ def candidate_bundle(directory):
                 f"Recorded local decision: {evidence['trust']['decision']}. {evidence['trust']['reason']}\n"
                 'Independent physical validation is required. A refused candidate is exported for inspection only.\n')
             bundle.writestr('evaluate.vtk',path.read_bytes())
+            if evidence.get('geometryId') == 'drivaer-1':
+                notices = Path(__file__).resolve().parents[3]/'config/licenses'
+                for name in ('drivaerml-CC-BY-SA-4.0.txt', 'drivaerml-ATTRIBUTION.md'):
+                    bundle.writestr('licenses/'+name, (notices/name).read_bytes())
     return output.getvalue()
