@@ -14,12 +14,13 @@ import type { ViewMode } from './data';
 import { api, nextEvents, validateLiveRun, trustPresentation, maximumMovementMm } from './live-data';
 import type { Job, JobEvent, LiveRun } from './live-data';
 import {activityCaption,computationActive} from './render-policy';
+import { createCarUpload } from './upload-car';
 
 export async function startLive() {
   const $ = <T extends HTMLElement>(s: string) => document.querySelector<T>(s)!;
   let scene: FlowScene | undefined, run: LiveRun | undefined, jobId: string | undefined;
   let active=false, sequence=0, baselineLoaded=false, resultLoaded=false, explanationRequested=false, restoredIntent=false;
-  type Car={category:'car'|'aircraft';id:string;label:string;description:string;experimental:boolean;preview:string;airflow:string};
+  type Car={category:'car'|'aircraft';id:string;label:string;description:string;experimental:boolean;preview:string;airflow:string;support?:'shape-tests'|'baseline-only';supportReason?:string};
   let cars:Car[]=[],selectedId='drivaer-1',previewEpoch=0,cachedFlow:Airflow|undefined;
   const vehicleSelect=$<HTMLSelectElement>('#vehicle');const carIntro=$('.intro').innerHTML;
   const carInfo=document.createElement('p');carInfo.className='car-description';vehicleSelect.parentElement!.after(carInfo);const aircraftNote=document.createElement('p');aircraftNote.className='aircraft-note';aircraftNote.textContent='Orange spirals start at the wing tips and turn in opposite directions. Rotate the aircraft to follow them behind the wings. Use Flow illustration to see air bend around the shape, or NVIDIA prediction to inspect the calculated paths. This is an experimental visual preview, not a flight-performance test.';carInfo.after(aircraftNote);
@@ -34,6 +35,7 @@ export async function startLive() {
   let computingStage:string|undefined;
   const viewerState=document.createElement('span');viewerState.className='viewer-state';$('#motion').after(viewerState);
   const button=$<HTMLButtonElement>('#iterate'), budget=$<HTMLInputElement>('#budget'), compare=$<HTMLInputElement>('#compare'), magnify=$<HTMLInputElement>('#magnify');
+  const importNext=document.createElement('button');importNext.className='import-next';importNext.hidden=true;importNext.onclick=()=>void start('iteration');
   magnify.checked=true;
   magnify.parentElement!.lastChild!.textContent=" Enlarge movement ×120 (display only)";$('#app').classList.add('live-workspace');
   const text=(selector:string,value:string)=>{$(selector).textContent=value;};
@@ -51,7 +53,7 @@ export async function startLive() {
   text('#legend','Illustrative airflow · animated paths, not a computed velocity field');text('#evidence-dialog h2','Every result has a source.');
   const credits=document.createElement('a');credits.href='/models/VEHICLE_CREDITS.md';credits.target='_blank';credits.rel='noopener';credits.textContent='Vehicle and aircraft sources & credits ↗';credits.className='quiet';$('#evidence-dialog').append(credits);
   text('#evidence-dialog > p','NVIDIA’s open DoMINO surface model predicts pressure and sensitivity; its separate volume checkpoint predicts velocity around each car. Choose NVIDIA prediction to view that field as moving trails in slow motion. The default Flow illustration is a separate, geometry-following explanation. Cyan trails travel around the body; amber trails illustrate the wake. Its colors are not calculated speeds or proof of improvement. The additional vehicle models are outside the sedan training distribution.');
-  text('.dialog-note','No cloud resources or paid calls. Full-resolution VTK and logs stay in .local/runs. Display geometry is reduced; forces use the full mesh.');
+  text('.dialog-note','GPU inference runs locally. Enabled copilot and photo interpretation use paid model calls. Full-resolution VTK and logs stay in .local/runs. Display geometry is reduced; forces use the full mesh.');
   text('#export','Download run JSON');$<HTMLButtonElement>('#export').disabled=true;document.querySelector<HTMLElement>('#candidate-export')?.setAttribute('hidden','');text('#refuse','Test 12 mm boundary');
   const analyze=document.createElement('button');analyze.className='boundary';analyze.textContent='Run baseline analysis only';button.after(analyze);
   const cancel=document.createElement('button');cancel.className='boundary';cancel.textContent='Cancel GPU job';cancel.hidden=true;analyze.after(cancel);
@@ -67,8 +69,9 @@ export async function startLive() {
 
   const brief=$<HTMLTextAreaElement>('#brief');
   const getRequest=(mode:'analysis'|'iteration'='iteration',budgetMm=+budget.value)=>({geometryId:selectedId,budgetMm,brief:cars.find(c=>c.id===selectedId)?.category==='aircraft'?'Reduce drag. Keep the cabin unchanged.':brief.value,mode});
-  function lockControls(busy:boolean){const plane=cars.find(c=>c.id===selectedId)?.category==='aircraft';analyze.disabled=vehicleSelect.disabled=busy;button.disabled=budget.disabled=brief.disabled=busy||plane;copilot.setBusy(busy||plane);if(typeof exploration!=='undefined')exploration.setBusy(busy||plane);}
+  function lockControls(busy:boolean){const car=cars.find(c=>c.id===selectedId),plane=car?.category==='aircraft'||car?.support==='baseline-only';analyze.disabled=vehicleSelect.disabled=busy;button.disabled=budget.disabled=brief.disabled=busy||plane;copilot.setBusy(busy||plane);if(typeof exploration!=='undefined')exploration.setBusy(busy||plane);importNext.hidden=!selectedId.startsWith('upload-')||!run||!!run.candidate;importNext.disabled=busy||plane;importNext.textContent=plane?'Shape tests unavailable for this geometry':'Test a bounded shape change';}
   const copilot=createCopilot(()=>getRequest(),busy=>{active=busy;lockControls(busy);});
+  $('.run-assistant .result-summary').after(importNext);
   const exploration=createExploration(()=>getRequest(),copilot.prepare,busy=>{active=busy;lockControls(busy);},followStudyRun);
   function mode(value:ViewMode) {
     text('.rear-callout strong',(run?.handle?.label??'BODY REGION')+' CHANGED');
@@ -112,7 +115,7 @@ export async function startLive() {
     if(field){const original=run?.candidate&&!run.airflow?.candidate;const label=cars.find(c=>c.id===selectedId)?.category==='aircraft'?'EXPERIMENTAL AIRCRAFT FLOW':run?.airflow?(original?'ORIGINAL-CAR AIRFLOW':'NVIDIA PREDICTED AIRFLOW'):'SAVED NVIDIA AIRFLOW';text('.flow-label','→ '+label);text('#legend',`${label.toLowerCase()} · blue = slower, orange = faster · 0–60+ m/s · slow motion`);}
     else{text('.flow-label','→ ILLUSTRATIVE AIRFLOW');text('#legend','Illustrative preview · model-driven airflow is not available for this shape yet');}
   }
-  function describeCar(){const car=cars.find(c=>c.id===selectedId);const plane=car?.category==='aircraft';$('#app').classList.toggle('aircraft-workspace',plane);$('.intro').innerHTML=plane?'<p class="eyebrow">AIRCRAFT EXPLORER</p><h1>Follow the air.<br>Across the wings.<br><em>Around the tail.</em></h1><p class="subcopy">NASA aircraft models · experimental airflow.<br>Drag to rotate. Scroll to get closer.</p>':carIntro;analyze.textContent=plane?'Run experimental baseline analysis':'Run baseline analysis only';button.textContent=plane?'Shape editing is available for cars':'Run bounded iteration ↗';lockControls(active);carInfo.textContent=car?car.description+(car.experimental?' · detailed model · experimental airflow':''):'';text('footer > span:first-child',car?.label.toUpperCase()??selectedId.toUpperCase());}
+  function describeCar(){const car=cars.find(c=>c.id===selectedId);const plane=car?.category==='aircraft';$('#app').classList.toggle('aircraft-workspace',plane);$('.intro').innerHTML=plane?'<p class="eyebrow">AIRCRAFT EXPLORER</p><h1>Follow the air.<br>Across the wings.<br><em>Around the tail.</em></h1><p class="subcopy">NASA aircraft models · experimental airflow.<br>Drag to rotate. Scroll to get closer.</p>':carIntro;analyze.textContent=plane?'Run experimental baseline analysis':'Run baseline analysis only';button.textContent=plane?'Shape editing is available for cars':'Run bounded iteration ↗';lockControls(active);carInfo.textContent=car?car.description+(car.id.startsWith('upload-')?' · '+(car.support==='baseline-only'?'Baseline access only: '+car.supportReason:'Bounded shape tests available'):car.experimental?' · detailed model · experimental airflow':''):'';text('footer > span:first-child',car?.label.toUpperCase()??selectedId.toUpperCase());}
   async function loadCar(id:string){
     const car=cars.find(c=>c.id===id);if(!car||active)return;
     if(run?.research||run?.syntheticDent)magnify.checked=true;
@@ -124,7 +127,7 @@ export async function startLive() {
     try{
       const response=await fetch(car.preview);if(!response.ok)throw new Error('Car geometry unavailable');const value=await response.json();if(epoch!==previewEpoch||run||jobId)return;
       const baseline=previewSurface(value,id);const asset=value.visual?await loadDetailedVehicle(value.visual,baseline):undefined;if(epoch!==previewEpoch||run||jobId){if(asset)disposeVehicle(asset);return;}scene=new FlowScene($('#scene'),{baseline,candidate:null,source:'geometry-preview'},asset);scene.setMagnified(false);updateMotion();$('.cabin-label').hidden=false;
-      const flowResponse=await fetch(car.airflow);if(!flowResponse.ok)throw new Error('Saved model airflow unavailable');const flow=validateAirflow(await flowResponse.json(),id,value.meshHash??value.sourceMeshSha256);if(epoch!==previewEpoch||run||jobId)return;
+      const flowResponse=await fetch(car.airflow);if(!flowResponse.ok){if(id.startsWith('upload-')){mode('airflow');status('Your car · experimental','Geometry ready. Run a baseline to calculate pressure and NVIDIA airflow.');return;}throw new Error('Saved model airflow unavailable');}const flow=validateAirflow(await flowResponse.json(),id,value.meshHash??value.sourceMeshSha256);if(epoch!==previewEpoch||run||jobId)return;
       cachedFlow=flow;scene.setAirflow(flow);mode('airflow');status(car.label+' · airflow ready',car.category==='aircraft'?'Experimental flow around a scaled aircraft. This car-trained model does not establish aircraft performance.':'NVIDIA airflow calculated on a simplified version of this detailed car. Run a test to evaluate a new shape.');
     }catch(error){if(epoch===previewEpoch){status('Preview unavailable',error instanceof Error?error.message:String(error));mode('airflow');}}
   }
@@ -137,8 +140,8 @@ export async function startLive() {
     if(active&&!run.candidate)mode('pressure');scene.setComputation(computingStage);
     text('.baseline-value',`${run.forces.baselineDragN.toFixed(2)} N`);text('#candidate-force',run.forces.candidateDragN===null?'—':`${run.forces.candidateDragN.toFixed(2)} N`);
     const delta=run.forces.candidateDragN===null?null:(run.forces.candidateDragN-run.forces.baselineDragN)/run.forces.baselineDragN*100;
-    text('#delta',delta===null?'Baseline only':`${delta>0?'+':''}${delta.toFixed(3)}%`);$('#delta').classList.toggle('worse',delta!==null&&delta>=0);
-    text('.metric-main p',run.candidate?'Fresh baseline vs candidate · surrogate, not CFD':'Actual baseline · candidate has not been evaluated');
+    text('#delta',delta===null?(selectedId.startsWith('upload-')?'Baseline ready':'Baseline only'):`${delta>0?'+':''}${delta.toFixed(3)}%`);$('#delta').classList.toggle('worse',delta!==null&&delta>=0);
+    text('.metric-main p',selectedId.startsWith('upload-')?'DoMINO estimate, experimental geometry':run.candidate?'Fresh baseline vs candidate · surrogate, not CFD':'Actual baseline · candidate has not been evaluated');
     const mm=maximumMovementMm(run);
     text('.metrics .within',`/ ${(run.constraints.maxDisplacementM*1000).toFixed(0)} mm`);
     text('#displacement',run.candidate?`${mm.toFixed(2)} mm`:'No candidate');text('#scale-caption',run.candidate?`Actual maximum: ${mm.toFixed(2)} mm · cabin 0.00 mm`:'Analysis only');text('#run-id',run.runId);
@@ -226,7 +229,8 @@ export async function startLive() {
   async function start(runMode:'analysis'|'iteration',budgetMm=+budget.value){
     if(active)return;stopReplay();active=true;lockControls(true);
     try{
-      const request=getRequest(runMode,budgetMm),plane=cars.find(c=>c.id===selectedId)?.category==='aircraft',plan=plane&&runMode==='analysis'?undefined:await copilot.prepare(request);
+      const request=getRequest(runMode,budgetMm),plane=cars.find(c=>c.id===selectedId)?.category==='aircraft'||selectedId.startsWith('upload-'),plan=plane&&runMode==='analysis'?undefined:await copilot.prepare(request);
+      if(selectedId.startsWith('upload-')&&runMode==='analysis')request.brief='Reduce drag. Keep the cabin unchanged.';
       if(plan && plan.graph.status!=='ready')throw new Error(plan.graph.message);
       const job=await api<Job>('/api/runs',{...request,...(plan?{intentId:plan.intentId}:{})});nextEvents(job,job.runId,0);
       copilot.reset();explanationRequested=false;restoredIntent=false;
@@ -240,8 +244,12 @@ export async function startLive() {
   cancel.onclick=async()=>{if(jobId)try{await api(`/api/runs/${jobId}/cancel`,{});status('Cancelling','Waiting for the GPU process to stop.');}catch(error){status('Cancel failed',String(error));}};
   $('#export').onclick=()=>{if(!run)return;const url=URL.createObjectURL(new Blob([JSON.stringify(run)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`${run.runId}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
   window.addEventListener('pagehide',()=>scene?.dispose(),{once:true});
-  try{cars=(await api<{cars:Car[]}>('/api/geometries')).cars;vehicleSelect.replaceChildren();for(const [category,label] of [['car','Cars'],['aircraft','Aircraft']]){const group=document.createElement('optgroup');group.label=label;group.append(...cars.filter(car=>car.category===category).map(car=>new Option(car.label,car.id)));vehicleSelect.append(group);}vehicleSelect.disabled=false;}catch{status('Car catalog unavailable','Check that the updated local API is running.');return;}
-  vehicleSelect.onchange=()=>void loadCar(vehicleSelect.value);
+  let photoImportEnabled=false;
+  async function refreshCatalog(){const catalog=await api<{cars:Car[];photoImportEnabled?:boolean}>('/api/geometries');cars=catalog.cars;photoImportEnabled=!!catalog.photoImportEnabled;vehicleSelect.replaceChildren();for(const [category,label] of [['car','Cars'],['aircraft','Aircraft']]){const group=document.createElement('optgroup');group.label=label;group.append(...cars.filter(car=>car.category===category).map(car=>new Option(car.label,car.id)));vehicleSelect.append(group);}vehicleSelect.append(new Option('＋ Bring your own car…','bring-your-own'));vehicleSelect.disabled=false;}
+  try{await refreshCatalog();}catch{status('Car catalog unavailable','Check that the updated local API is running.');return;}
+  const upload=createCarUpload(async(id,job)=>{await refreshCatalog();vehicleSelect.value=id;await loadCar(id);jobId=job.runId;sequence=0;baselineLoaded=resultLoaded=false;active=!['complete','failed','cancelled'].includes(job.state);lockControls(active);cancel.hidden=!active;sessionStorage.setItem('zephyr-active-run',jobId);status('Your car · experimental','Baseline drag and airflow are being calculated under the local GPU lock.');void poll();},photoImportEnabled);
+  window.addEventListener('pagehide',()=>upload.dispose(),{once:true});
+  vehicleSelect.onchange=()=>{if(vehicleSelect.value==='bring-your-own'){vehicleSelect.value=selectedId;upload.open();}else void loadCar(vehicleSelect.value);};
   const requestedReplay=new URLSearchParams(location.search).get('replay');
   if(requestedReplay && /^local-[a-f0-9]{32}$/.test(requestedReplay)){
     try { const job=await api<Job>(`/api/runs/${requestedReplay}`);nextEvents(job,requestedReplay,0);if(job.state!=='complete'||!job.resultReady)throw new Error('Replay requires a completed result');jobId=requestedReplay;recordedReplay=true;void poll();return; }
