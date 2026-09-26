@@ -98,13 +98,25 @@ def run_facts(e):
     else:
         next_step='Keep the original shape. Inspect the failed checks before trying another bounded body region. A smaller movement is not guaranteed to pass: very small changes can be lost in numerical noise.'
     add('next',next_step,['/trust','/validation','/forces'])
+    if e.get('syntheticDent'):
+        add('decision', 'This is a prescribed synthetic hood dent. Its geometry passed screening and the original and dented surfaces were evaluated separately. It is an aerodynamic demonstration, not a simulation of a crash or an assessment of structural damage or roadworthiness.', ['/syntheticDent','/validation'])
+        add('confidence', 'The model was trained for aerodynamic prediction, not collision damage assessment. A dent is an unverified input shape. Neither a small drag change nor a passing geometry check establishes that a damaged vehicle is safe.', ['/syntheticDent','/trust'])
+        add('search', 'One fixed hood-dent geometry was selected before evaluating forces. No optimization, impact speed, collision forces, material deformation or hidden damage were simulated.', ['/syntheticDent/preset'])
+        add('magnify', 'The synthetic dent opens at true scale. Compare Original / Changed shows the intact and dented shapes with shared pressure, sensitivity and airflow scales. Enlarge movement is a display-only option.', ['/syntheticDent'], source='application')
+        add('next', 'Inspect the localized movement, pressure and predicted airflow differences. Home photo or scan inspection is not implemented. This demonstration cannot identify internal damage, estimate repair costs or decide whether a real car is safe to drive.', ['/syntheticDent'])
+        add('budget', f"The prescribed dent has a {e['syntheticDent']['preset']['depthMm']:.0f} mm ceiling. It is a separate recorded scenario; the interactive design slider does not control it.", ['/syntheticDent/preset','/constraints'])
+        if maximum is not None:
+            add('movement', f'The synthetic hood dent moved the surface inward by at most {maximum*1000:.3f} mm. The viewer opens at true scale. The colored patch shows geometric displacement, not measured damage severity.', ['/validation/checks/bounds','/syntheticDent'])
+        if candidate is not None:
+            add('comparison', f'The model predicts {baseline:.2f} N for the original car and {candidate:.2f} N for the synthetically dented car: {candidate-baseline:+.3f} N ({(candidate-baseline)/baseline*100:+.3f}%). This is predicted aerodynamic change, not a damage or safety score.', ['/forces','/syntheticDent'])
     return facts
 
 
 def summarize_run(e):
     facts=run_facts(e)
     f=e['forces']; candidate=f.get('candidateDragN')
-    if candidate is None: headline='Original car tested'
+    if e.get('syntheticDent'): headline='Synthetic dent: aerodynamic comparison'
+    elif candidate is None: headline='Original car tested'
     elif e['trust']['decision']=='accept':headline='Tested step accepted'
     elif candidate>f['baselineDragN']:headline='This change did not help'
     elif candidate==f['baselineDragN']:headline='No improvement found'
