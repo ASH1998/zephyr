@@ -18,8 +18,20 @@ for car in CARS:
  car['airflow']='/models/airflow/'+car['id']+'.json'
 IDS=frozenset(c['id'] for c in CARS)
 def car_definition(geometry_id):
+ if isinstance(geometry_id,str) and geometry_id.startswith('upload-'):
+  from zephyr.local.uploads import definition
+  return definition(geometry_id)
  if not isinstance(geometry_id,str) or geometry_id not in IDS:raise ValueError('Unknown car style')
  return next(c for c in CARS if c['id']==geometry_id)
 def mesh_path(geometry_id):
  car_definition(geometry_id)
+ if geometry_id.startswith('upload-'):
+  from zephyr.local.uploads import ROOT as UPLOAD_ROOT
+  return UPLOAD_ROOT/geometry_id/'surface.vtp'
  return ROOT/'.local/physicsnemo-cfd/workflows/domino_design_sensitivities/geometries/drivaer_1.stl' if geometry_id=='drivaer-1' else ROOT/'.local/cars'/(geometry_id+'.vtp')
+
+def validate_support(geometry_id, mode):
+ car = car_definition(geometry_id)
+ if car.get('support') == 'baseline-only' and mode != 'analysis':
+  raise ValueError('This uploaded car supports baseline analysis only: ' + car['supportReason'])
+ return car

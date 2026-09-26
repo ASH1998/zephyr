@@ -99,13 +99,18 @@ def run_facts(e):
     else:
         add('magnify', 'Choose Show me the change to replay movement in the selected body region, enlarged 120 times for visibility. This exaggerates the shape only on screen; the GPU tested the real movement. Turn off Enlarge movement to see the actual size. Open Compare Original / Changed to inspect the linked views at the same scale.', source='application')
         add('search', 'A single iteration tests positive and negative probes, then a separate candidate. Explore the body compares nose width, hood contour, side shoulders, rear-deck height and upper rear taper from the same original. Each has fresh probes and checks. The cabin and lower wheel/ground envelope remain fixed. Refused candidates stay visible. Repeating the same inputs can repeat the same result.', source='application')
-    add('cars', 'Choose from the DrivAer sedan and six generic demo bodies: hatchback, SUV, wagon, coupe, sports car, and van. Each has its own saved NVIDIA airflow result and can run a fresh calculation. The six demo styles are outside the sedan training examples; treat their predictions as experimental. Uploads are not connected yet.', source='application')
-    add('scans', 'A scan can be the starting shape, but it is not ready to simulate just because it looks like a car. We need real dimensions, a complete surface, repaired gaps, and the underside and wheel details. Upload and scan preparation are not implemented in this build.', source='application')
+    add('cars', 'Choose from the DrivAer sedan, six experimental car bodies, aircraft, or Bring your own car. Imported meshes and photo-derived templates receive experimental baseline and airflow predictions. Only imports passing conservative geometry screening can run bounded shape tests; predictive accuracy remains unvalidated.', source='application')
+    add('scans', 'Mesh import supports STL, OBJ, GLB, embedded GLTF and PLY with size/orientation review and closed-surface preparation. Photo import chooses and scales a catalog template; it does not reconstruct the photographed car. Noisy phone scans and photo-based damage inspection remain unsupported.', source='application')
     add('units', 'Drag is the air resistance opposing motion. Newtons, shown as N, measure force. Millimetres, shown as mm, measure how far the shape moved. Lower predicted drag is the aim; a large-looking colored area does not imply a large movement.', source='application')
     add('range_limits', 'This run cannot calculate battery range or fuel savings. It has no vehicle energy model, driving cycle, powertrain efficiency or independent confirmation of the aerodynamic change.', source='application')
     add('assistant', 'The text assistant reads your brief and chooses relevant explanations from the recorded facts. It does not move mesh points, change safety limits, run a new test through chat, or approve the design.', source='application')
     if candidate is None:
         next_step='Run a bounded shape test to obtain an original/changed comparison.'
+        if e.get('car', {}).get('importReport'):
+            if e['car'].get('support') == 'baseline-only':
+                next_step='Shape tests are unavailable for this imported geometry. ' + e['car'].get('supportReason', 'Outside the conservative geometry limits.')
+            else:
+                next_step='Import finished and the initial baseline is ready. This car supports experimental shape tests: choose Test a bounded shape change to calculate a candidate and compare it with the original.'
     elif e.get('research'):
         next_step=('Use this provisional candidate for the demonstration. The user stopped optimization; no further search is scheduled. Keep the original as the reference. The predicted reduction is not a validated physical improvement.' if e['research'].get('provisional') else 'Keep the original as the reference. Review the matched random controls, repeats, training-distribution limits and independent comparison in the linked research evidence before interpreting the proposed shape as a physical improvement.')
     elif t['decision']=='accept':
@@ -115,6 +120,9 @@ def run_facts(e):
     else:
         next_step='Keep the original shape. Inspect the failed checks before trying another bounded body region. A smaller movement is not guaranteed to pass: very small changes can be lost in numerical noise.'
     add('next',next_step,['/trust','/validation','/forces'])
+    if e.get('car', {}).get('importReport'):
+        report = e['car']['importReport']
+        add('import', report['label'] + '. DoMINO estimate, experimental geometry. ' + ('This is a scaled catalog template, not a reconstruction of the photographed vehicle.' if report.get('photo') else 'The closed inference surface approximates your uploaded mesh.'), ['/car/importReport'])
     if e.get('syntheticDent'):
         add('decision', 'This is a prescribed synthetic hood dent. Its geometry passed screening and the original and dented surfaces were evaluated separately. It is an aerodynamic demonstration, not a simulation of a crash or an assessment of structural damage or roadworthiness.', ['/syntheticDent','/validation'])
         add('confidence', 'The model was trained for aerodynamic prediction, not collision damage assessment. A dent is an unverified input shape. Neither a small drag change nor a passing geometry check establishes that a damaged vehicle is safe.', ['/syntheticDent','/trust'])
@@ -145,7 +153,7 @@ def summarize_run(e):
     elif candidate>f['baselineDragN']:headline='This change did not help'
     elif candidate==f['baselineDragN']:headline='No improvement found'
     else:headline='Lower predicted resistance; step not accepted' if e['trust'].get('policyVersion') else 'Lower predicted resistance; checks still pending'
-    ids=['comparison','decision','movement','cabin','next','physics']
+    ids=['comparison','decision','movement','cabin','import','next','physics']
     metrics=[]
     def metric(label,value): metrics.append({'label':label,'value':value})
     metric('Original drag',f"{f['baselineDragN']:.5f} N")

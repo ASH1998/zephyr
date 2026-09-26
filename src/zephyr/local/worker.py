@@ -24,6 +24,13 @@ def write_json(path, data):
 def execute(job_dir):
     started = time.perf_counter()
     request = json.loads((job_dir / 'request.json').read_text())
+    from zephyr.local.cars import validate_support
+    selected_import = validate_support(request['geometryId'], request['mode'])
+    if request['geometryId'].startswith('upload-'):
+        from hashlib import sha256
+        from zephyr.local.cars import mesh_path
+        if sha256(mesh_path(request['geometryId']).read_bytes()).hexdigest() != selected_import['importReport']['surfaceSha256']:
+            raise ValueError('Uploaded surface changed after confirmation')
     from zephyr.local.demo import PROFILE, calibration_for_run, comparison_decision
     demo = request.get('executionProfile') == PROFILE
     if request.get('executionProfile') is not None and (not demo or request['geometryId'] != 'drivaer-1' or request['mode'] != 'iteration'):
