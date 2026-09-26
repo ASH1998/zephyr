@@ -1,5 +1,22 @@
 # Zephyr — current project plan
 
+2026-09-26 implementation update: [Bring your own car](docs/BRING_YOUR_OWN_CAR.md)
+adds experimental mesh and photo-template imports, orientation/scale review,
+immutable registered geometry, baseline/airflow jobs and conservatively gated
+shape tests. Existing catalog assets, replays, aircraft and acceptance policy are
+preserved. The ten-photo qualification and measured training-spread validation
+remain pending; earlier statements that uploads are unimplemented are historical.
+
+2026-09-26 user revision: stop further optimization, retain the saved approximately
+3.33% candidate as a provisional demonstration, then add a synthetic sedan dent
+comparison. Preserve the original UI and aircraft. The incomplete research gates
+stay incomplete; no further search or comparison experiment is scheduled.
+
+2026-09-25 priority: implement and verify the [sedan headline research protocol](docs/SEDAN_RESEARCH.md),
+then prepare reproducible sedan demo/deployment artifacts. Preserve the original
+UI and aircraft features. The seven-part user plan supersedes the older next-work
+priorities below; historical milestones and their evidence remain valid records.
+
 2026-09-20 implementation update: [multi-region body exploration](docs/BODY_REGIONS.md)
 adds nose, hood, side and rear-deck tools, a five-region comparison, explicit
 presets, region-aware presentation and checkpoint input checks. This supersedes

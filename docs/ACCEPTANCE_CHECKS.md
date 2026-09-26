@@ -1,5 +1,16 @@
 # Local acceptance checks
 
+2026-09-26: The user stopped the research search and selected saved candidate
+`tpe-0147` for a provisional demo. Fresh replay evaluation and geometry checks do
+not complete the missing matched controls or finalist repeats. Research and
+engineering acceptance remain false; original thresholds are unchanged.
+
+2026-09-25: A separately versioned [sedan forward research policy](SEDAN_RESEARCH.md)
+is predeclared before new experiments. It requires >1%, >5 operational sigma,
+equal-budget random controls and fresh repeat confirmation, geometry/domain gates,
+and independent comparison. The historical interactive policy below and its
+evidence remain intact; the original UI and aircraft behavior are unchanged.
+
 The user authorized this work on 2026-09-19 after reviewing the misleading
 change-relative prediction error and unconditional refusal. This is a local
 surrogate step check, not an engineering certification or physical confidence

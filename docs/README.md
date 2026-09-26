@@ -13,7 +13,9 @@ This index separates setup, product behavior, and evidence so the project can be
 ## Product and demo
 
 - [Body-region exploration](BODY_REGIONS.md) — supported deterministic car deformation handles.
+- [Bring your own car](BRING_YOUR_OWN_CAR.md) — experimental mesh/photo imports, review controls, support limits and verification.
 - [60-second presentation](DEMO_60_SECONDS.md) — a short evidence-aware walkthrough.
+- [Synthetic sedan dent](SYNTHETIC_DENT.md) — a prescribed geometric defect and aerodynamic comparison, without crash or roadworthiness claims.
 - [Viewer performance](VIEWER_PERFORMANCE.md) — visible computation, animation, and idle-render behavior.
 
 ## Strategy
@@ -26,6 +28,7 @@ This index separates setup, product behavior, and evidence so the project can be
 - [Native Windows capability gate](WINDOWS_DOMINO_GATE.md) — validated hardware/software boundary and measured outcome.
 - [Acceptance checks](ACCEPTANCE_CHECKS.md) — provisional trust policy and refusal criteria.
 - [Runtime checks](RUNTIME_CHECKS.md) — frozen experiments, profiling, and repeatability results.
+- [Sedan research](SEDAN_RESEARCH.md) — predeclared forward-search protocol, controls, independent checks, Nemotron decisions, and recorded deployment.
 - [Browser-triggered local smoke](LOCAL_DOMINO_SMOKE.md) — browser-to-GPU execution evidence.
 - [`evidence/`](evidence/) — compact, sanitized machine-readable evidence. Credentials and large local run artifacts are intentionally excluded.
 

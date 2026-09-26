@@ -1,5 +1,142 @@
 # Zephyr progress
 
+## 2026-09-26 — bring your own car
+
+- Added isolated mesh/photo import preparation, runtime registry, loopback API,
+  3D size/orientation/protection review, immutable confirmation, and normal GPU
+  baseline/airflow integration. No catalog surface, replay, dent or trust gate changed.
+- Server, preset, copilot and worker paths enforce imported baseline-only limits.
+  Photo responses are schema-validated and cannot relax deterministic screening.
+- Fixed confusing initial-run copy: **Baseline ready**, with an enabled **Test a
+  bounded shape change** action when supported. Photos explicitly remain scaled
+  templates. Added model-specific template descriptions after observing a wrong
+  conventional-coupe choice for the user's supercar photo; that existing receipt
+  remains unchanged.
+- **92 Python tests, 45 frontend tests, production build passed.** Browser showed
+  the existing workspace, import dialog, recovered imported baseline, and rendered
+  original/changed comparison with no console errors.
+- User photo import: `local-216ffe315353411081c63bf7969b17e0`, 15.81 s, surface and
+  airflow ready. One subsequent 3.6 mm upper-rear test:
+  `local-7859424d99d546d8ba85301acc0f960c`, 41.36 s, 548.74768 → 549.69897 N
+  (+0.173%), geometry/fresh evaluation passed, cabin fixed, acceptance refused.
+  Existing experimental-domain refusal policy stays authoritative.
+- Shared catalog recipe matches the old recipe. Six saved source-derived hashes
+  reproduce; hatchback/wagon source-to-saved drift also occurs under the unchanged
+  old script. Saved files were preserved and regeneration now refuses mismatches.
+- Ten-photo accuracy qualification, live non-car rejection benchmark and measured
+  training-spread validation remain pending. See [implementation record](docs/BRING_YOUR_OWN_CAR.md).
+
+## 2026-09-26 — shorter interactive sedan comparisons
+
+- Cancelled the user-started five-region study and verified the GPU became idle.
+- Added opt-in `--fast-demo`, enabled on the local API: sedan iterations use the
+  existing partial sensitivity to choose one bounded candidate. Skip the baseline
+  repeat and four direction probes; retain fresh original/candidate surface fields,
+  geometry/intersection checks and separate airflow predictions.
+- Keep skipped calibration as `not-run` in evidence and never grant local acceptance.
+  Existing panels show the completed comparison without adding badges or changing
+  layout/CSS. Initial sedan region defaults to Hood contour; all-five remains available.
+- Full calculations remain available without the flag. Aircraft, dent replay and
+  selected 3.33% replay are unchanged. No research search was resumed.
+- One live hood comparison verified the full path in 155.196 s versus 377.636 s
+  for the earlier full hood run (~59% shorter, observed on this machine). Run
+  `local-baaf7bf079804b4fbb31c81ad530c65c` has two surface evaluations, no probes,
+  passing geometry checks and separate mesh-bound volume fields. This particular
+  change increased predicted drag by 0.162%; the viewer reports that outcome.
+- Validation: 21 focused backend checks and 18 frontend checks passed; production
+  build and diff checks passed. Browser comparison and both NVIDIA airflow fields
+  verified. Original CSS bundle hash unchanged. Local API restarted with the flag;
+  verification run finished and the GPU is idle.
+
+## 2026-09-26 — search stopped; selected candidate replay
+
+- User stopped further optimization and chose the previously reported 3.33%
+  prediction (`tpe-0147`, 600.973328 N versus 621.695557 N). The search finished
+  its in-flight evaluation and exited with 100 LHS / 90 TPE / 0 random controls /
+  0 finalist repeats. All source records and the frozen original plan remain.
+- A separate provisional replay path retains incomplete research status, reruns
+  geometry checks and creates fresh surface/sensitivity/volume fields. It never
+  marks the original experiment complete or accepted. Selection evidence is in
+  `docs/evidence/sedan-research-2026-09-25/paused-demo/`.
+- No further optimization or ranking jobs are scheduled. Synthetic dent work
+  follows the selected candidate demonstration. Original layout and aircraft
+  remain unchanged.
+- Selected replay complete: `local-8907b340aebb4b1d800fb86c45451c71`, freshly
+  reproduced 621.695557 → 600.973328 N (3.333%), actual maximum 32.174 mm.
+- Synthetic hood dent complete: `local-ca75fe9aeef644539bd878baa617f84b`, freshly
+  evaluated 621.695557 → 621.573425 N (-0.020%), actual inward maximum 11.302 mm.
+  Prescribed geometry only; no impact, structural, home-scan or safety assessment.
+- Both have fresh surface/sensitivity/volume fields. Independent artifact checks
+  re-integrate forces, verify mesh/file hashes, rerun full-resolution geometry
+  checks and bind each airflow field to its own mesh. Both pass these checks;
+  neither has independent physical validation or research acceptance.
+- Browser QA found that reduced display vertices understated the dent maximum.
+  Metrics now use the full-resolution geometry evidence; linked comparisons show
+  true scale with the same existing layout and controls.
+- Final regression: 80 Python tests, 44 frontend tests and production build passed.
+  Both scenarios are packaged in `.local/demo-sedan-and-dent-final-2026-09-26`
+  with the original aircraft assets, export licenses and recorded-only server.
+  No public deployment, commit or push was performed.
+
+## 2026-09-25 — sedan headline study started
+
+- Posthoc provenance audit identifies the sedan source STL as published DrivAerML
+  run 1 by exact hash and preserves its 16-parameter vector and force coefficients
+  at an immutable dataset revision. C2-to-ANSA mapping and checkpoint split
+  membership remain unverified; the frozen search and acceptance policy are unchanged.
+- V2 noise study complete: five baseline repeats at 621.6955566 N, ten tiny
+  perturbations with SD 0.0968954 N. Frozen >1% and >5-sigma gates remain unchanged.
+  Full search/control/confirmation is in progress; no final improvement claimed.
+- An external tool-host interruption terminated the primary worker after 100 LHS
+  and 35 TPE evaluations. All 349 recorded outcomes, the frozen plan and numerical
+  sources passed integrity checks, and no worker or GPU lease survived. The same
+  search resumed successfully, reconstructing its exact recorded proposals before
+  evaluating new ones. The interruption receipt records the preserved hashes;
+  possible interrupted-attempt overhead is separate from successful budgets.
+- Backend regression: 74 tests passed, including published-ranking selection,
+  strict phase budgets, guided execution/resume and
+  recorded HTTP deployment; frontend: 42 passed and build passed.
+- Original styling/layout and aircraft previews preserved. Research replays
+  open at true scale using existing controls. Recorded deployment was rehearsed
+  with the historical sedan result; this is not new scientific evidence.
+- User requested synthetic crash/dent analysis, then explicitly prioritized
+  finishing optimization first. Dent demo follows; no structural-safety claims.
+- CFD mesh setup now passes the quality audit after tightening boundary skewness
+  during meshing. One solver iteration verifies setup only; final converged
+  baseline/candidate calculations are still pending.
+- The two predeclared baseline CFD cases are now running on the local CPU while
+  DoMINO searches on the GPU. Baseline reuse is conditional on exact matching
+  protocol, STL, solver inputs, runner version and output hashes; altered-input
+  and altered-force cache checks were verified to fail closed.
+- Both baseline CFD cases subsequently finished: coarse 739.162061 N passed
+  the force convergence check; fine 650.368448 N failed (last-100 range
+  17.286757 N, about 2.66%, versus the frozen 0.2% limit). Both meshes passed
+  `checkMesh`. These are baseline-only results, not an independent agreement
+  claim. Receipts are in `independent-baseline-results.json`. The requested
+  published-variant ranking fallback is being prepared without selecting by force.
+- The five-case published-ranking fallback is now frozen and downloaded: runs
+  1, 303, 296, 353 and 320, selected using range-normalized geometry distance.
+  All source hashes and input geometry checks pass. GPU evaluation waits for
+  primary optimization, controls and all nine repeats. It will not substitute
+  for validation of the custom winner or claim held-out model performance.
+- Nemotron qualification first scored 7/10, including a provider failure and
+  two rejected interpretations. After clarifying the named preset and exact
+  contiguous quotes, the second complete round scored 10/10 without response
+  edits. Both rounds, prompts, inputs and source snapshots are retained under
+  `docs/evidence/sedan-advisor-2026-09-26*`. These are recorded application briefs,
+  partly scripted, not held-out human rulebook validation. Actual follow-on
+  optimization will use the completed primary search plus the verified map.
+
+- User authorized the full noise/morph/search/control/independent-check/Nemotron
+  plan and required the original UI and aircraft features to stay unchanged.
+- Added a separate local research workflow; protocol and success thresholds are
+  predeclared in [SEDAN_RESEARCH.md](docs/SEDAN_RESEARCH.md). No new aerodynamic
+  improvement is claimed. Research implementation and live verification are ongoing.
+- Training-range analogues are explicitly distinguished from verified ANSA
+  parameterization; approximate morphs cannot claim proven training membership.
+- Deployment/demo work will center on reproducible sedan evidence while preserving
+  existing aircraft exploration. No paid cloud GPU or publication has been started.
+
 ## 2026-09-20 — Nemotron runtime verified
 
 - Verified `nvidia/Nemotron-3-Ultra-550b-a55b` in the authenticated Nebius
