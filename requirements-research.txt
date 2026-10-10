@@ -1,0 +1,2 @@
+# Install into the documented local DoMINO Python environment.
+optuna==4.5.0

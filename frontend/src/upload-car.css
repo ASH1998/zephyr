@@ -1,0 +1,12 @@
+.upload-car{width:min(880px,calc(100vw - 32px));max-height:90vh;overflow:auto;box-sizing:border-box;border:1px solid #486879;border-radius:12px;padding:28px;background:#0b1d28;color:#dcece9}
+.upload-car::backdrop{background:#020c15d9;backdrop-filter:blur(5px)}
+.upload-car header{display:flex;align-items:start;justify-content:space-between;gap:20px}.upload-car h2{font-size:30px;font-weight:500;margin:4px 0 16px}
+.upload-car p{font-size:13px;line-height:1.65;color:#b3cad2}.upload-car [role=status]{padding:12px;background:#16313c;border-radius:5px;color:#def5ee}
+.upload-car button,.upload-car input,.upload-car select{border:1px solid #486572;background:#173440;color:#e1f4ec;border-radius:5px;padding:10px;font:inherit;font-size:13px}
+.upload-car button{cursor:pointer}.upload-car button:disabled{opacity:.45;cursor:default}.upload-car [data-close]{font-size:24px;line-height:1}.upload-car [data-confirm]{background:#bbe7d5;color:#10252c;font-weight:600;margin-top:8px}
+.upload-drop{display:block;padding:26px;border:1px dashed #71aaa8;border-radius:8px;text-align:center;background:#102b37}.upload-drop input{display:block;margin:15px auto 0;max-width:100%;box-sizing:border-box}.upload-preview{height:320px;border:1px solid #324e5e;border-radius:8px;overflow:hidden}.upload-preview canvas{display:block;touch-action:none}
+.upload-options{display:flex;flex-wrap:wrap;gap:10px;align-items:end}.upload-options label{display:flex;flex-direction:column;gap:6px;font-size:12px}.upload-options input{width:100px}.upload-car [hidden]{display:none}
+@media(max-width:600px){.upload-car{padding:16px}.upload-preview{height:240px}.upload-car h2{font-size:24px}.upload-options button{flex:1 1 40%}}
+
+.import-next{display:block;width:100%;padding:13px 16px;margin:14px 0;border:1px solid #86bda8;border-radius:5px;background:#bde5d6;color:#142c32;font-weight:600;cursor:pointer}.import-next[hidden]{display:none}.import-next:disabled{opacity:.5;cursor:default}
+.live-workspace .add-car{display:block;width:100%;margin:0 0 14px;padding:10px 14px;border:1px solid #4c827d;border-radius:5px;background:#15333c;color:#c9eee1;font-size:13px;text-align:left;cursor:pointer}.live-workspace .add-car:disabled{opacity:.5;cursor:default}

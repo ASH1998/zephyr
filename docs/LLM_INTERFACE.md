@@ -1,5 +1,11 @@
 # LLM in the main interface
 
+Current runtime: NVIDIA `nvidia/Nemotron-3-Ultra-550b-a55b` through Nebius Token
+Factory, verified in [the sanitized runtime receipt](evidence/nemotron-final.json).
+DoMINO inference runs on the local NVIDIA GPU. The recorded demo package serves
+saved results and does not make live model calls. The GLM smoke records below
+are historical development evidence, not the current model identity.
+
 Start the local API from `F:\github\nebius\zephyr`:
 
 ```powershell
@@ -26,15 +32,16 @@ and labels non-Nemotron models as development models.
    buttons also interpret automatically when needed.
 3. A ready plan permits the existing bounded rear-taper controller. A request
    to change unsupported regions or add geometry is refused or needs
-   clarification. Edit the brief and try again. The supported handle covers
-   only the last 18% of the car length, above the underbody.
+   clarification. Edit the brief and try again. The rear-taper example covers
+   the last 18% of car length above the underbody; additional supported tools
+   are documented in [body-region exploration](BODY_REGIONS.md).
 4. **Run bounded iteration** evaluates the baseline and a deterministic bounded
    candidate. A numeric mm ceiling in the brief is combined with the slider
    using the smaller bound. The 4 mm product ceiling, fixed cabin/topology,
    geometry gates and trust decisions are never controlled by the model.
 5. On completion, **Your result, explained** shows a short readable summary.
    **Ask about this result** accepts plain-English questions and follow-ups.
-   Summaries are free deterministic text. For questions, GLM chooses up to four
+   Summaries are free deterministic text. For questions, Nemotron chooses up to four
    relevant supplied facts; it cannot author numbers or change the decision.
    Detailed evidence and calculation checks stay in expandable sections.
 
@@ -68,8 +75,10 @@ requested/returned model, prompt and request hashes, elapsed time and usage.
 Plan authorization and conversation history expire on restart. Completed runs
 with matching evidence and result files are recovered from disk when requested. This is a local development service, not a multiuser deployment.
 
-Independent CFD, calibrated trust and full intersection validation remain
-pending. These model features do not change the scientific acceptance boundary.
+Independent CFD and calibrated physical trust remain pending. Full-resolution
+intersection checks are part of the geometry validation path; see the recorded
+[sedan artifact checks](evidence/sedan-research-2026-09-25/paused-demo/README.md).
+These model features do not change the scientific acceptance boundary.
 
 ## Verified browser smoke
 

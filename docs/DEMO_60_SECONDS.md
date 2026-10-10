@@ -1,37 +1,42 @@
-# Zephyr: 60-second presentation
+# Zephyr: 60-second sedan and dent demo
 
-Use a wide desktop for linked Original / Changed views. At narrower widths the views stack. Local API: 8766; UI: 5173. Keep the configured GLM development model. This walkthrough makes no Nemotron, Nebius GPU deployment or independent CFD claim.
+Use a wide desktop for linked views. Local workstation: UI 5173, API 8766. The
+prepared recorded deployment runs on 8780 and needs no GPU or credentials.
+Nemotron through Nebius Token Factory remains connected in the local app.
 
-## Prepare two recorded results
+## Open the recorded results
 
-Open these completed local GPU results in separate tabs before presenting:
+- [Selected sedan](http://127.0.0.1:5173/?replay=local-8907b340aebb4b1d800fb86c45451c71): 621.695557 → 600.973328 N, **3.333% lower predicted drag**, maximum movement 32.174 mm. The user stopped the search; controls and finalist repeats are incomplete. Fresh display-field generation took approximately 3m 18s, separately from search time.
+- [Synthetic hood dent](http://127.0.0.1:5173/?replay=local-ca75fe9aeef644539bd878baa617f84b): 621.695557 → 621.573425 N, **0.020% lower predicted drag**, maximum inward movement 11.302 mm. This small change is not an established performance benefit. Fresh display-field generation took approximately 2m 32s.
 
-- [Accepted sedan](http://127.0.0.1:5173/?replay=local-c29499fe827b4d7e9b7ac01f29ff8428): 621.69556 → 621.60510 N; predicted reduction 0.09645 N, fresh reduction 0.09045 N, disagreement 6.22%; actual maximum movement 0.375 mm. Worker time **7m 52s**.
-- [Refused hatchback](http://127.0.0.1:5173/?replay=local-dfd56fe51ebc497a9d768d7498cede7a): 474.92291 → 473.78961 N; predicted reduction 0.70990 N, fresh reduction 1.13330 N, disagreement 59.64%; maximum movement 3.00 mm. Worker time **30.43s**.
-
-Both pages must visibly say **RECORDED REPLAY**. The same fixed local policy is used for both; the hatchback also lies outside the model's supported training domain. Use these run IDs and numbers together. New optimized runs have their own IDs and timings in [RUNTIME_CHECKS.md](RUNTIME_CHECKS.md); do not attach those timings to these older recordings.
+Both must say **RECORDED REPLAY**. These are distinct comparisons against the
+original sedan. The dent is not applied to the optimized candidate. Both remain
+unvalidated aerodynamic predictions; neither is engineering acceptance.
 
 ## Walkthrough
 
 | Time | Action and narration |
 |---|---|
-| 0–8 s | Show the sedan and replay label. “Zephyr tests a small shape change while keeping the cabin fixed. This is a recorded local GPU calculation.” |
-| 8–18 s | Open **Compare Original / Changed** and select **Change**. “It checked the original, measured small test changes, then evaluated this candidate independently. Geometry checks reduced the requested 3 millimeters to 0.375 millimeters.” |
-| 18–30 s | Orbit the linked pair; point to actual movement and enlargement label. “Both views move together. Orange marks the changed area. Movement is enlarged 120 times so you can see it.” Turn enlargement off before comparing true geometry. |
-| 30–42 s | Read the sedan verdict, then select **Pressure**. “The model predicted a 0.096-newton reduction and measured 0.090 in the fresh candidate evaluation: 6.22 percent disagreement. It passes our local checks for further evaluation. Independent CFD is still required.” |
-| 42–55 s | Switch to the hatchback tab and open comparison. “This car shows a larger estimated reduction, but we refuse the step: the probe check failed, prediction disagreement is 59.64 percent, and this shape is experimental for the model.” |
-| 55–60 s | Point to the refusal and replay label. “A lower model estimate alone is not enough. Zephyr shows the evidence and the limits.” |
+| 0–10 s | Show the selected sedan. “Zephyr evaluates shape changes with NVIDIA DoMINO on a local GPU. This saved candidate predicts 3.33% lower drag. The search was stopped early, so this is a provisional demonstration.” |
+| 10–25 s | Open **Compare Original / Changed**, select **Change**, and orbit. “Orange marks actual movement. The cabin stays fixed. These shapes are shown at true scale.” |
+| 25–35 s | Select **Pressure**, then **NVIDIA airflow**. “Each shape has its own fresh model fields. This is a prediction, not independent CFD.” |
+| 35–50 s | Switch to the dent tab, open comparison, and orbit toward the hood. “Here we prescribe an 11.3-millimetre inward hood dent and evaluate both shapes. The map locates the geometric change.” |
+| 50–60 s | Show the dent result and limits. “This case predicts only a tiny drag difference. It does not tell us crash severity or whether a car is safe. Photo imports approximate a car with a scaled template; they do not reconstruct damage or provide structural inspection.” |
 
-Pressure and NVIDIA airflow use each shape's own calculated fields with shared scales. **Flow illustration** is an authored explanation. Aircraft and their illustrated wingtip spirals are optional exploration after the timed walkthrough.
+The original **Previous runs** list switches between both scenarios in the
+packaged deployment. Existing aircraft previews remain available after the demo.
+**Flow illustration** is an authored visual; select **NVIDIA airflow** for actual
+recorded volume-model predictions. Leave displacement enlargement off for the
+true-scale comparison.
 
-Optional Q&A (“Why was this accepted?” / “Why was this refused?”) remains bound to the selected run and may take extra time. Use the deterministic summary for the timed presentation. Do not describe local surrogate acceptance as physical proof.
+## Deployment
 
-## Live rehearsal
+The prepared bundle is `.local/demo-sedan-and-dent-final-2026-09-26`. Run its
+`serve.py` with the existing Python environment, or use its Dockerfile. The
+server opens the selected 3.33% replay by default. It serves both scenarios,
+verified candidate downloads and all original vehicle/aircraft assets. It refuses
+fresh compute requests explicitly. No public hosting has been provisioned.
 
-Check `/api/health` for an idle GPU before starting a job. Select DrivAer sedan, use the bounded rear-width brief and 3 mm ceiling, then click **Run bounded iteration** once. Report actual progress and elapsed time. If presenting while it runs, switch explicitly to one of the recordings above; do not cancel or duplicate the job just to meet the presentation length. Report a fresh refusal if it occurs.
-
-The 60 seconds covers the presentation, not live sedan computation. GPU worker timings exclude brief interpretation, asset loading and browser polling.
-
-## Development regression fixtures
-
-`/tests/browser-harness.html?scenario=missing-volume`, `failed`, `cancelled`, `running`, `publishing`, or `reduced-motion` are visibly labeled synthetic fixtures that block POST requests and are excluded from production builds. They are not inference evidence or presentation fallbacks. Earlier hatchback rehearsals remain historical evidence in `progress.md`; this script uses the two frozen acceptance references above.
+See [synthetic dent details](SYNTHETIC_DENT.md) and
+[selection and artifact verification](evidence/sedan-research-2026-09-25/paused-demo/README.md).
+Historical acceptance and runtime comparisons remain in [RUNTIME_CHECKS.md](RUNTIME_CHECKS.md).

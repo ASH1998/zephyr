@@ -93,7 +93,7 @@ class TokenFactoryClient:
         suffix = f"?{query}" if query else ""
         return parse_model_list(self._request_json("GET", f"/models{suffix}"))
 
-    def complete_json(self, model: str, system: str, user: str, schema: dict[str, Any],
+    def complete_json(self, model: str, system: str, user: str | list[dict[str, Any]], schema: dict[str, Any],
                       *, name: str, ai_project_id: str | None = None, max_tokens: int = 2048):
         """One bounded structured call. Return content and credential-free provenance."""
         import time

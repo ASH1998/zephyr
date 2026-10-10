@@ -24,6 +24,17 @@ def write_json(path, data):
 def execute(job_dir):
     started = time.perf_counter()
     request = json.loads((job_dir / 'request.json').read_text())
+    from zephyr.local.cars import validate_support
+    selected_import = validate_support(request['geometryId'], request['mode'])
+    if request['geometryId'].startswith('upload-'):
+        from hashlib import sha256
+        from zephyr.local.cars import mesh_path
+        if sha256(mesh_path(request['geometryId']).read_bytes()).hexdigest() != selected_import['importReport']['surfaceSha256']:
+            raise ValueError('Uploaded surface changed after confirmation')
+    from zephyr.local.demo import PROFILE, calibration_for_run, comparison_decision
+    demo = request.get('executionProfile') == PROFILE
+    if request.get('executionProfile') is not None and (not demo or request['geometryId'] != 'drivaer-1' or request['mode'] != 'iteration'):
+        raise ValueError('Unsupported calculation profile')
     handle_id = request.get('intent', {}).get('graph', {}).get('handle', 'rear-width-quintic-v1')
     os.environ['WARP_CACHE_PATH'] = str(ROOT.parent / '.cache/warp')
     os.environ['LOCAL_CACHE'] = str(ROOT.parent / '.cache/physicsnemo')
@@ -33,7 +44,7 @@ def execute(job_dir):
     # Freeze source identity before a long GPU evaluation; later local edits
     # must not be attributed to code already loaded by this worker process.
     numerics_sha256 = {name: _file_sha256(Path(__file__).with_name(name)) for name in
-        ('worker.py', 'sensitivity.py', 'forward.py', 'trust.py', 'geometry.py', 'intersections.py', 'compatibility.py')}
+        ('worker.py', 'demo.py', 'sensitivity.py', 'forward.py', 'trust.py', 'geometry.py', 'intersections.py', 'compatibility.py')}
     import subprocess
     pin = json.loads((ROOT / 'config/upstream-lock.json').read_text())['physicsnemo_cfd']['commit']
     actual = subprocess.check_output(['git', '-C', str(WORKFLOW), 'rev-parse', 'HEAD'], text=True).strip()
@@ -149,17 +160,20 @@ def execute(job_dir):
         'timings': timings, 'surfaceProfiles': profiles}
     if request.get('intent'):
         payload['intent'] = request['intent']
+    if demo:
+        payload['executionProfile'] = PROFILE
     write_json(job_dir / 'baseline.json', payload)
     emit('baseline-ready', 'Real baseline fields ready', artifact='baseline')
     if request['mode'] == 'iteration':
-        emit('calibration', 'Checking repeatability and two scales of positive/negative ' + handle_id + ' probes')
-        calibration = calibrate_handle(mesh, float(force[0]), request['budgetMm'] / 1000, evaluate, handle_id)
+        if not demo:
+            emit('calibration', 'Checking repeatability and two scales of positive/negative ' + handle_id + ' probes')
+        calibration = calibration_for_run(request, mesh, float(force[0]), request['budgetMm'] / 1000, evaluate, handle_id, calibrate_handle)
         calibration.update(runId=run_id, meshHash=mesh_hash(mesh), checkpointSha256=checks[0].actual_sha256,
                            upstreamCommit=pin, sensitivityAdapter=ADAPTER_VERSION,
                            conditions=payload['conditions'], handle=handle_id)
         payload['calibration'] = calibration
         write_json(job_dir / 'calibration.json', calibration)
-        emit('candidate', 'Testing the selected body region using its measured full-pipeline slope')
+        emit('candidate', 'Testing the selected body region using the original sensitivity field' if demo else 'Testing the selected body region using its measured full-pipeline slope')
         attempts = []
         for factor in (1, .5, .25, .125, .0625):
             candidate, protected, handle = propose(mesh, request['budgetMm'] / 1000 * factor,
@@ -193,8 +207,9 @@ def execute(job_dir):
             drag = float(candidate_force[0])
             predicted = float(force[0]) + handle['predictedDragDeltaN']
             payload['forces'].update(candidateN=(candidate_force @ ROTATION.T).tolist(), candidateDragN=drag, predictedDragN=predicted)
-            payload['trust'] = decide_step(float(force[0]), drag, handle['predictedDragDeltaN'],
-                                          calibration, handle['checks'], experimental=selected['experimental'])
+            payload['trust'] = (comparison_decision(float(force[0]), drag, handle['checks']) if demo else
+                               decide_step(float(force[0]), drag, handle['predictedDragDeltaN'],
+                                           calibration, handle['checks'], experimental=selected['experimental']))
             if len(attempts) > 1:
                 payload['trust']['reason'] = f"Geometry checks shrank {request['budgetMm']:.3f} to {abs(handle['amplitudeM'])*1000:.3f} mm. " + payload['trust']['reason']
             geometry_status = 'passed' if all(c['status'] == 'passed' for c in handle['checks'].values()) else 'failed' if any(c['status'] == 'failed' for c in handle['checks'].values()) else 'incomplete'

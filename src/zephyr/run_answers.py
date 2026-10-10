@@ -24,14 +24,15 @@ def run_facts(e):
         elif delta==0:
             decision='The model found no reduction in air resistance. This step was not accepted.'
         else:
-            decision='The model predicted less air resistance, but the design was not accepted. ' + t.get('reason', 'The required validation checks are incomplete.')
+            decision='The model predicted less air resistance, but the design was not accepted. ' + t.get('reason', 'The required validation checks are incomplete.').split(' Research gates:')[0]
         add('decision', decision, ['/trust','/forces','/validation'])
     checks=v.get('checks', {})
     maximum=checks.get('bounds', {}).get('maximumM')
     if maximum is not None:
         mm=maximum*1000
         region=e.get('handle',{}).get('label','selected body region')
-        add('movement', f'The biggest actual movement was {mm:.3f} mm, using {region}. At normal scale, a movement this small is easy to miss. Orange in the Change view marks movement; it is not heat.', ['/validation/checks/bounds','/constraints','/handle'])
+        scale_note = 'The research replay opens at true scale.' if e.get('research') else 'At normal scale, a movement this small is easy to miss.'
+        add('movement', f'The biggest actual movement was {mm:.3f} mm, using {region}. {scale_note} Orange in the Change view marks movement; it is not heat.', ['/validation/checks/bounds','/constraints','/handle'])
     if checks.get('protected', {}).get('status')=='passed':
         add('cabin', 'The protected part of the car, including the passenger cabin, stayed exactly in place.', ['/validation/checks/protected'])
     intent=e.get('intent', {})
@@ -41,16 +42,21 @@ def run_facts(e):
         text=f'This run allowed at most {effective*1000:.3f} mm of movement.'
         if slider is not None and slider>effective*1000:
             text+=f' The slider allowed {slider:.3f} mm, but the brief set a stricter limit. The smaller limit won.'
-        if maximum is not None and maximum<effective-1e-10:
+        if maximum is not None and maximum<effective-1e-10 and not e.get('research'):
             text+=' Shape checks required a smaller trial before the GPU tested it.'
         add('budget', text, ['/constraints','/intent','/validation/checks/bounds'])
     times=e.get('timings', {})
     if times:
-        text=f"The local run took {times.get('totalSeconds',0):.1f} seconds including preparation and checks."
+        text=(f"Generating this recorded replay's fields took {times.get('totalSeconds',0):.1f} seconds. Search and independent CFD timings are separate."
+              if e.get('research') else f"The local run took {times.get('totalSeconds',0):.1f} seconds including preparation and checks.")
         if 'baselineSeconds' in times:text+=f" The original-car calculation took {times['baselineSeconds']:.1f} seconds."
         if 'evaluateSeconds' in times:text+=f" Testing the changed car took {times['evaluateSeconds']:.1f} seconds."
         add('time', text, ['/timings'])
-    if not t.get('calibrated'):
+    if e.get('research'):
+        numerical = 'passed' if e['research']['numericalResearchPassed'] else 'did not pass'
+        detail = ('The search was stopped early by the user. This is a provisional demonstration; matched controls and finalist repeats are incomplete. ' if e['research'].get('provisional') else f'The equal-budget forward-search numerical gates {numerical}. ')
+        add('confidence', detail + 'Training-distribution mapping remains unverified. Numerical repeatability does not establish physical accuracy.', ['/research', '/trust'])
+    elif not t.get('calibrated'):
         add('confidence', 'We have not yet established how reliably the model predicts the effect of these small shape changes. A tiny numerical improvement is not enough to claim a better real car.', ['/trust'])
     elif t.get('calibrationScope')=='local-surrogate-handle-only':
         add('confidence', 'The small-probe prediction agreed with a separate fresh candidate evaluation for this run. This checks local numerical behavior; it does not measure physical model accuracy or establish a reusable trust radius.', ['/trust','/calibration'])
@@ -82,15 +88,31 @@ def run_facts(e):
         add('airflow','This older run has no recorded volume calculation. The viewer may load a saved NVIDIA volume result for its original car; check the airflow label. Any illustrative preview is labelled explicitly.',source='application')
     add('pressure', 'Pressure means how strongly air presses on the surface. In Pressure view, warmer colors mean higher predicted pressure and cooler colors mean lower pressure. They are not temperature or a good/bad score.', source='application')
     add('sensitivity', 'Sensitivity highlights where the model thinks a small shape change could affect air resistance. It is a suggestion to test, not proof that a change will help.', source='application')
-    add('magnify', 'Choose Show me the change to replay movement in the selected body region, enlarged 120 times for visibility. This exaggerates the shape only on screen; the GPU tested the real movement. Turn off Enlarge movement to see the actual size. Open Compare Original / Changed to inspect the linked views at the same scale.', source='application')
-    add('search', 'A single iteration tests positive and negative probes, then a separate candidate. Explore the body compares nose width, hood contour, side shoulders, rear-deck height and upper rear taper from the same original. Each has fresh probes and checks. The cabin and lower wheel/ground envelope remain fixed. Refused candidates stay visible. Repeating the same inputs can repeat the same result.', source='application')
-    add('cars', 'Choose from the DrivAer sedan and six generic demo bodies: hatchback, SUV, wagon, coupe, sports car, and van. Each has its own saved NVIDIA airflow result and can run a fresh calculation. The six demo styles are outside the sedan training examples; treat their predictions as experimental. Uploads are not connected yet.', source='application')
-    add('scans', 'A scan can be the starting shape, but it is not ready to simulate just because it looks like a car. We need real dimensions, a complete surface, repaired gaps, and the underside and wheel details. Upload and scan preparation are not implemented in this build.', source='application')
+    if e.get('research'):
+        add('magnify', 'This research replay opens at true scale. Show me the change replays the actual movement unless you explicitly enable Enlarge movement. Compare Original / Changed opens linked views of the two shapes. Any enabled enlargement affects display only.', ['/research'], source='application')
+        if e['research'].get('provisional'):
+            counts = e['research']['phaseCounts']
+            search_text = f"The user stopped the search after {counts['lhs']} legal Latin-hypercube samples and {counts['tpe']} TPE evaluations. There are {counts['random']} random controls and {counts['confirm']} finalist repeats. The selected saved candidate received fresh display-field evaluation. This does not complete the planned experiment."
+        else:
+            search_text = 'This recorded study used 100 legal Latin-hypercube samples followed by 100 TPE optimization evaluations, against 200 independent random legal controls. The top three distinct optimized shapes received three fresh repeats each.'
+        add('search', search_text + ' Sensitivity explains the model response; it did not control shape steps. Geometry refusals remain in the study evidence.', ['/research', '/researchSummary'])
+    else:
+        add('magnify', 'Choose Show me the change to replay movement in the selected body region, enlarged 120 times for visibility. This exaggerates the shape only on screen; the GPU tested the real movement. Turn off Enlarge movement to see the actual size. Open Compare Original / Changed to inspect the linked views at the same scale.', source='application')
+        add('search', 'A single iteration tests positive and negative probes, then a separate candidate. Explore the body compares nose width, hood contour, side shoulders, rear-deck height and upper rear taper from the same original. Each has fresh probes and checks. The cabin and lower wheel/ground envelope remain fixed. Refused candidates stay visible. Repeating the same inputs can repeat the same result.', source='application')
+    add('cars', 'Choose from the DrivAer sedan, six experimental car bodies, aircraft, or Bring your own car. Imported meshes and photo-derived templates receive experimental baseline and airflow predictions. Only imports passing conservative geometry screening can run bounded shape tests; predictive accuracy remains unvalidated.', source='application')
+    add('scans', 'Mesh import supports STL, OBJ, GLB, embedded GLTF and PLY with size/orientation review and closed-surface preparation. Photo import chooses and scales a catalog template; it does not reconstruct the photographed car. Noisy phone scans and photo-based damage inspection remain unsupported.', source='application')
     add('units', 'Drag is the air resistance opposing motion. Newtons, shown as N, measure force. Millimetres, shown as mm, measure how far the shape moved. Lower predicted drag is the aim; a large-looking colored area does not imply a large movement.', source='application')
     add('range_limits', 'This run cannot calculate battery range or fuel savings. It has no vehicle energy model, driving cycle, powertrain efficiency or independent confirmation of the aerodynamic change.', source='application')
     add('assistant', 'The text assistant reads your brief and chooses relevant explanations from the recorded facts. It does not move mesh points, change safety limits, run a new test through chat, or approve the design.', source='application')
     if candidate is None:
         next_step='Run a bounded shape test to obtain an original/changed comparison.'
+        if e.get('car', {}).get('importReport'):
+            if e['car'].get('support') == 'baseline-only':
+                next_step='Shape tests are unavailable for this imported geometry. ' + e['car'].get('supportReason', 'Outside the conservative geometry limits.')
+            else:
+                next_step='Import finished and the initial baseline is ready. This car supports experimental shape tests: choose Test a bounded shape change to calculate a candidate and compare it with the original.'
+    elif e.get('research'):
+        next_step=('Use this provisional candidate for the demonstration. The user stopped optimization; no further search is scheduled. Keep the original as the reference. The predicted reduction is not a validated physical improvement.' if e['research'].get('provisional') else 'Keep the original as the reference. Review the matched random controls, repeats, training-distribution limits and independent comparison in the linked research evidence before interpreting the proposed shape as a physical improvement.')
     elif t['decision']=='accept':
         next_step='Keep this candidate for independent CFD comparison. The local checks passed, but this run does not establish fuel savings, battery range or manufacturing readiness.'
     elif e.get('car',{}).get('experimental'):
@@ -98,18 +120,40 @@ def run_facts(e):
     else:
         next_step='Keep the original shape. Inspect the failed checks before trying another bounded body region. A smaller movement is not guaranteed to pass: very small changes can be lost in numerical noise.'
     add('next',next_step,['/trust','/validation','/forces'])
+    if e.get('car', {}).get('importReport'):
+        report = e['car']['importReport']
+        add('import', report['label'] + '. DoMINO estimate, experimental geometry. ' + ('This is a scaled catalog template, not a reconstruction of the photographed vehicle.' if report.get('photo') else 'The closed inference surface approximates your uploaded mesh.'), ['/car/importReport'])
+    if e.get('syntheticDent'):
+        add('decision', 'This is a prescribed synthetic hood dent. Its geometry passed screening and the original and dented surfaces were evaluated separately. It is an aerodynamic demonstration, not a simulation of a crash or an assessment of structural damage or roadworthiness.', ['/syntheticDent','/validation'])
+        add('confidence', 'The model was trained for aerodynamic prediction, not collision damage assessment. A dent is an unverified input shape. Neither a small drag change nor a passing geometry check establishes that a damaged vehicle is safe.', ['/syntheticDent','/trust'])
+        add('search', 'One fixed hood-dent geometry was selected before evaluating forces. No optimization, impact speed, collision forces, material deformation or hidden damage were simulated.', ['/syntheticDent/preset'])
+        add('magnify', 'The synthetic dent opens at true scale. Compare Original / Changed shows the intact and dented shapes with shared pressure, sensitivity and airflow scales. Enlarge movement is a display-only option.', ['/syntheticDent'], source='application')
+        add('next', 'Inspect the localized movement, pressure and predicted airflow differences. Home photo or scan inspection is not implemented. This demonstration cannot identify internal damage, estimate repair costs or decide whether a real car is safe to drive.', ['/syntheticDent'])
+        add('budget', f"The prescribed dent has a {e['syntheticDent']['preset']['depthMm']:.0f} mm ceiling. It is a separate recorded scenario; the interactive design slider does not control it.", ['/syntheticDent/preset','/constraints'])
+        if maximum is not None:
+            add('movement', f'The synthetic hood dent moved the surface inward by at most {maximum*1000:.3f} mm. The viewer opens at true scale. The colored patch shows geometric displacement, not measured damage severity.', ['/validation/checks/bounds','/syntheticDent'])
+        if candidate is not None:
+            add('comparison', f'The model predicts {baseline:.2f} N for the original car and {candidate:.2f} N for the synthetically dented car: {candidate-baseline:+.3f} N ({(candidate-baseline)/baseline*100:+.3f}%). This is predicted aerodynamic change, not a damage or safety score.', ['/forces','/syntheticDent'])
+    if e.get('executionProfile') == 'sedan-demo-v1' and candidate is not None:
+        add('search', 'One change was chosen from the original sensitivity field. The original and changed shapes each received fresh surface and airflow calculations. Repeat and directional-probe calculations were omitted.', ['/executionProfile','/calibration','/handle'])
+        add('confidence', 'Local calibration was not run. The displayed forces are fresh model predictions for the two shapes.', ['/calibration','/forces'])
+        if v.get('geometry') == 'passed':
+            add('decision', 'The original and changed shapes have been compared. ' + ('The changed shape has lower predicted resistance.' if candidate < baseline else 'The changed shape did not reduce predicted resistance.'), ['/forces','/validation'])
+            add('next', 'Inspect Original / Changed to compare movement, pressure and airflow.', ['/forces','/validation'])
     return facts
 
 
 def summarize_run(e):
     facts=run_facts(e)
     f=e['forces']; candidate=f.get('candidateDragN')
-    if candidate is None: headline='Original car tested'
+    if e.get('syntheticDent'): headline='Synthetic dent: aerodynamic comparison'
+    elif candidate is None: headline='Original car tested'
+    elif e.get('executionProfile')=='sedan-demo-v1' and e['validation'].get('geometry')=='passed':headline='Lower predicted resistance' if candidate<f['baselineDragN'] else 'No reduction in predicted resistance'
     elif e['trust']['decision']=='accept':headline='Tested step accepted'
     elif candidate>f['baselineDragN']:headline='This change did not help'
     elif candidate==f['baselineDragN']:headline='No improvement found'
     else:headline='Lower predicted resistance; step not accepted' if e['trust'].get('policyVersion') else 'Lower predicted resistance; checks still pending'
-    ids=['comparison','decision','movement','cabin','next','physics']
+    ids=['comparison','decision','movement','cabin','import','next','physics']
     metrics=[]
     def metric(label,value): metrics.append({'label':label,'value':value})
     metric('Original drag',f"{f['baselineDragN']:.5f} N")
@@ -121,6 +165,7 @@ def summarize_run(e):
         metric('Prediction disagreement',f"{e['trust']['predictionErrorPercent']:.2f}%")
     metric('Independent CFD',e['validation']['independentCfd'])
     return {'runId':e['runId'],'headline':headline,'decision':e['trust']['decision'],
+            'comparisonOnly':e.get('executionProfile')=='sedan-demo-v1' and e['validation'].get('geometry')=='passed',
             'facts':[facts[i] for i in ids if i in facts], 'metrics':metrics,
             'technicalFacts':[facts[i] for i in ['prediction','confidence','geometry_check','time','sensitivity'] if i in facts],
             'evidenceUrl':'/api/runs/'+e['runId']+'/evidence'}

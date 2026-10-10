@@ -16,7 +16,7 @@ from urllib.parse import urlsplit
 from uuid import uuid4
 from zephyr.copilot import Copilot, CopilotBusy, canonical_request
 from zephyr.token_factory import TokenFactoryError
-from zephyr.local.cars import CARS, IDS
+from zephyr.local.cars import CARS, IDS, validate_support
 from zephyr.local.geometry import HANDLES, BODY_HANDLES, COMPARISONS
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -28,8 +28,7 @@ def validate_request(data, *, compiled=False):
         return canonical_request(data)
     if not isinstance(data, dict) or set(data) - {'geometryId', 'budgetMm', 'brief', 'mode'}:
         raise ValueError('Unknown request fields; paths/uploads are not accepted')
-    if not isinstance(data.get('geometryId'),str) or data['geometryId'] not in IDS:
-        raise ValueError('Select an installed car style')
+    validate_support(data.get('geometryId'), data.get('mode'))
     budget = data.get('budgetMm')
     if isinstance(budget, bool) or not isinstance(budget, (int, float)) or not math.isfinite(budget) or not 0 < budget <= 4:
         raise ValueError('Budget must be finite and within (0, 4] mm')
@@ -66,7 +65,8 @@ def preset_plan(data):
 
 
 class Jobs:
-    def __init__(self, root=None, command=None):
+    def __init__(self, root=None, command=None, *, fast_demo=False):
+        self.fast_demo = fast_demo
         self.root = root or ROOT / '.local/runs'
         self.root.mkdir(parents=True, exist_ok=True)
         self.command = command or [sys.executable, '-u', '-m', 'zephyr.local.worker']
@@ -91,6 +91,9 @@ class Jobs:
             raise ValueError('Use the exploration endpoint for multi-candidate work')
         if intent is not None:
             request['intent'] = intent
+        if self.fast_demo and request['geometryId'] == 'drivaer-1' and request['mode'] == 'iteration':
+            from zephyr.local.demo import PROFILE
+            request['executionProfile'] = PROFILE
         with self.lock:
             if self.studies.current and study_id != self.studies.current:
                 raise BusyError('An exploration owns the GPU queue; wait or cancel it')
@@ -222,7 +225,10 @@ class Jobs:
             process.wait(timeout=20)
 
 
-def handler_for(jobs, copilot=None):
+def handler_for(jobs, copilot=None, uploads=None):
+    from zephyr.local.uploads import Uploads, definitions
+    from zephyr.local.importer import MAX_BYTES
+    uploads = uploads or Uploads(photo_client=copilot)
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *_):
             pass
@@ -250,9 +256,28 @@ def handler_for(jobs, copilot=None):
             if not self.allowed(): return
             path = urlsplit(self.path).path
             if path == '/api/health':
-                return self.respond(200, {'service': 'zephyr-local', 'activeRunId': jobs.active, 'geometryId': 'drivaer-1', 'copilot': copilot.status() if copilot else {'enabled': False}})
+                return self.respond(200, {'service': 'zephyr-local', 'activeRunId': jobs.active, 'geometryId': 'drivaer-1', 'fastDemo': jobs.fast_demo, 'copilot': copilot.status() if copilot else {'enabled': False}})
             if path == '/api/geometries':
-                return self.respond(200, {'cars':CARS})
+                return self.respond(200, {'cars':[*CARS, *definitions()], 'photoImportEnabled': copilot is not None})
+            upload_match = re.fullmatch(r'/api/uploads/(upload-[0-9a-f]{32})(?:/(preview|airflow))?', path)
+            if upload_match:
+                try:
+                    value = uploads.get(upload_match[1])
+                    if upload_match[2] == 'preview':
+                        return self.respond(200, value['preview'])
+                    if value.get('runId'):
+                        value['job'] = jobs.snapshot(value['runId'])
+                    if upload_match[2] == 'airflow':
+                        job = value.get('job', {})
+                        if not job.get('resultReady'):
+                            return self.respond(409, {'error': 'Baseline airflow is not ready'})
+                        result = json.loads((jobs.root / job['runId'] / 'result.json').read_text())
+                        if not result.get('airflow', {}).get('baseline'):
+                            return self.respond(409, {'error': 'Baseline completed without airflow; see run evidence'})
+                        return self.respond(200, result['airflow']['baseline'])
+                    return self.respond(200, value)
+                except (ValueError, KeyError, OSError):
+                    return self.respond(404, {'error': 'Upload or artifact unavailable'})
             if path == '/api/body-regions':
                 return self.respond(200, {'handles': [{'id': h, 'label': label, 'bodySearch': h in BODY_HANDLES} for h, label in HANDLES.items()],
                     'comparisons': {k: list(v) for k, v in COMPARISONS.items()}, 'maximumBudgetMm': 4})
@@ -298,12 +323,31 @@ def handler_for(jobs, copilot=None):
         def do_POST(self):
             if not self.allowed(): return
             try:
+                if self.headers.get('Transfer-Encoding'):
+                    self.close_connection = True
+                    return self.respond(400, {'error': 'Use a fixed Content-Length'})
+                if self.path == '/api/uploads':
+                    length = int(self.headers.get('Content-Length', '0'))
+                    if not 0 < length <= MAX_BYTES:
+                        self.close_connection = True
+                        return self.respond(413, {'error': 'Upload must be between 1 byte and 50 MB'})
+                    self.connection.settimeout(60)
+                    body = self.rfile.read(length)
+                    if len(body) != length:
+                        raise ValueError('Incomplete upload')
+                    initial = {'lengthM': float(self.headers['X-Car-Length'])} if self.headers.get('X-Car-Length') else {}
+                    return self.respond(201, uploads.create(body, self.headers.get('X-Filename', ''), initial))
                 if self.headers.get('Content-Type') != 'application/json':
                     return self.respond(415, {'error': 'application/json required'})
                 length = int(self.headers.get('Content-Length', '0'))
                 if not 0 < length <= 2048:
                     return self.respond(413, {'error': 'Request must be 1..2048 bytes'})
                 data = json.loads(self.rfile.read(length))
+                upload_match = re.fullmatch(r'/api/uploads/(upload-[0-9a-f]{32})/(prepare|confirm)', self.path)
+                if upload_match:
+                    if upload_match[2] == 'prepare':
+                        return self.respond(200, uploads.prepare(upload_match[1], data))
+                    return self.respond(202, uploads.confirm(upload_match[1], data, jobs))
                 if self.path == '/api/preset-runs':
                     authorized = preset_plan(data)
                     if authorized['mode'] == 'exploration':
@@ -326,7 +370,7 @@ def handler_for(jobs, copilot=None):
                 if self.path == '/api/runs':
                     # A baseline measures an allowlisted aircraft without any design intent.
                     # The ordinary validator still enforces exact fields and analysis-only mode.
-                    if isinstance(data,dict) and data.get('geometryId') in ('x57','global-hawk') and data.get('mode')=='analysis':
+                    if isinstance(data,dict) and isinstance(data.get('geometryId'), str) and (data['geometryId'] in ('x57','global-hawk') or data['geometryId'].startswith('upload-')) and data.get('mode')=='analysis':
                         return self.respond(202,jobs.start(data))
                     if copilot:
                         if not isinstance(data, dict):
@@ -367,6 +411,7 @@ def handler_for(jobs, copilot=None):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=8766)
+    parser.add_argument('--fast-demo', action='store_true', help='Sedan: one sensitivity-directed candidate, without repeat/directional probes')
     parser.add_argument('--enable-llm', action='store_true', help='Opt in to paid model calls for brief interpretation and evidence explanation')
     args = parser.parse_args()
     copilot = None
@@ -375,7 +420,7 @@ def main():
         values = os.environ.copy()
         load_env_file(ROOT / '.env', environ=values)
         copilot = Copilot(ROOT / '.local/copilot', load_llm_config(values, require_credentials=True))
-    jobs = Jobs()
+    jobs = Jobs(fast_demo=args.fast_demo)
     server = ThreadingHTTPServer(('127.0.0.1', args.port), handler_for(jobs, copilot))
     print(f'Zephyr local DoMINO API: http://127.0.0.1:{args.port}', flush=True)
     try:
