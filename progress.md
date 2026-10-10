@@ -1,5 +1,24 @@
 # Zephyr progress
 
+## 2026-10-10 — demo freeze and three-minute storyboard
+
+- User approved the presentation milestone, then requested a three-minute demo,
+  storyboard review before production, a roughly five-second Manim maths insert,
+  and prominent NVIDIA/Nebius attribution. The [storyboard](videos/zephyr-demo/STORYBOARD.md)
+  and [narration draft](videos/zephyr-demo/SCRIPT.md) are ready for review.
+- Emphasize NVIDIA Nemotron served through Nebius Token Factory, and NVIDIA
+  DoMINO running on the local GPU. No Nebius AI Cloud physics deployment is claimed.
+- Fresh regression: 92 backend tests, 45 frontend tests and production build pass.
+  Sandbox temporary-file and loopback restrictions required a host test run;
+  the existing frontend bundle-size warning remains.
+- Packaged the current frontend and both recorded scenarios in
+  `.local/demo-zephyr-video-2026-10-10`; all 55 manifest file hashes match.
+  Exact selected reduction is 3.3331795253%, displayed as 3.33% predicted drag.
+- Corrected stale LLM and photo-import documentation. No product behavior changed,
+  research restarted, live provider call, new GPU evaluation, public deployment,
+  commit or push. Browser rehearsal and film production remain after story review.
+
+
 ## 2026-09-26 — bring your own car
 
 - Added isolated mesh/photo import preparation, runtime registry, loopback API,

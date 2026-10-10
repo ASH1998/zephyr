@@ -1,5 +1,13 @@
 # Zephyr — current project plan
 
+2026-10-10 presentation milestone: freeze feature scope for the three-minute
+[Zephyr demo storyboard](videos/zephyr-demo/STORYBOARD.md), awaiting user review.
+Emphasize NVIDIA Nemotron served by Nebius Token Factory and NVIDIA DoMINO on
+the local GPU, with a five-second Manim arithmetic insert. The selected research
+replay remains provisional. Do not restart the paused optimization study.
+The tables below retain earlier implementation snapshots; current behavior and
+verification are summarized in the README, progress log and linked feature docs.
+
 2026-09-26 implementation update: [Bring your own car](docs/BRING_YOUR_OWN_CAR.md)
 adds experimental mesh and photo-template imports, orientation/scale review,
 immutable registered geometry, baseline/airflow jobs and conservatively gated

@@ -21,7 +21,7 @@ unvalidated aerodynamic predictions; neither is engineering acceptance.
 | 10–25 s | Open **Compare Original / Changed**, select **Change**, and orbit. “Orange marks actual movement. The cabin stays fixed. These shapes are shown at true scale.” |
 | 25–35 s | Select **Pressure**, then **NVIDIA airflow**. “Each shape has its own fresh model fields. This is a prediction, not independent CFD.” |
 | 35–50 s | Switch to the dent tab, open comparison, and orbit toward the hood. “Here we prescribe an 11.3-millimetre inward hood dent and evaluate both shapes. The map locates the geometric change.” |
-| 50–60 s | Show the dent result and limits. “This case predicts only a tiny drag difference. It does not tell us crash severity or whether a car is safe. Photos, scans and structural inspection are not implemented.” |
+| 50–60 s | Show the dent result and limits. “This case predicts only a tiny drag difference. It does not tell us crash severity or whether a car is safe. Photo imports approximate a car with a scaled template; they do not reconstruct damage or provide structural inspection.” |
 
 The original **Previous runs** list switches between both scenarios in the
 packaged deployment. Existing aircraft previews remain available after the demo.
